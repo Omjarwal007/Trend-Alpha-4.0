@@ -1,0 +1,2 @@
+2026-06-28 18:07:47.832 "browser.showEmailPrompt" is not a valid config option. If you previously had this config option set, it may have been removed.
+2026-06-28 18:07:48.557 Uvicorn server started on 0.0.0.0:8502

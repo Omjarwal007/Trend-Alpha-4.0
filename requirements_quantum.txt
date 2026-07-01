@@ -1,0 +1,5 @@
+qiskit>=1.0.0
+qiskit-optimization>=0.6.0
+qiskit-finance>=0.4.0
+qiskit-aer>=0.14.0
+qiskit-algorithms>=0.3.0

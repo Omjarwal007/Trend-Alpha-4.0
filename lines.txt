@@ -1,0 +1,9 @@
+2739: with tab_ta:
+2741: col_ops1, col_ops2 = st.columns([1.5, 1])
+2825: # --- MANUAL VETO REMOVE SECTION ---
+2834: # Previously Allocated Holdings Monitoring & Sizing Ledger
+3034: st.markdown("#### 🎯 Active Satellite Holdings (Momentum Stock Bucket)")
+3166: # TAB 3: CORE HOLDINGS — ETF / MF / INDEX FUNDS
+3171: # --- MANUAL VETO ADD SECTION ---
+3184: # SECTION A — WEIGHTED RANKING SYSTEM (Thesis Track)
+3554: with tab_core:

@@ -1,0 +1,25 @@
+        st.markdown("".join(_tbl_html), unsafe_allow_html=True)
+
+        # Dynamic Correlation matrix heatmap
+        st.markdown("---")
+        st.subheader("🧩 Position Diversification Matrix (Holding Correlations)")
+    
+        if os.path.exists(corr_path):
+            df_corr = pd.read_csv(corr_path, index_col=0)
+            if not df_corr.empty:
+                fig_corr = px.imshow(
+                    df_corr,
+                    labels=dict(color="Correlation"),
+                    x=df_corr.columns,
+                    y=df_corr.index,
+                    color_continuous_scale=px.colors.diverging.RdBu_r,
+                    zmin=-1.0,
+                    zmax=1.0,
+                    template="plotly_dark"
+                )
+                # Force all tick labels to render and prevent auto-skipping
+                fig_corr.update_xaxes(
+                    tickmode="array",
+                    tickvals=list(range(len(df_corr.columns))),
+                    ticktext=df_corr.columns,
+                    tickangle=-45,

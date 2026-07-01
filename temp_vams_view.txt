@@ -1,0 +1,15 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# TAB 3: ACTIVE HOLDINGS AND ALLOCATIONS
+# ──────────────────────────────────────────────────────────────────────────────
+with tab_active:
+    st.markdown("""
+    <div style="background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(139,92,246,0.06));
+                border:1px solid rgba(139,92,246,0.2); border-radius:14px;
+                padding:20px 24px; margin-bottom:24px;">
+      <div style="font-family:'Outfit';font-size:1.2rem;font-weight:700;color:#8b5cf6;">
+        💼 Consolidated Active Holdings & Allocations
+      </div>
+      <div style="font-size:0.9rem;color:#cbd5e1;margin-top:4px;">
+        Beautifully organized view of your entire portfolio across Core, Trend Alfa 3.0, and VAMS strategies.
+      </div>
+    </div>

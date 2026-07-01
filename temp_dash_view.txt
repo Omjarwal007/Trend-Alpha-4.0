@@ -1,0 +1,230 @@
+    _exit_map_global = dict(zip(_df_exits_g["Symbol"], _df_exits_g["Reason"]))
+    _df_buys_g = df_orders[df_orders["Action"] == "BUY"]
+    _buy_reason_map_global = dict(zip(_df_buys_g["Symbol"], _df_buys_g["Reason"]))
+    _df_reduces_g = df_orders[df_orders["Action"] == "REDUCE"]
+    _reduce_map_global = dict(zip(_df_reduces_g["Symbol"], _df_reduces_g["Reason"]))
+
+# Build global ledger rows
+_mf_name_map_global = get_global_mf_name_map()
+_ledger_rows_global = []
+_core_rows_global = []
+_sat_rows_global = []
+
+try:
+    from cache_manager import get_historical_data as _get_hist_g
+    from monitoring_engine import calculate_rs_line as _calc_rs_g, compute_exit_score as _comp_exit_g
+    from config import SECTORS as _SECTORS_G
+
+    _nifty_df_global = _get_hist_g("NIFTY_50", end_date=selected_date)
+
+    _current_alloc_syms_g = set()
+    if not df_maac.empty and "Symbol" in df_maac.columns and "Allocation_%" in df_maac.columns:
+        _current_alloc_syms_g = set(df_maac[df_maac["Allocation_%"] > 0]["Symbol"].tolist())
+
+    _prev_holdings_set_g = set(_prev_holdings_global)
+    _exit_syms_set_g = set(_exit_map_global.keys())
+    _new_buy_syms_set_g = set()
+    if not df_orders.empty and "Action" in df_orders.columns and "Symbol" in df_orders.columns:
+        _new_buy_syms_set_g = set(df_orders[df_orders["Action"].isin(["BUY", "VETO_ADD"])]["Symbol"].tolist())
+        _veto_removes_g = set(df_orders[df_orders["Action"] == "VETO_REMOVE"]["Symbol"].tolist())
+        _exit_syms_set_g.update(_veto_removes_g)
+    else:
+        _new_buy_syms_set_g = _current_alloc_syms_g - _prev_holdings_set_g
+
+    _all_ledger_syms_g = (_prev_holdings_set_g | _current_alloc_syms_g | _exit_syms_set_g | _new_buy_syms_set_g)
+
+    for _sym_g in _all_ledger_syms_g:
+        if _sym_g in _exit_syms_set_g or (_sym_g in _prev_holdings_set_g and _sym_g not in _current_alloc_syms_g):
+            _status_g = "EXIT"
+        elif _sym_g in _new_buy_syms_set_g:
+            _status_g = "NEW BUY"
+        else:
+            _status_g = "HOLD"
+
+        _df_stock_g = _get_hist_g(_sym_g, end_date=selected_date)
+        _rs_val_g, _ = _calc_rs_g(_sym_g, _df_stock_g, _nifty_df_global)
+        _exit_score_g, _, _, _ = _comp_exit_g(_df_stock_g, _nifty_df_global, _rs_val_g, 0.0)
+        _close_price_g = _df_stock_g["Close"].iloc[-1] if _df_stock_g is not None and not _df_stock_g.empty else 0.0
+
+        _row_maac_g = None
+        if not df_maac.empty:
+            _m_g = df_maac[df_maac["Symbol"] == _sym_g]
+            if not _m_g.empty:
+                _row_maac_g = _m_g.iloc[0]
+
+        _prev_alloc_g = 0.0
+        try:
+            if _df_prev_global is not None and not _df_prev_global.empty:
+                _pm_g = _df_prev_global[_df_prev_global["Symbol"] == _sym_g]
+                if not _pm_g.empty:
+                    _prev_alloc_g = float(_pm_g.iloc[0].get("Allocation_%", 0.0))
+        except Exception:
+            pass
+
+        _sector_g = _SECTORS_G.get(_sym_g, str(_row_maac_g.get("Sector", "Diversified")) if _row_maac_g is not None else "Diversified")
+        _is_etf_g = str(_sym_g) in _mf_name_map_global or str(_sym_g).isdigit()
+        _bucket_g = "PASSIVE_CORE" if _is_etf_g else "ACTIVE_SATELLITE"
+
+        _entry_price_g = float(_row_maac_g.get("Entry_Price", 0.0)) if _row_maac_g is not None else 0.0
+        if _entry_price_g == 0.0:
+            _entry_price_g = _close_price_g
+        _stop_loss_g = float(_row_maac_g.get("Stop_Loss", 0.0)) if _row_maac_g is not None else 0.0
+        _stop_dist_g = float(_row_maac_g.get("Stop_Dist_%", 0.0)) if _row_maac_g is not None else 0.0
+        _risk_pct_g = float(_row_maac_g.get("Risk_Per_Trade_%", 0.0)) if _row_maac_g is not None else 0.0
+        _target_alloc_g = float(_row_maac_g.get("Allocation_%", 0.0)) if _row_maac_g is not None else 0.0
+        if _status_g == "EXIT":
+            _target_alloc_g = 0.0
+
+        _boost_label_g = ""
+        _rank_g = int(_row_maac_g.get("Final_Rank", 99)) if _row_maac_g is not None else 99
+        if _status_g == "NEW BUY":
+            _boost_label_g = "🆕 Fresh"
+        elif _status_g == "EXIT":
+            _boost_label_g = "🚫 Exit"
+        else:
+            _delta_g = _target_alloc_g - _prev_alloc_g
+            if _delta_g > 0.3:
+                _boost_label_g = f"+{_delta_g:.1f}% 🔺"
+            elif _delta_g < -0.3:
+                _boost_label_g = f"{_delta_g:.1f}% 🔻"
+            else:
+                _boost_label_g = "—"
+
+        _pos_val_g = (_target_alloc_g / 100.0) * portfolio_capital
+        _qty_g = int(_pos_val_g / _entry_price_g) if _entry_price_g > 0 else 0
+        _trim_flag_g = _row_maac_g.get("Trim_Flag", "") if (_row_maac_g is not None and "Trim_Flag" in _row_maac_g.index) else ""
+
+        if _status_g == "EXIT":
+            _reason_g = _exit_map_global.get(_sym_g)
+            if not _reason_g:
+                if _rs_val_g <= 0.10:
+                    _reason_g = f"RS Line Exit (RS: {_rs_val_g:.3f} <= 0.10)"
+                else:
+                    _reason_g = "Dropped from Conviction watchlist"
+            _rationale_g = f"🚫 Exit: {_reason_g}"
+        elif _status_g == "NEW BUY":
+            _factors_passed_g = str(_row_maac_g.get("Factors_Passed", "")) if _row_maac_g is not None else ""
+            _factor_score_g = _row_maac_g.get("Factor_Score", 0) if _row_maac_g is not None else 0
+            _final_rank_g = _row_maac_g.get("Final_Rank", 999) if _row_maac_g is not None else 999
+            if _factors_passed_g:
+                _rationale_g = f"🆕 Buy: Rank #{_final_rank_g} | Score {_factor_score_g:.1f}/100 ({_factors_passed_g})"
+            else:
+                _rationale_g = f"🆕 Buy: {_buy_reason_map_global.get(_sym_g, 'Passed screening gates')}"
+        else:
+            if _sym_g in _reduce_map_global:
+                _rationale_g = f"⚠️ Reduce: {_reduce_map_global[_sym_g]}"
+            elif _trim_flag_g == "TRIM 25%":
+                _ext_val_g = float(_row_maac_g.get("Extension_From_50DMA", 0.0)) if _row_maac_g is not None else 0.0
+                _rationale_g = f"⚠️ Trim 25% (Extension: {_ext_val_g:.1f}% > 25%)"
+            else:
+                _delta_g = _target_alloc_g - _prev_alloc_g
+                if _delta_g > 0.3:
+                    _rationale_g = f"🔺 Pyramided (RS Line: {_rs_val_g:.3f} > 0.60)"
+                else:
+                    _rationale_g = f"Holding — Exit Score: {_exit_score_g:.0f}/55"
+
+        _display_sym_g = _sym_g
+        if str(_sym_g) in _mf_name_map_global:
+            _display_sym_g = f"{_sym_g} ({_mf_name_map_global[str(_sym_g)][:20]})"
+
+        _ledger_rows_global.append({
+            "status": _status_g, "Symbol": _sym_g, "Display_Symbol": _display_sym_g,
+            "Sector": _sector_g, "Bucket": _bucket_g,
+            "Entry_Price": _entry_price_g, "Close": _close_price_g,
+            "Stop_Loss": _stop_loss_g, "Stop_Dist_%": _stop_dist_g,
+            "Risk_Per_Trade_%": _risk_pct_g, "Prev_Alloc_%": _prev_alloc_g,
+            "New_Alloc_%": _target_alloc_g, "Boost_Label": _boost_label_g,
+            "RS_Val": _rs_val_g, "Exit_Score": _exit_score_g,
+            "Qty": _qty_g, "Pos_Value": _pos_val_g, "Trim_Flag": _trim_flag_g,
+            "Rationale": _rationale_g, "Rank": _rank_g
+        })
+
+    # Sort and rank
+    _active_rows_g = [r for r in _ledger_rows_global if r["status"] != "EXIT"]
+    _exit_rows_g = [r for r in _ledger_rows_global if r["status"] == "EXIT"]
+    _active_rows_g.sort(key=lambda r: r["RS_Val"], reverse=True)
+    for _idx_g, _r_g in enumerate(_active_rows_g):
+        _r_g["Rank"] = _idx_g + 1
+    for _r_g in _exit_rows_g:
+        _r_g["Rank"] = 99
+    _ledger_rows_global = _active_rows_g + _exit_rows_g
+    _ledger_rows_global.sort(key=lambda r: (0 if r["status"] != "EXIT" else 1, r["Rank"], r["Symbol"]))
+
+    _core_rows_global = [r for r in _ledger_rows_global if r["Bucket"] == "PASSIVE_CORE"]
+    _sat_rows_global = [r for r in _ledger_rows_global if r["Bucket"] == "ACTIVE_SATELLITE"]
+
+except Exception as _e_ledger:
+    pass  # ledger data stays empty if pipeline not run yet
+
+# ──────────────────────────────────────────────────────────────────────────────
+# TAB 3: ACTIVE HOLDINGS AND ALLOCATIONS
+# ──────────────────────────────────────────────────────────────────────────────
+with tab_active:
+    st.markdown("""
+    <div style="background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(139,92,246,0.06));
+                border:1px solid rgba(139,92,246,0.2); border-radius:14px;
+                padding:20px 24px; margin-bottom:24px;">
+      <div style="font-family:'Outfit';font-size:1.2rem;font-weight:700;color:#8b5cf6;">
+        💼 Consolidated Active Holdings & Allocations
+      </div>
+      <div style="font-size:0.9rem;color:#cbd5e1;margin-top:4px;">
+        Beautifully organized view of your entire portfolio across Core, Trend Alfa 3.0, and VAMS strategies.
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    _all_active_data = []
+    
+    # Identify VAMS qualified symbols from df_maac
+    _vams_qualified = set()
+    if not df_maac.empty:
+        for _, _row in df_maac.iterrows():
+            _reason = str(_row.get("Rejection_Reason", "")).strip().upper()
+            if "RANKED" in _reason or "PASSED" in _reason:
+                _vams_qualified.add(_row["Symbol"])
+                
+    _active_ledger = [r for r in _ledger_rows_global if r["status"] != "EXIT"]
+    
+    for _r in _active_ledger:
+        _alloc = _r.get("New_Alloc_%", 0.0)
+        if _alloc <= 0:
+            continue
+            
+        _sym = _r["Symbol"]
+        
+        if _r.get("Bucket") == "PASSIVE_CORE":
+            _bucket = "Core Holdings"
+        elif _sym in _vams_qualified:
+            _bucket = "VAMS Holdings"
+        else:
+            _bucket = "Trend Alfa 3.0"
+            
+        _all_active_data.append({
+            "Symbol": _sym,
+            "Sector": _r.get("Sector", "Diversified"),
+            "Bucket": _bucket,
+            "Allocation": _alloc,
+            "Current Price": _r.get("Close", 0.0)
+        })
+        
+    if not _all_active_data:
+        st.info("No active holdings found in current portfolio state.")
+    else:
+        df_act = pd.DataFrame(_all_active_data)
+        
+        # Top Metric Cards
+        c1, c2, c3 = st.columns(3)
+        tot_alloc = df_act["Allocation"].sum()
+        with c1:
+            st.markdown(f"<div class='glass-card' style='text-align:center;'><div style='color:#94a3b8;'>Total Capital Deployed</div><div style='font-size:1.6rem;font-weight:800;color:#10b981;'>{tot_alloc:.1f}%</div></div>", unsafe_allow_html=True)
+        with c2:
+            st.markdown(f"<div class='glass-card' style='text-align:center;'><div style='color:#94a3b8;'>Available Cash Reserve</div><div style='font-size:1.6rem;font-weight:800;color:#3b82f6;'>{max(0, 100 - tot_alloc):.1f}%</div></div>", unsafe_allow_html=True)
+        with c3:
+            st.markdown(f"<div class='glass-card' style='text-align:center;'><div style='color:#94a3b8;'>Active Positions</div><div style='font-size:1.6rem;font-weight:800;color:#8b5cf6;'>{len(df_act)}</div></div>", unsafe_allow_html=True)
+            
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        st.subheader("🛡️ Portfolio Risk Constraints & Sizing Attributions")
+        
+        # ── Section Header ──────────────────────────────────────────────────
+        st.markdown("""

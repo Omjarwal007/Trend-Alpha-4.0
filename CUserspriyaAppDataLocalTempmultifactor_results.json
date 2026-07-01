@@ -1,0 +1,4254 @@
+🔵 [INFO] Detected existing Chartink exports in dedicated folder for 2026-06-13. Parsing local files...
+🟢 [SUCCESS] Loaded 214 unique tickers from local Chartink cache.
+🔵 [INFO] Executing SKILL 01 & 02: Ingesting benchmark index data & building indicators pipeline...
+🟢 [SUCCESS] Benchmark data pipeline complete. Ingested indicators for 7 indices.
+🔵 [INFO] Executing SKILL 05: Sector Rotation & Hierarchical RS rankings...
+🔵 [INFO] Cache for SKYGOLD too short (range: 2025-06-30 to 2026-06-12); re-fetching 350 days.
+🔵 [INFO] Retrieving price data for SKYGOLD...
+🟢 [SUCCESS] Successfully fetched live data for SKYGOLD.
+🔵 [INFO] Cache for SHILPAMED too short (range: 2025-06-30 to 2026-06-12); re-fetching 350 days.
+🔵 [INFO] Retrieving price data for SHILPAMED...
+🟢 [SUCCESS] Successfully fetched live data for SHILPAMED.
+🔵 [INFO] Cache for FINCABLES too short (range: 2025-06-30 to 2026-06-12); re-fetching 350 days.
+🔵 [INFO] Retrieving price data for FINCABLES...
+🟢 [SUCCESS] Successfully fetched live data for FINCABLES.
+🟢 [SUCCESS] Sector rotation complete.
+🔵 [INFO] Executing 11-Step stock selection and ranking engine...
+🔵 [INFO] Index check: NIFTY_50 | Close: 23622.90 | 150 EMA: 24390.67 | Rising: False | Bullish: False
+🔵 [INFO] Index check: NIFTY_NEXT_50 | Close: 755.73 | 150 EMA: 738.28 | Rising: True | Bullish: True
+🔵 [INFO] Index check: NIFTY_MIDCAP_150 | Close: 22.57 | 150 EMA: 22.11 | Rising: True | Bullish: True
+🔵 [INFO] Index check: NIFTY_SMALLCAP_250 | Close: 17079.10 | 150 EMA: 16410.39 | Rising: True | Bullish: True
+🟢 [SUCCESS] Detected exceptional trend & momentum for KRN (Mom Score: 50.4, RS vs N50: 40.0%)
+🔵 [INFO] Cache for KRN too short (range: 2024-10-03 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for KRN...
+🟢 [SUCCESS] Successfully fetched live data for KRN.
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for KRN: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for KRN: Exceptional trend & momentum override.
+🟡 [WARN] REJECTED LICHSGFIN: 3-Year Avg CFO/PAT -2.03 < 0.50.
+🟡 [WARN] REJECTED SWSOLAR: 3-Year Avg ROCE -40.4% < 10.0%.
+🔵 [INFO] Cache for GROWW too short (range: 2025-11-12 to 2026-06-12); re-fetching 350 days.
+🔵 [INFO] Retrieving price data for GROWW...
+🟢 [SUCCESS] Successfully fetched live data for GROWW.
+🟢 [SUCCESS] Detected exceptional trend & momentum for GROWW (Mom Score: 21.8, RS vs N50: 25.3%)
+🔵 [INFO] Cache for GROWW too short (range: 2025-11-12 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for GROWW...
+🟢 [SUCCESS] Successfully fetched live data for GROWW.
+🟡 [WARN] REJECTED GROWW: IPO seasoning < 1 year (146 trading days).
+🟢 [SUCCESS] Detected exceptional trend & momentum for DATAPATTNS (Mom Score: 49.1, RS vs N50: 41.6%)
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for DATAPATTNS: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for RADICO (Mom Score: 19.6, RS vs N50: 27.3%)
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for RADICO: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for SANSERA (Mom Score: 64.4, RS vs N50: 32.8%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for ASIANPAINT (Mom Score: 11.6, RS vs N50: 20.1%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for CARTRADE (Mom Score: 25.5, RS vs N50: 35.1%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for CARTRADE: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for NEOGEN (Mom Score: 54.9, RS vs N50: 69.4%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for NEOGEN: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for NEOGEN: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for INOXINDIA (Mom Score: 49.7, RS vs N50: 45.7%)
+🔵 [INFO] Cache for INOXINDIA too short (range: 2023-12-21 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for INOXINDIA...
+🟢 [SUCCESS] Successfully fetched live data for INOXINDIA.
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for INOXINDIA: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for ZENTEC (Mom Score: 15.0, RS vs N50: 24.6%)
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for ZENTEC: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for ZENTEC: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for WELCORP (Mom Score: 57.8, RS vs N50: 67.5%)
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for WELCORP: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for QPOWER (Mom Score: 70.0, RS vs N50: 43.3%)
+🔵 [INFO] Cache for QPOWER too short (range: 2025-02-24 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for QPOWER...
+🟢 [SUCCESS] Successfully fetched live data for QPOWER.
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for QPOWER: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for CHENNPETRO (Mom Score: 34.6, RS vs N50: 18.0%)
+🟡 [WARN] REJECTED ALIVUS: Volatility 27.6% >= 60% or ADX 19.7 <= 20.
+🟢 [SUCCESS] Detected exceptional trend & momentum for BORORENEW (Mom Score: 11.2, RS vs N50: 36.6%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for BORORENEW: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for BLUEJET (Mom Score: 6.1, RS vs N50: 48.0%)
+🔵 [INFO] Cache for BLUEJET too short (range: 2023-11-01 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for BLUEJET...
+🟢 [SUCCESS] Successfully fetched live data for BLUEJET.
+🟢 [SUCCESS] Detected exceptional trend & momentum for ACMESOLAR (Mom Score: 41.3, RS vs N50: 21.3%)
+🔵 [INFO] Cache for ACMESOLAR too short (range: 2024-11-13 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for ACMESOLAR...
+🟢 [SUCCESS] Successfully fetched live data for ACMESOLAR.
+🟢 [SUCCESS] Detected exceptional trend & momentum for SURYAROSNI (Mom Score: 4.5, RS vs N50: 32.2%)
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for SURYAROSNI: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for JINDALSAW (Mom Score: 23.4, RS vs N50: 24.3%)
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for JINDALSAW: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for CUPID (Mom Score: 194.6, RS vs N50: 80.6%)
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for CUPID: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for NBCC (Mom Score: 0.8, RS vs N50: 23.0%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for CENTUM (Mom Score: 33.6, RS vs N50: 19.1%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for CENTUM: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for CAPLIPOINT (Mom Score: 25.7, RS vs N50: 47.7%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for GLAND (Mom Score: 36.6, RS vs N50: 31.8%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for BALAMINES (Mom Score: 72.5, RS vs N50: 95.7%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for WOCKPHARMA (Mom Score: 40.5, RS vs N50: 59.3%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for WOCKPHARMA: Exceptional trend & momentum override.
+🟡 [WARN] REJECTED NH: Volatility 33.1% >= 60% or ADX 19.7 <= 20.
+🟢 [SUCCESS] Detected exceptional trend & momentum for SYRMA (Mom Score: 71.4, RS vs N50: 48.8%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for SYRMA: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for SYRMA: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for SAILIFE (Mom Score: 32.7, RS vs N50: 18.5%)
+🔵 [INFO] Cache for SAILIFE too short (range: 2024-12-18 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for SAILIFE...
+🟢 [SUCCESS] Successfully fetched live data for SAILIFE.
+🟢 [SUCCESS] Detected exceptional trend & momentum for ZYDUSLIFE (Mom Score: 18.2, RS vs N50: 21.5%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for PARAS (Mom Score: 39.5, RS vs N50: 55.7%)
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for PARAS: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for SUPRIYA (Mom Score: 42.7, RS vs N50: 57.1%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for AEGISLOG (Mom Score: 35.7, RS vs N50: 49.1%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for RATEGAIN (Mom Score: 42.4, RS vs N50: 62.4%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for RATEGAIN: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for RATEGAIN: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for KTKBANK (Mom Score: 28.3, RS vs N50: 16.9%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for MARKSANS (Mom Score: 29.4, RS vs N50: 50.9%)
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for MARKSANS: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for DIACABS (Mom Score: 44.9, RS vs N50: 55.2%)
+🟢 [SUCCESS] BYPASS LEVERAGE FILTER for DIACABS: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS ROCE FILTER for DIACABS: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for RAIN (Mom Score: 60.5, RS vs N50: 75.7%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for RAIN: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for ZEEL (Mom Score: 21.6, RS vs N50: 49.0%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for ZEEL: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for SOLARINDS (Mom Score: 18.4, RS vs N50: 34.2%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for NAVINFLUOR (Mom Score: 26.7, RS vs N50: 16.5%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for NETWEB (Mom Score: 60.7, RS vs N50: 39.9%)
+🔵 [INFO] Cache for NETWEB too short (range: 2023-07-27 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for NETWEB...
+🟢 [SUCCESS] Successfully fetched live data for NETWEB.
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for NETWEB: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for POWERMECH (Mom Score: 23.8, RS vs N50: 52.2%)
+🟡 [WARN] REJECTED GLENMARK: 3-Year Avg CFO/PAT 0.50 < 0.50.
+🟢 [SUCCESS] Detected exceptional trend & momentum for ASTRAMICRO (Mom Score: 38.1, RS vs N50: 56.5%)
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for ASTRAMICRO: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for UNIMECH (Mom Score: 19.8, RS vs N50: 55.2%)
+🔵 [INFO] Cache for UNIMECH too short (range: 2024-12-31 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for UNIMECH...
+🟢 [SUCCESS] Successfully fetched live data for UNIMECH.
+🟢 [SUCCESS] BYPASS ROCE FILTER for UNIMECH: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for MOTILALOFS (Mom Score: 5.7, RS vs N50: 22.5%)
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for MOTILALOFS: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for AKUMS (Mom Score: 27.9, RS vs N50: 26.3%)
+🔵 [INFO] Cache for AKUMS too short (range: 2024-08-06 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for AKUMS...
+🟢 [SUCCESS] Successfully fetched live data for AKUMS.
+🟢 [SUCCESS] BYPASS ROCE FILTER for AKUMS: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for AKUMS: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for ELECON (Mom Score: 15.8, RS vs N50: 43.5%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for MIDHANI (Mom Score: 22.4, RS vs N50: 44.9%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for APOLLO (Mom Score: 70.3, RS vs N50: 98.5%)
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for APOLLO: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for SUVEN (Mom Score: 62.5, RS vs N50: 92.5%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for SUVEN: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for VIYASH (Mom Score: 24.9, RS vs N50: 30.9%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for VIYASH: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for VIYASH: Exceptional trend & momentum override.
+🔵 [INFO] Cache for IXIGO too short (range: 2024-06-18 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for IXIGO...
+🟢 [SUCCESS] Successfully fetched live data for IXIGO.
+🟡 [WARN] REJECTED IXIGO: 3-Year Avg ROCE 9.4% < 10.0%.
+🟡 [WARN] REJECTED MARUTI: Close ₹13366.00 <= 200 EMA ₹13974.94.
+🟡 [WARN] REJECTED CREDITACC: 3-Year Avg CFO/PAT -1.57 < 0.50.
+🟡 [WARN] REJECTED AETHER: 3-Year Avg ROCE 7.9% < 10.0%.
+🟡 [WARN] REJECTED SBIN: 3-Year Avg CFO/PAT 0.44 < 0.50.
+🟡 [WARN] REJECTED SHARDACROP: Close ₹923.35 <= 200 EMA ₹936.83.
+🟡 [WARN] REJECTED UNIONBANK: 3-Year Avg ROCE 1.9% < 10.0%.
+🟢 [SUCCESS] Detected exceptional trend & momentum for BOSCHLTD (Mom Score: 11.9, RS vs N50: 25.0%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for POWERINDIA (Mom Score: 51.4, RS vs N50: 32.7%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for NEULANDLAB (Mom Score: 20.4, RS vs N50: 38.6%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for APARINDS (Mom Score: 65.8, RS vs N50: 45.6%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for POLYCAB (Mom Score: 30.4, RS vs N50: 30.7%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for OFSS (Mom Score: 23.1, RS vs N50: 35.2%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for CRAFTSMAN (Mom Score: 26.8, RS vs N50: 25.1%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for CRAFTSMAN: Exceptional trend & momentum override.
+🟡 [WARN] REJECTED AMBER: 3-Year Avg ROCE 8.6% < 10.0%.
+🟢 [SUCCESS] Detected exceptional trend & momentum for MTARTECH (Mom Score: 131.2, RS vs N50: 73.7%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for CUMMINSIND (Mom Score: 28.7, RS vs N50: 18.1%)
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for CUMMINSIND: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for THANGAMAYL (Mom Score: 82.8, RS vs N50: 55.5%)
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for THANGAMAYL: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for KEI (Mom Score: 23.5, RS vs N50: 23.8%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for GVT&D (Mom Score: 58.2, RS vs N50: 28.3%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for THERMAX (Mom Score: 42.3, RS vs N50: 40.9%)
+🟡 [WARN] REJECTED INDIGO: Debt-to-Equity 94.28 > 1.2.
+🟢 [SUCCESS] Detected exceptional trend & momentum for BSE (Mom Score: 40.7, RS vs N50: 42.4%)
+🟡 [WARN] REJECTED SIEMENS: 3-Year Avg CFO/PAT 0.40 < 0.50.
+🟢 [SUCCESS] Detected exceptional trend & momentum for ACUTAAS (Mom Score: 81.2, RS vs N50: 16.2%)
+🟡 [WARN] REJECTED TIINDIA: Volatility 33.4% >= 60% or ADX 17.8 <= 20.
+🟢 [SUCCESS] Detected exceptional trend & momentum for GRASIM (Mom Score: 13.2, RS vs N50: 15.8%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for GRASIM: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for GRASIM: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for SHAILY (Mom Score: 40.5, RS vs N50: 34.3%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for ADANIENT (Mom Score: 31.1, RS vs N50: 57.2%)
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for ADANIENT: Exceptional trend & momentum override.
+🟡 [WARN] REJECTED SRF: Volatility 28.1% >= 60% or ADX 14.0 <= 20.
+🟢 [SUCCESS] Detected exceptional trend & momentum for GRSE (Mom Score: 3.3, RS vs N50: 26.9%)
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for GRSE: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for GRSE: Exceptional trend & momentum override.
+🟡 [WARN] REJECTED LUPIN: Volatility 20.2% >= 60% or ADX 12.0 <= 20.
+🟢 [SUCCESS] Detected exceptional trend & momentum for RRKABEL (Mom Score: 49.4, RS vs N50: 58.5%)
+🔵 [INFO] Cache for RRKABEL too short (range: 2023-09-20 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for RRKABEL...
+🟢 [SUCCESS] Successfully fetched live data for RRKABEL.
+🟢 [SUCCESS] Detected exceptional trend & momentum for AZAD (Mom Score: 31.1, RS vs N50: 37.0%)
+🔵 [INFO] Cache for AZAD too short (range: 2023-12-28 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for AZAD...
+🟢 [SUCCESS] Successfully fetched live data for AZAD.
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for AZAD: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for AZAD: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for TATACOMM (Mom Score: 20.4, RS vs N50: 38.5%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for TATACOMM: Exceptional trend & momentum override.
+🟡 [WARN] REJECTED BHARATFORG: Volatility 29.1% >= 60% or ADX 13.2 <= 20.
+🟢 [SUCCESS] Detected exceptional trend & momentum for ADANIPORTS (Mom Score: 21.0, RS vs N50: 31.6%)
+🟢 [SUCCESS] BYPASS LEVERAGE FILTER for ADANIPORTS: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS ROCE FILTER for ADANIPORTS: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for ADANIPORTS: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for LLOYDSME (Mom Score: 33.3, RS vs N50: 31.1%)
+🔵 [INFO] Cache for LLOYDSME too short (range: 2023-07-17 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for LLOYDSME...
+🟢 [SUCCESS] Successfully fetched live data for LLOYDSME.
+🟡 [WARN] REJECTED PHOENIXLTD: 3-Year Avg ROCE 6.8% < 10.0%.
+🟢 [SUCCESS] Detected exceptional trend & momentum for AVALON (Mom Score: 67.5, RS vs N50: 60.4%)
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for AVALON: Exceptional trend & momentum override.
+🟡 [WARN] REJECTED OBEROIRLTY: Close ₹1622.80 <= 200 EMA ₹1630.50.
+🟢 [SUCCESS] Detected exceptional trend & momentum for NUVAMA (Mom Score: 20.8, RS vs N50: 30.5%)
+🔵 [INFO] Cache for NUVAMA too short (range: 2023-09-26 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for NUVAMA...
+🟢 [SUCCESS] Successfully fetched live data for NUVAMA.
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for NUVAMA: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for DEEPAKFERT (Mom Score: 27.6, RS vs N50: 55.6%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for ADANIENSOL (Mom Score: 48.0, RS vs N50: 51.2%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for ADANIENSOL: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for ADANIENSOL: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for ADANIGREEN (Mom Score: 50.6, RS vs N50: 72.1%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for ADANIGREEN: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for LAURUSLABS (Mom Score: 46.9, RS vs N50: 32.9%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for NESTLEIND (Mom Score: 14.9, RS vs N50: 17.5%)
+🟡 [WARN] REJECTED JSWSTEEL: Volatility 23.0% >= 60% or ADX 18.4 <= 20.
+🟢 [SUCCESS] Detected exceptional trend & momentum for OLECTRA (Mom Score: 21.9, RS vs N50: 26.8%)
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for OLECTRA: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for SENORES (Mom Score: 80.1, RS vs N50: 60.5%)
+🔵 [INFO] Cache for SENORES too short (range: 2024-12-30 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for SENORES...
+🟢 [SUCCESS] Successfully fetched live data for SENORES.
+🟢 [SUCCESS] BYPASS ROCE FILTER for SENORES: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for SENORES: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for TDPOWERSYS (Mom Score: 59.7, RS vs N50: 30.7%)
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for TDPOWERSYS: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for CEMPRO (Mom Score: 71.2, RS vs N50: 119.7%)
+🟡 [WARN] REJECTED HOMEFIRST: 3-Year Avg CFO/PAT -5.19 < 0.50.
+🟢 [SUCCESS] Detected exceptional trend & momentum for ABSLAMC (Mom Score: 28.2, RS vs N50: 18.5%)
+🟡 [WARN] REJECTED 360ONE: 3-Year Avg CFO/PAT -0.81 < 0.50.
+🟢 [SUCCESS] Detected exceptional trend & momentum for NAM-INDIA (Mom Score: 22.7, RS vs N50: 23.4%)
+🟡 [WARN] REJECTED STAR: 3-Year Avg CFO/PAT 0.45 < 0.50.
+🔵 [INFO] Cache for PREMIERENE too short (range: 2024-09-03 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for PREMIERENE...
+🟢 [SUCCESS] Successfully fetched live data for PREMIERENE.
+🟡 [WARN] REJECTED PREMIERENE: Debt-to-Equity 1.39 > 1.2.
+🟢 [SUCCESS] Detected exceptional trend & momentum for BBOX (Mom Score: 84.6, RS vs N50: 115.3%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for BBOX: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for BBOX: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for FORTIS (Mom Score: 15.2, RS vs N50: 19.7%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for FORTIS: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for PNBHOUSING (Mom Score: 11.3, RS vs N50: 23.9%)
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for PNBHOUSING: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for SHYAMMETL (Mom Score: 21.5, RS vs N50: 20.6%)
+🟡 [WARN] REJECTED SHRIRAMFIN: 3-Year Avg CFO/PAT -3.16 < 0.50.
+🟢 [SUCCESS] Detected exceptional trend & momentum for CGPOWER (Mom Score: 28.4, RS vs N50: 32.0%)
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for CGPOWER: Exceptional trend & momentum override.
+🟡 [WARN] REJECTED MEDPLUS: 3-Year Avg ROCE 4.0% < 10.0%.
+🟢 [SUCCESS] Detected exceptional trend & momentum for TITAGARH (Mom Score: 16.0, RS vs N50: 41.2%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for TITAGARH: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for TITAGARH: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for ASTERDM (Mom Score: 26.7, RS vs N50: 20.5%)
+🔵 [INFO] Cache for INDIASHLTR too short (range: 2023-12-20 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for INDIASHLTR...
+🟢 [SUCCESS] Successfully fetched live data for INDIASHLTR.
+🟡 [WARN] REJECTED INDIASHLTR: 3-Year Avg CFO/PAT -3.71 < 0.50.
+🟢 [SUCCESS] Detected exceptional trend & momentum for HBLENGINE (Mom Score: 9.8, RS vs N50: 19.1%)
+🟡 [WARN] REJECTED CAMS: Volatility 29.8% >= 60% or ADX 18.3 <= 20.
+🟢 [SUCCESS] Detected exceptional trend & momentum for BANCOINDIA (Mom Score: 13.5, RS vs N50: 29.2%)
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for BANCOINDIA: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for JBMA (Mom Score: 19.3, RS vs N50: 25.5%)
+🟢 [SUCCESS] BYPASS LEVERAGE FILTER for JBMA: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for JBMA: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for HSCL (Mom Score: 43.5, RS vs N50: 45.9%)
+🟡 [WARN] REJECTED INDHOTEL: Close ₹679.45 <= 200 EMA ₹682.32.
+🟢 [SUCCESS] Detected exceptional trend & momentum for ABDL (Mom Score: 27.8, RS vs N50: 50.8%)
+🔵 [INFO] Cache for ABDL too short (range: 2024-07-02 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for ABDL...
+🟢 [SUCCESS] Successfully fetched live data for ABDL.
+🟢 [SUCCESS] BYPASS LEVERAGE FILTER for ABDL: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS ROCE FILTER for ABDL: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for STLTECH (Mom Score: 358.6, RS vs N50: 200.9%)
+🟢 [SUCCESS] BYPASS LEVERAGE FILTER for STLTECH: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS ROCE FILTER for STLTECH: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for STLTECH: Exceptional trend & momentum override.
+🟡 [WARN] REJECTED JSWENERGY: 3-Year Avg ROCE 5.7% < 10.0%.
+🟢 [SUCCESS] Detected exceptional trend & momentum for ANANTRAJ (Mom Score: 6.6, RS vs N50: 24.6%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for ANANTRAJ: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for ANANTRAJ: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for AIIL (Mom Score: 10.4, RS vs N50: 16.6%)
+🔵 [INFO] Cache for AIIL too short (range: 2024-04-23 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for AIIL...
+🟢 [SUCCESS] Successfully fetched live data for AIIL.
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for AIIL: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for VBL (Mom Score: 13.7, RS vs N50: 31.9%)
+🟡 [WARN] REJECTED IIFL: 3-Year Avg CFO/PAT -6.43 < 0.50.
+🟢 [SUCCESS] Detected exceptional trend & momentum for GOLDIAM (Mom Score: 39.9, RS vs N50: 68.5%)
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for GOLDIAM: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for SAREGAMA (Mom Score: 21.6, RS vs N50: 34.9%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for AEROFLEX (Mom Score: 118.6, RS vs N50: 77.4%)
+🔵 [INFO] Cache for AEROFLEX too short (range: 2023-08-31 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for AEROFLEX...
+🟢 [SUCCESS] Successfully fetched live data for AEROFLEX.
+🟡 [WARN] REJECTED DELHIVERY: 3-Year Avg ROCE 1.8% < 10.0%.
+🟡 [WARN] REJECTED PFC: 3-Year Avg CFO/PAT -1.99 < 0.50.
+🟡 [WARN] REJECTED BIOCON: 3-Year Avg ROCE 3.2% < 10.0%.
+🟢 [SUCCESS] Detected exceptional trend & momentum for HONASA (Mom Score: 43.9, RS vs N50: 31.1%)
+🔵 [INFO] Cache for HONASA too short (range: 2023-11-07 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for HONASA...
+🟢 [SUCCESS] Successfully fetched live data for HONASA.
+🟢 [SUCCESS] Detected exceptional trend & momentum for EXIDEIND (Mom Score: 13.1, RS vs N50: 28.7%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for BHEL (Mom Score: 35.9, RS vs N50: 43.3%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for BHEL: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for BHEL: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for RBLBANK (Mom Score: 25.6, RS vs N50: 19.7%)
+🟡 [WARN] REJECTED ABCAPITAL: 3-Year Avg CFO/PAT -6.82 < 0.50.
+🟢 [SUCCESS] Detected exceptional trend & momentum for ANGELONE (Mom Score: 39.0, RS vs N50: 41.1%)
+🟡 [WARN] REJECTED NLCINDIA: Debt-to-Equity 1.33 > 1.2.
+🟡 [WARN] REJECTED VEDL: Close ₹309.65 <= 200 EMA ₹516.62.
+🟡 [WARN] REJECTED MANAPPURAM: 3-Year Avg CFO/PAT -5.58 < 0.50.
+🟢 [SUCCESS] Detected exceptional trend & momentum for SCI (Mom Score: 23.4, RS vs N50: 23.6%)
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for SCI: Exceptional trend & momentum override.
+🔵 [INFO] Cache for JSWINFRA too short (range: 2023-10-03 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for JSWINFRA...
+🟢 [SUCCESS] Successfully fetched live data for JSWINFRA.
+🟡 [WARN] REJECTED JSWINFRA: Debt-to-Equity 1.31 > 1.2.
+🟡 [WARN] REJECTED GPIL: Volatility 36.7% >= 60% or ADX 14.4 <= 20.
+🟡 [WARN] REJECTED LTF: 3-Year Avg CFO/PAT -3.55 < 0.50.
+🟡 [WARN] REJECTED BANKBARODA: Volatility 26.5% >= 60% or ADX 18.1 <= 20.
+🟡 [WARN] REJECTED NYKAA: 3-Year Avg ROCE 6.7% < 10.0%.
+🟢 [SUCCESS] Detected exceptional trend & momentum for ENGINERSIN (Mom Score: 13.0, RS vs N50: 21.8%)
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for ENGINERSIN: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for ENGINERSIN: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for SPARC (Mom Score: 62.7, RS vs N50: 84.1%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for SPARC: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for SPARC: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for ADANIPOWER (Mom Score: 55.6, RS vs N50: 37.9%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for CGCL (Mom Score: 12.4, RS vs N50: 18.6%)
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for CGCL: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for HUDCO (Mom Score: 3.8, RS vs N50: 21.8%)
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for HUDCO: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for BANDHANBNK (Mom Score: 22.7, RS vs N50: 36.8%)
+🟢 [SUCCESS] BYPASS ROE FILTER for BANDHANBNK: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for INOXGREEN (Mom Score: 11.8, RS vs N50: 32.0%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for INOXGREEN: Exceptional trend & momentum override.
+🟡 [WARN] REJECTED SAIL: 3-Year Avg ROCE 6.8% < 10.0%.
+🟢 [SUCCESS] Detected exceptional trend & momentum for HFCL (Mom Score: 110.4, RS vs N50: 127.9%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for HFCL: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for HFCL: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for GAIL (Mom Score: 4.7, RS vs N50: 17.0%)
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for GAIL: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for J&KBANK (Mom Score: 37.4, RS vs N50: 35.3%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for MOTHERSON (Mom Score: 20.3, RS vs N50: 26.8%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for MOTHERSON: Exceptional trend & momentum override.
+🟡 [WARN] REJECTED GMRAIRPORT: 3-Year Avg ROCE 1.2% < 10.0%.
+🟢 [SUCCESS] Detected exceptional trend & momentum for PAGEIND (Mom Score: 8.0, RS vs N50: 15.4%)
+🟢 [SUCCESS] Detected exceptional trend & momentum for ENRIN (Mom Score: 18.2, RS vs N50: 32.9%)
+🔵 [INFO] Cache for ENRIN too short (range: 2025-06-19 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for ENRIN...
+🟢 [SUCCESS] Successfully fetched live data for ENRIN.
+🟡 [WARN] REJECTED ENRIN: IPO seasoning < 1 year (245 trading days).
+🔵 [INFO] Cache for CPPLUS too short (range: 2025-08-05 to 2026-06-12); re-fetching 350 days.
+🔵 [INFO] Retrieving price data for CPPLUS...
+🟢 [SUCCESS] Successfully fetched live data for CPPLUS.
+🟢 [SUCCESS] Detected exceptional trend & momentum for CPPLUS (Mom Score: 86.4, RS vs N50: 77.5%)
+🔵 [INFO] Cache for CPPLUS too short (range: 2025-08-05 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for CPPLUS...
+🟢 [SUCCESS] Successfully fetched live data for CPPLUS.
+🟡 [WARN] REJECTED CPPLUS: IPO seasoning < 1 year (212 trading days).
+🔵 [INFO] Cache for ICICIAMC too short (range: 2025-12-19 to 2026-06-12); re-fetching 350 days.
+🔵 [INFO] Retrieving price data for ICICIAMC...
+🟢 [SUCCESS] Successfully fetched live data for ICICIAMC.
+🔵 [INFO] Cache for ICICIAMC too short (range: 2025-12-19 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for ICICIAMC...
+🟢 [SUCCESS] Successfully fetched live data for ICICIAMC.
+🟡 [WARN] REJECTED ICICIAMC: IPO seasoning < 1 year (119 trading days).
+🔵 [INFO] Cache for RUBICON too short (range: 2025-10-16 to 2026-06-12); re-fetching 350 days.
+🔵 [INFO] Retrieving price data for RUBICON...
+🟢 [SUCCESS] Successfully fetched live data for RUBICON.
+🟢 [SUCCESS] Detected exceptional trend & momentum for RUBICON (Mom Score: 63.0, RS vs N50: 58.5%)
+🔵 [INFO] Cache for RUBICON too short (range: 2025-10-16 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for RUBICON...
+🟢 [SUCCESS] Successfully fetched live data for RUBICON.
+🟡 [WARN] REJECTED RUBICON: IPO seasoning < 1 year (161 trading days).
+🔵 [INFO] Cache for CLEANMAX too short (range: 2026-03-02 to 2026-06-12); re-fetching 350 days.
+🔵 [INFO] Retrieving price data for CLEANMAX...
+🟢 [SUCCESS] Successfully fetched live data for CLEANMAX.
+🟢 [SUCCESS] Detected exceptional trend & momentum for CLEANMAX (Mom Score: 17.8, RS vs N50: 53.9%)
+🔵 [INFO] Cache for CLEANMAX too short (range: 2026-03-02 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for CLEANMAX...
+🟢 [SUCCESS] Successfully fetched live data for CLEANMAX.
+🟡 [WARN] REJECTED CLEANMAX: IPO seasoning < 1 year (69 trading days).
+🟢 [SUCCESS] Detected exceptional trend & momentum for ATHERENERG (Mom Score: 81.1, RS vs N50: 29.0%)
+🔵 [INFO] Cache for ATHERENERG too short (range: 2025-05-06 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for ATHERENERG...
+🟢 [SUCCESS] Successfully fetched live data for ATHERENERG.
+🟢 [SUCCESS] BYPASS ROCE FILTER for ATHERENERG: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for INDUSINDBK (Mom Score: 9.2, RS vs N50: 15.2%)
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for INDUSINDBK: Exceptional trend & momentum override.
+🟢 [SUCCESS] Detected exceptional trend & momentum for TATATECH (Mom Score: 22.5, RS vs N50: 41.3%)
+🔵 [INFO] Cache for TATATECH too short (range: 2023-11-30 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for TATATECH...
+🟢 [SUCCESS] Successfully fetched live data for TATATECH.
+🟢 [SUCCESS] Detected exceptional trend & momentum for TEJASNET (Mom Score: 13.8, RS vs N50: 37.6%)
+🟢 [SUCCESS] BYPASS ROCE FILTER for TEJASNET: Exceptional trend & momentum override.
+🟢 [SUCCESS] BYPASS CFO/PAT FILTER for TEJASNET: Exceptional trend & momentum override.
+🔵 [INFO] Cache for SHREEJISPG too short (range: 2025-08-26 to 2026-06-12); re-fetching 350 days.
+🔵 [INFO] Retrieving price data for SHREEJISPG...
+🟢 [SUCCESS] Successfully fetched live data for SHREEJISPG.
+🟢 [SUCCESS] Detected exceptional trend & momentum for SHREEJISPG (Mom Score: 27.4, RS vs N50: 41.2%)
+🔵 [INFO] Cache for SHREEJISPG too short (range: 2025-08-26 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for SHREEJISPG...
+🟢 [SUCCESS] Successfully fetched live data for SHREEJISPG.
+🟡 [WARN] REJECTED SHREEJISPG: IPO seasoning < 1 year (198 trading days).
+🔵 [INFO] Cache for EMMVEE too short (range: 2025-11-18 to 2026-06-12); re-fetching 350 days.
+🔵 [INFO] Retrieving price data for EMMVEE...
+🟢 [SUCCESS] Successfully fetched live data for EMMVEE.
+🟢 [SUCCESS] Detected exceptional trend & momentum for EMMVEE (Mom Score: 51.1, RS vs N50: 49.4%)
+🔵 [INFO] Cache for EMMVEE too short (range: 2025-11-18 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for EMMVEE...
+🟢 [SUCCESS] Successfully fetched live data for EMMVEE.
+🟡 [WARN] REJECTED EMMVEE: IPO seasoning < 1 year (142 trading days).
+🟢 [SUCCESS] Detected exceptional trend & momentum for BELRISE (Mom Score: 46.9, RS vs N50: 16.0%)
+🔵 [INFO] Cache for BELRISE too short (range: 2025-05-28 to 2026-06-12); re-fetching 1100 days.
+🔵 [INFO] Retrieving price data for BELRISE...
+🟢 [SUCCESS] Successfully fetched live data for BELRISE.
+🟢 [SUCCESS] BYPASS ADX/VOL FILTER for BELRISE: Exceptional trend & momentum override.
+🟢 [SUCCESS] Multi-Factor scan complete. Scanned 214 stocks. Qualified: 159
+{
+  "total_eligible": 159,
+  "stage2_count": 52,
+  "vcp_count": 132,
+  "stocks": [
+    {
+      "rank": 1,
+      "symbol": "ACUTAAS",
+      "close": 3145.3,
+      "mcap_cr": 25744.0,
+      "opp_score": 77.4,
+      "track_count": 3,
+      "tier": "TIER 1 \u2014 HIGH CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 16.2,
+      "adx": 51.0,
+      "chop": 45.2,
+      "natr": 4.4,
+      "multifactor": 81.0,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 1,
+        "quality": 1,
+        "low_vol": 0,
+        "institutional": 1,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 2,
+      "symbol": "SOLARINDS",
+      "close": 17143.0,
+      "mcap_cr": 155075.0,
+      "opp_score": 61.5,
+      "track_count": 3,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 34.2,
+      "adx": 38.0,
+      "chop": 54.1,
+      "natr": 3.2,
+      "multifactor": 63.8,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 1,
+        "quality": 1,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 3,
+      "symbol": "BSE",
+      "close": 4041.1,
+      "mcap_cr": 164121.0,
+      "opp_score": 62.5,
+      "track_count": 3,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 42.4,
+      "adx": 29.8,
+      "chop": 46.9,
+      "natr": 3.6,
+      "multifactor": 63.3,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 1,
+        "quality": 1,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 4,
+      "symbol": "HINDCOPPER",
+      "close": 510.0,
+      "mcap_cr": 49318.0,
+      "opp_score": 52.5,
+      "track_count": 2,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 6.3,
+      "adx": 49.3,
+      "chop": 44.0,
+      "natr": 3.3,
+      "multifactor": 61.1,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 1,
+        "quality": 1,
+        "low_vol": 0,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 5,
+      "symbol": "POWERINDIA",
+      "close": 34325.0,
+      "mcap_cr": 153046.0,
+      "opp_score": 79.2,
+      "track_count": 3,
+      "tier": "TIER 1 \u2014 HIGH CONVICTION",
+      "stage2": true,
+      "vcp": "No",
+      "nse_alpha": 32.7,
+      "adx": 27.1,
+      "chop": 48.5,
+      "natr": 4.6,
+      "multifactor": 53.7,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 1,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 6,
+      "symbol": "CGPOWER",
+      "close": 914.45,
+      "mcap_cr": 144030.0,
+      "opp_score": 54.3,
+      "track_count": 3,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 32.0,
+      "adx": 16.8,
+      "chop": 51.6,
+      "natr": 3.0,
+      "multifactor": 49.6,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 1,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 7,
+      "symbol": "J&KBANK",
+      "close": 157.4,
+      "mcap_cr": 17346.0,
+      "opp_score": 56.9,
+      "track_count": 2,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 35.3,
+      "adx": 45.1,
+      "chop": 41.8,
+      "natr": 3.4,
+      "multifactor": 49.6,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 0,
+        "institutional": 1,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 8,
+      "symbol": "GVT&D",
+      "close": 4942.5,
+      "mcap_cr": 126558.0,
+      "opp_score": 76.9,
+      "track_count": 3,
+      "tier": "TIER 1 \u2014 HIGH CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 28.4,
+      "adx": 23.8,
+      "chop": 57.5,
+      "natr": 4.7,
+      "multifactor": 45.4,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 1,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 9,
+      "symbol": "SANSERA",
+      "close": 2914.2,
+      "mcap_cr": 18185.0,
+      "opp_score": 68.3,
+      "track_count": 3,
+      "tier": "TIER 2 \u2014 MEDIUM CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 32.8,
+      "adx": 25.2,
+      "chop": 56.6,
+      "natr": 3.5,
+      "multifactor": 45.2,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 1,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 10,
+      "symbol": "TATATECH",
+      "close": 761.0,
+      "mcap_cr": 30901.0,
+      "opp_score": 77.0,
+      "track_count": 1,
+      "tier": "TIER 1 \u2014 HIGH CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 41.3,
+      "adx": 43.2,
+      "chop": 42.1,
+      "natr": 3.7,
+      "multifactor": 39.8,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 0,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 11,
+      "symbol": "LAURUSLABS",
+      "close": 1394.3,
+      "mcap_cr": 75343.0,
+      "opp_score": 63.5,
+      "track_count": 3,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 32.9,
+      "adx": 32.9,
+      "chop": 52.8,
+      "natr": 2.6,
+      "multifactor": 38.2,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 2,
+        "institutional": 1,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 12,
+      "symbol": "CCL",
+      "close": 1129.3,
+      "mcap_cr": 15098.0,
+      "opp_score": 71.7,
+      "track_count": 2,
+      "tier": "TIER 2 \u2014 MEDIUM CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 5.5,
+      "adx": 41.3,
+      "chop": 46.2,
+      "natr": 4.8,
+      "multifactor": 36.0,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 13,
+      "symbol": "POLYCAB",
+      "close": 9554.0,
+      "mcap_cr": 143922.0,
+      "opp_score": 53.3,
+      "track_count": 2,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 30.7,
+      "adx": 22.6,
+      "chop": 56.7,
+      "natr": 2.2,
+      "multifactor": 35.9,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 14,
+      "symbol": "ADANIGREEN",
+      "close": 1485.7,
+      "mcap_cr": 244721.0,
+      "opp_score": 62.4,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 72.1,
+      "adx": 41.2,
+      "chop": 52.9,
+      "natr": 3.7,
+      "multifactor": 35.5,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 0,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 15,
+      "symbol": "APOLLOHOSP",
+      "close": 8498.0,
+      "mcap_cr": 122146.0,
+      "opp_score": 49.0,
+      "track_count": 2,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 10.8,
+      "adx": 23.3,
+      "chop": 42.9,
+      "natr": 1.9,
+      "multifactor": 35.3,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 1,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 16,
+      "symbol": "GLAND",
+      "close": 2262.2,
+      "mcap_cr": 37333.0,
+      "opp_score": 64.0,
+      "track_count": 2,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 31.8,
+      "adx": 27.9,
+      "chop": 56.1,
+      "natr": 4.2,
+      "multifactor": 35.0,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 17,
+      "symbol": "OFSS",
+      "close": 9327.5,
+      "mcap_cr": 81191.0,
+      "opp_score": 60.8,
+      "track_count": 2,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 35.2,
+      "adx": 32.8,
+      "chop": 47.2,
+      "natr": 3.9,
+      "multifactor": 34.8,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 18,
+      "symbol": "BANCOINDIA",
+      "close": 689.55,
+      "mcap_cr": 9871.0,
+      "opp_score": 63.0,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 29.2,
+      "adx": 30.6,
+      "chop": 54.5,
+      "natr": 4.6,
+      "multifactor": 34.0,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 0,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 19,
+      "symbol": "NAVINFLUOR",
+      "close": 7303.0,
+      "mcap_cr": 37309.0,
+      "opp_score": 52.5,
+      "track_count": 2,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 16.4,
+      "adx": 24.4,
+      "chop": 57.3,
+      "natr": 3.1,
+      "multifactor": 33.9,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 20,
+      "symbol": "BELRISE",
+      "close": 228.23,
+      "mcap_cr": 20332.0,
+      "opp_score": 55.4,
+      "track_count": 2,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 16.0,
+      "adx": 17.0,
+      "chop": 52.9,
+      "natr": 3.9,
+      "multifactor": 33.2,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 1,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 21,
+      "symbol": "ZENTEC",
+      "close": 1793.8,
+      "mcap_cr": 16191.0,
+      "opp_score": 57.5,
+      "track_count": 2,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 24.6,
+      "adx": 19.6,
+      "chop": 43.7,
+      "natr": 4.5,
+      "multifactor": 32.5,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 1,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 22,
+      "symbol": "SCI",
+      "close": 297.05,
+      "mcap_cr": 13878.0,
+      "opp_score": 58.8,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 23.6,
+      "adx": 19.2,
+      "chop": 52.2,
+      "natr": 4.7,
+      "multifactor": 32.5,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 0,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 23,
+      "symbol": "BAJAJ-AUTO",
+      "close": 10063.0,
+      "mcap_cr": 281146.0,
+      "opp_score": 37.7,
+      "track_count": 2,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 13.5,
+      "adx": 25.7,
+      "chop": 56.1,
+      "natr": 2.0,
+      "multifactor": 31.9,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 24,
+      "symbol": "MANKIND",
+      "close": 2381.1,
+      "mcap_cr": 98338.0,
+      "opp_score": 38.4,
+      "track_count": 2,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 14.7,
+      "adx": 20.9,
+      "chop": 46.5,
+      "natr": 2.6,
+      "multifactor": 30.8,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 25,
+      "symbol": "OLECTRA",
+      "close": 1296.0,
+      "mcap_cr": 10644.0,
+      "opp_score": 49.5,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 26.8,
+      "adx": 16.4,
+      "chop": 49.4,
+      "natr": 4.3,
+      "multifactor": 30.7,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 0,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 26,
+      "symbol": "ELECON",
+      "close": 536.85,
+      "mcap_cr": 12087.0,
+      "opp_score": 47.5,
+      "track_count": 2,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 43.5,
+      "adx": 27.3,
+      "chop": 57.1,
+      "natr": 4.1,
+      "multifactor": 30.4,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 1,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 27,
+      "symbol": "CGCL",
+      "close": 208.48,
+      "mcap_cr": 20028.0,
+      "opp_score": 33.9,
+      "track_count": 2,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 18.6,
+      "adx": 49.7,
+      "chop": 49.2,
+      "natr": 2.8,
+      "multifactor": 29.3,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 28,
+      "symbol": "AXISBANK",
+      "close": 1356.3,
+      "mcap_cr": 421881.0,
+      "opp_score": 26.0,
+      "track_count": 2,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 7.7,
+      "adx": 28.5,
+      "chop": 47.4,
+      "natr": 2.1,
+      "multifactor": 28.3,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 29,
+      "symbol": "NBCC",
+      "close": 105.16,
+      "mcap_cr": 28385.0,
+      "opp_score": 36.6,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 23.0,
+      "adx": 37.3,
+      "chop": 51.0,
+      "natr": 3.9,
+      "multifactor": 27.7,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 0,
+        "institutional": 0,
+        "pead": 1
+      }
+    },
+    {
+      "rank": 30,
+      "symbol": "HONASA",
+      "close": 413.65,
+      "mcap_cr": 13454.0,
+      "opp_score": 82.9,
+      "track_count": 1,
+      "tier": "TIER 1 \u2014 HIGH CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 31.1,
+      "adx": 37.9,
+      "chop": 46.8,
+      "natr": 3.8,
+      "multifactor": 26.3,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 31,
+      "symbol": "CUPID",
+      "close": 159.97,
+      "mcap_cr": 21452.0,
+      "opp_score": 81.9,
+      "track_count": 1,
+      "tier": "TIER 1 \u2014 HIGH CONVICTION",
+      "stage2": true,
+      "vcp": "No",
+      "nse_alpha": 80.6,
+      "adx": 44.5,
+      "chop": 26.4,
+      "natr": 4.0,
+      "multifactor": 25.7,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 32,
+      "symbol": "APARINDS",
+      "close": 15221.0,
+      "mcap_cr": 61112.0,
+      "opp_score": 58.0,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "No",
+      "nse_alpha": 45.6,
+      "adx": 31.1,
+      "chop": 42.6,
+      "natr": 4.3,
+      "multifactor": 25.6,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 1,
+        "low_vol": 0,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 33,
+      "symbol": "SYRMA",
+      "close": 1266.7,
+      "mcap_cr": 24410.0,
+      "opp_score": 82.5,
+      "track_count": 1,
+      "tier": "TIER 1 \u2014 HIGH CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 48.8,
+      "adx": 59.5,
+      "chop": 33.5,
+      "natr": 4.2,
+      "multifactor": 25.5,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 34,
+      "symbol": "ACMESOLAR",
+      "close": 335.75,
+      "mcap_cr": 23709.0,
+      "opp_score": 85.3,
+      "track_count": 1,
+      "tier": "TIER 1 \u2014 HIGH CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 21.3,
+      "adx": 57.2,
+      "chop": 40.3,
+      "natr": 4.7,
+      "multifactor": 25.2,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 35,
+      "symbol": "NEOGEN",
+      "close": 2033.7,
+      "mcap_cr": 5574.0,
+      "opp_score": 86.6,
+      "track_count": 1,
+      "tier": "TIER 1 \u2014 HIGH CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 69.4,
+      "adx": 48.3,
+      "chop": 45.4,
+      "natr": 4.9,
+      "multifactor": 25.2,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 36,
+      "symbol": "LLOYDSME",
+      "close": 1761.9,
+      "mcap_cr": 99160.0,
+      "opp_score": 69.3,
+      "track_count": 1,
+      "tier": "TIER 2 \u2014 MEDIUM CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 31.1,
+      "adx": 23.7,
+      "chop": 45.3,
+      "natr": 3.1,
+      "multifactor": 23.8,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 37,
+      "symbol": "ASTRAMICRO",
+      "close": 1443.8,
+      "mcap_cr": 13698.0,
+      "opp_score": 80.5,
+      "track_count": 1,
+      "tier": "TIER 1 \u2014 HIGH CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 56.5,
+      "adx": 50.1,
+      "chop": 44.1,
+      "natr": 4.9,
+      "multifactor": 23.5,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 38,
+      "symbol": "THANGAMAYL",
+      "close": 5478.7,
+      "mcap_cr": 17042.0,
+      "opp_score": 85.0,
+      "track_count": 1,
+      "tier": "TIER 1 \u2014 HIGH CONVICTION",
+      "stage2": true,
+      "vcp": "No",
+      "nse_alpha": 55.5,
+      "adx": 64.7,
+      "chop": 27.7,
+      "natr": 5.6,
+      "multifactor": 23.3,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 39,
+      "symbol": "FEDERALBNK",
+      "close": 315.7,
+      "mcap_cr": 77819.0,
+      "opp_score": 62.5,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 13.3,
+      "adx": 44.3,
+      "chop": 43.4,
+      "natr": 2.5,
+      "multifactor": 23.1,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 40,
+      "symbol": "ADANIENT",
+      "close": 2921.6,
+      "mcap_cr": 380157.0,
+      "opp_score": 62.9,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 57.2,
+      "adx": 45.3,
+      "chop": 48.6,
+      "natr": 2.8,
+      "multifactor": 22.4,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 41,
+      "symbol": "NEULANDLAB",
+      "close": 17198.0,
+      "mcap_cr": 22092.0,
+      "opp_score": 63.1,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 38.6,
+      "adx": 28.1,
+      "chop": 61.2,
+      "natr": 3.0,
+      "multifactor": 22.1,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 42,
+      "symbol": "ADANIENSOL",
+      "close": 1489.6,
+      "mcap_cr": 178967.0,
+      "opp_score": 71.8,
+      "track_count": 1,
+      "tier": "TIER 2 \u2014 MEDIUM CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 51.2,
+      "adx": 38.6,
+      "chop": 44.0,
+      "natr": 4.3,
+      "multifactor": 22.0,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 43,
+      "symbol": "WELCORP",
+      "close": 1402.3,
+      "mcap_cr": 37027.0,
+      "opp_score": 67.2,
+      "track_count": 1,
+      "tier": "TIER 2 \u2014 MEDIUM CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 67.5,
+      "adx": 16.2,
+      "chop": 58.2,
+      "natr": 3.7,
+      "multifactor": 22.0,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 44,
+      "symbol": "THERMAX",
+      "close": 4726.3,
+      "mcap_cr": 56306.0,
+      "opp_score": 68.0,
+      "track_count": 1,
+      "tier": "TIER 2 \u2014 MEDIUM CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 40.9,
+      "adx": 45.0,
+      "chop": 52.0,
+      "natr": 4.0,
+      "multifactor": 21.5,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 45,
+      "symbol": "BANDHANBNK",
+      "close": 204.6,
+      "mcap_cr": 32953.0,
+      "opp_score": 63.6,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 36.8,
+      "adx": 23.8,
+      "chop": 55.7,
+      "natr": 3.5,
+      "multifactor": 21.4,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 46,
+      "symbol": "MOTHERSON",
+      "close": 143.4,
+      "mcap_cr": 151018.0,
+      "opp_score": 60.8,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 26.8,
+      "adx": 49.4,
+      "chop": 49.0,
+      "natr": 3.3,
+      "multifactor": 21.0,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 47,
+      "symbol": "ZYDUSLIFE",
+      "close": 1104.7,
+      "mcap_cr": 111184.0,
+      "opp_score": 53.6,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 21.5,
+      "adx": 59.3,
+      "chop": 53.1,
+      "natr": 2.3,
+      "multifactor": 20.8,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 48,
+      "symbol": "BHEL",
+      "close": 378.75,
+      "mcap_cr": 131901.0,
+      "opp_score": 64.3,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 43.3,
+      "adx": 40.2,
+      "chop": 47.0,
+      "natr": 3.9,
+      "multifactor": 20.8,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 49,
+      "symbol": "SAILIFE",
+      "close": 1218.1,
+      "mcap_cr": 25857.0,
+      "opp_score": 63.8,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 18.5,
+      "adx": 35.1,
+      "chop": 53.3,
+      "natr": 3.8,
+      "multifactor": 20.8,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 50,
+      "symbol": "MCX",
+      "close": 2853.0,
+      "mcap_cr": 72709.0,
+      "opp_score": 64.1,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 12.9,
+      "adx": 51.2,
+      "chop": 35.4,
+      "natr": 3.9,
+      "multifactor": 20.7,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 51,
+      "symbol": "CRAFTSMAN",
+      "close": 8917.5,
+      "mcap_cr": 21247.0,
+      "opp_score": 61.9,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 25.1,
+      "adx": 40.0,
+      "chop": 63.7,
+      "natr": 3.6,
+      "multifactor": 20.6,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 52,
+      "symbol": "RRKABEL",
+      "close": 2168.2,
+      "mcap_cr": 24551.0,
+      "opp_score": 66.0,
+      "track_count": 1,
+      "tier": "TIER 2 \u2014 MEDIUM CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 58.5,
+      "adx": 41.8,
+      "chop": 54.2,
+      "natr": 4.2,
+      "multifactor": 20.6,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 53,
+      "symbol": "CHENNPETRO",
+      "close": 1137.7,
+      "mcap_cr": 16934.0,
+      "opp_score": 68.5,
+      "track_count": 1,
+      "tier": "TIER 2 \u2014 MEDIUM CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 18.0,
+      "adx": 42.1,
+      "chop": 39.5,
+      "natr": 4.7,
+      "multifactor": 20.4,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 54,
+      "symbol": "ABB",
+      "close": 6770.5,
+      "mcap_cr": 143473.0,
+      "opp_score": 54.0,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 8.2,
+      "adx": 26.8,
+      "chop": 45.7,
+      "natr": 2.7,
+      "multifactor": 20.2,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 55,
+      "symbol": "STARHEALTH",
+      "close": 519.6,
+      "mcap_cr": 30572.0,
+      "opp_score": 53.1,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 12.0,
+      "adx": 33.8,
+      "chop": 65.9,
+      "natr": 2.6,
+      "multifactor": 20.1,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 56,
+      "symbol": "SENORES",
+      "close": 1290.0,
+      "mcap_cr": 5947.0,
+      "opp_score": 72.7,
+      "track_count": 1,
+      "tier": "TIER 2 \u2014 MEDIUM CONVICTION",
+      "stage2": true,
+      "vcp": "No",
+      "nse_alpha": 60.5,
+      "adx": 35.2,
+      "chop": 44.1,
+      "natr": 5.5,
+      "multifactor": 20.0,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 57,
+      "symbol": "AVALON",
+      "close": 1687.0,
+      "mcap_cr": 11194.0,
+      "opp_score": 76.9,
+      "track_count": 1,
+      "tier": "TIER 1 \u2014 HIGH CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 60.4,
+      "adx": 21.0,
+      "chop": 48.7,
+      "natr": 6.1,
+      "multifactor": 20.0,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 58,
+      "symbol": "SHYAMMETL",
+      "close": 983.75,
+      "mcap_cr": 27511.0,
+      "opp_score": 51.1,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 20.6,
+      "adx": 28.8,
+      "chop": 51.3,
+      "natr": 2.4,
+      "multifactor": 20.0,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 59,
+      "symbol": "KEI",
+      "close": 5369.5,
+      "mcap_cr": 51368.0,
+      "opp_score": 55.0,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 23.8,
+      "adx": 21.6,
+      "chop": 59.8,
+      "natr": 3.1,
+      "multifactor": 19.7,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 60,
+      "symbol": "ABSLAMC",
+      "close": 1101.2,
+      "mcap_cr": 31865.0,
+      "opp_score": 58.1,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 18.5,
+      "adx": 50.6,
+      "chop": 56.4,
+      "natr": 3.8,
+      "multifactor": 19.2,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 61,
+      "symbol": "BBOX",
+      "close": 1018.6,
+      "mcap_cr": 18077.0,
+      "opp_score": 69.7,
+      "track_count": 1,
+      "tier": "TIER 2 \u2014 MEDIUM CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 115.3,
+      "adx": 35.9,
+      "chop": 51.6,
+      "natr": 5.7,
+      "multifactor": 18.8,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 62,
+      "symbol": "INOXINDIA",
+      "close": 1808.2,
+      "mcap_cr": 16402.0,
+      "opp_score": 72.7,
+      "track_count": 1,
+      "tier": "TIER 1 \u2014 HIGH CONVICTION",
+      "stage2": true,
+      "vcp": "No",
+      "nse_alpha": 45.6,
+      "adx": 49.5,
+      "chop": 33.7,
+      "natr": 6.1,
+      "multifactor": 18.7,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 63,
+      "symbol": "APOLLO",
+      "close": 409.4,
+      "mcap_cr": 14769.0,
+      "opp_score": 73.8,
+      "track_count": 1,
+      "tier": "TIER 1 \u2014 HIGH CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 98.5,
+      "adx": 44.4,
+      "chop": 47.8,
+      "natr": 6.4,
+      "multifactor": 18.4,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 64,
+      "symbol": "MIDHANI",
+      "close": 435.1,
+      "mcap_cr": 8140.0,
+      "opp_score": 64.4,
+      "track_count": 1,
+      "tier": "TIER 2 \u2014 MEDIUM CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 44.9,
+      "adx": 46.8,
+      "chop": 60.3,
+      "natr": 5.2,
+      "multifactor": 18.3,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 65,
+      "symbol": "DIACABS",
+      "close": 201.91,
+      "mcap_cr": 10664.0,
+      "opp_score": 67.1,
+      "track_count": 1,
+      "tier": "TIER 2 \u2014 MEDIUM CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 55.2,
+      "adx": 50.4,
+      "chop": 62.3,
+      "natr": 5.6,
+      "multifactor": 18.2,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 66,
+      "symbol": "AEGISLOG",
+      "close": 944.4,
+      "mcap_cr": 33082.0,
+      "opp_score": 63.1,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "No",
+      "nse_alpha": 49.1,
+      "adx": 52.0,
+      "chop": 26.6,
+      "natr": 5.1,
+      "multifactor": 17.9,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 67,
+      "symbol": "NUVAMA",
+      "close": 1588.1,
+      "mcap_cr": 28967.0,
+      "opp_score": 51.3,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 30.5,
+      "adx": 24.8,
+      "chop": 61.9,
+      "natr": 3.4,
+      "multifactor": 17.9,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 68,
+      "symbol": "VIYASH",
+      "close": 249.95,
+      "mcap_cr": 10913.0,
+      "opp_score": 60.6,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 30.9,
+      "adx": 65.7,
+      "chop": 55.5,
+      "natr": 4.8,
+      "multifactor": 17.9,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 69,
+      "symbol": "QPOWER",
+      "close": 1221.1,
+      "mcap_cr": 9497.0,
+      "opp_score": 62.1,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "No",
+      "nse_alpha": 43.3,
+      "adx": 36.4,
+      "chop": 50.8,
+      "natr": 5.1,
+      "multifactor": 17.8,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 70,
+      "symbol": "PARAS",
+      "close": 1097.15,
+      "mcap_cr": 8841.0,
+      "opp_score": 68.1,
+      "track_count": 1,
+      "tier": "TIER 2 \u2014 MEDIUM CONVICTION",
+      "stage2": true,
+      "vcp": "No",
+      "nse_alpha": 55.7,
+      "adx": 41.6,
+      "chop": 38.3,
+      "natr": 6.1,
+      "multifactor": 17.5,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 71,
+      "symbol": "HSCL",
+      "close": 680.5,
+      "mcap_cr": 34314.0,
+      "opp_score": 61.2,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 45.9,
+      "adx": 41.8,
+      "chop": 47.2,
+      "natr": 5.2,
+      "multifactor": 17.2,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 72,
+      "symbol": "KTKBANK",
+      "close": 275.7,
+      "mcap_cr": 10429.0,
+      "opp_score": 51.9,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 16.9,
+      "adx": 22.8,
+      "chop": 62.6,
+      "natr": 3.9,
+      "multifactor": 17.2,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 73,
+      "symbol": "DATAPATTNS",
+      "close": 4545.7,
+      "mcap_cr": 25438.0,
+      "opp_score": 65.5,
+      "track_count": 1,
+      "tier": "TIER 2 \u2014 MEDIUM CONVICTION",
+      "stage2": true,
+      "vcp": "No",
+      "nse_alpha": 41.6,
+      "adx": 25.9,
+      "chop": 46.5,
+      "natr": 5.9,
+      "multifactor": 17.2,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 74,
+      "symbol": "MARICO",
+      "close": 819.05,
+      "mcap_cr": 106298.0,
+      "opp_score": 38.6,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 7.6,
+      "adx": 24.6,
+      "chop": 58.5,
+      "natr": 2.0,
+      "multifactor": 17.1,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 75,
+      "symbol": "RATEGAIN",
+      "close": 783.05,
+      "mcap_cr": 9250.0,
+      "opp_score": 53.6,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 62.4,
+      "adx": 66.0,
+      "chop": 48.7,
+      "natr": 4.2,
+      "multifactor": 17.1,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 76,
+      "symbol": "ATHERENERG",
+      "close": 1028.7,
+      "mcap_cr": 39394.0,
+      "opp_score": 56.4,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 29.0,
+      "adx": 59.8,
+      "chop": 55.1,
+      "natr": 4.7,
+      "multifactor": 16.8,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 77,
+      "symbol": "CEMPRO",
+      "close": 1122.4,
+      "mcap_cr": 19265.0,
+      "opp_score": 62.2,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "No",
+      "nse_alpha": 119.7,
+      "adx": 59.0,
+      "chop": 32.7,
+      "natr": 5.6,
+      "multifactor": 16.8,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 78,
+      "symbol": "MARKSANS",
+      "close": 252.37,
+      "mcap_cr": 11445.0,
+      "opp_score": 59.3,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 50.9,
+      "adx": 47.6,
+      "chop": 49.5,
+      "natr": 5.2,
+      "multifactor": 16.8,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 79,
+      "symbol": "AUROPHARMA",
+      "close": 1472.8,
+      "mcap_cr": 85540.0,
+      "opp_score": 38.9,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 9.8,
+      "adx": 22.1,
+      "chop": 58.5,
+      "natr": 2.3,
+      "multifactor": 16.7,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 80,
+      "symbol": "RADICO",
+      "close": 3541.7,
+      "mcap_cr": 47426.0,
+      "opp_score": 38.8,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 27.3,
+      "adx": 18.2,
+      "chop": 62.0,
+      "natr": 2.3,
+      "multifactor": 16.6,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 81,
+      "symbol": "ADANIPOWER",
+      "close": 223.07,
+      "mcap_cr": 429904.0,
+      "opp_score": 48.3,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 38.0,
+      "adx": 26.4,
+      "chop": 45.0,
+      "natr": 3.7,
+      "multifactor": 16.5,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 82,
+      "symbol": "CUMMINSIND",
+      "close": 5621.5,
+      "mcap_cr": 155957.0,
+      "opp_score": 42.3,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 18.1,
+      "adx": 16.7,
+      "chop": 46.6,
+      "natr": 2.9,
+      "multifactor": 16.5,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 83,
+      "symbol": "TORNTPHARM",
+      "close": 4571.2,
+      "mcap_cr": 154785.0,
+      "opp_score": 41.3,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 5.8,
+      "adx": 24.4,
+      "chop": 54.3,
+      "natr": 2.8,
+      "multifactor": 16.3,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 84,
+      "symbol": "HFCL",
+      "close": 171.86,
+      "mcap_cr": 26302.0,
+      "opp_score": 67.2,
+      "track_count": 1,
+      "tier": "TIER 2 \u2014 MEDIUM CONVICTION",
+      "stage2": true,
+      "vcp": "No",
+      "nse_alpha": 127.9,
+      "adx": 50.8,
+      "chop": 37.7,
+      "natr": 6.6,
+      "multifactor": 16.3,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 85,
+      "symbol": "AKUMS",
+      "close": 622.9,
+      "mcap_cr": 9811.0,
+      "opp_score": 48.7,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "No",
+      "nse_alpha": 26.3,
+      "adx": 44.2,
+      "chop": 38.1,
+      "natr": 3.9,
+      "multifactor": 16.2,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 86,
+      "symbol": "CAPLIPOINT",
+      "close": 2407.8,
+      "mcap_cr": 18304.0,
+      "opp_score": 49.2,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 47.7,
+      "adx": 60.6,
+      "chop": 37.2,
+      "natr": 4.0,
+      "multifactor": 16.1,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 87,
+      "symbol": "SPARC",
+      "close": 223.76,
+      "mcap_cr": 7265.0,
+      "opp_score": 62.9,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 84.1,
+      "adx": 22.4,
+      "chop": 43.1,
+      "natr": 6.0,
+      "multifactor": 16.1,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 88,
+      "symbol": "AZAD",
+      "close": 2150.1,
+      "mcap_cr": 13888.0,
+      "opp_score": 51.6,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 37.0,
+      "adx": 20.0,
+      "chop": 51.6,
+      "natr": 4.5,
+      "multifactor": 15.8,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 89,
+      "symbol": "JBCHEPHARM",
+      "close": 2257.7,
+      "mcap_cr": 36263.0,
+      "opp_score": 39.8,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 8.4,
+      "adx": 30.0,
+      "chop": 58.9,
+      "natr": 2.8,
+      "multifactor": 15.8,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 90,
+      "symbol": "NESTLEIND",
+      "close": 1375.7,
+      "mcap_cr": 265418.0,
+      "opp_score": 34.2,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 17.5,
+      "adx": 28.6,
+      "chop": 57.6,
+      "natr": 2.0,
+      "multifactor": 15.8,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 91,
+      "symbol": "JBMA",
+      "close": 683.8,
+      "mcap_cr": 16175.0,
+      "opp_score": 50.8,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 25.5,
+      "adx": 17.6,
+      "chop": 53.2,
+      "natr": 4.5,
+      "multifactor": 15.6,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 92,
+      "symbol": "SUPRIYA",
+      "close": 977.15,
+      "mcap_cr": 7872.0,
+      "opp_score": 62.4,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "No",
+      "nse_alpha": 57.1,
+      "adx": 53.9,
+      "chop": 35.7,
+      "natr": 6.3,
+      "multifactor": 15.4,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 93,
+      "symbol": "RBLBANK",
+      "close": 365.85,
+      "mcap_cr": 22649.0,
+      "opp_score": 39.8,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 19.7,
+      "adx": 20.9,
+      "chop": 51.4,
+      "natr": 3.1,
+      "multifactor": 15.4,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 94,
+      "symbol": "TDPOWERSYS",
+      "close": 1192.8,
+      "mcap_cr": 18642.0,
+      "opp_score": 62.5,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "No",
+      "nse_alpha": 30.7,
+      "adx": 31.7,
+      "chop": 54.4,
+      "natr": 6.4,
+      "multifactor": 15.3,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 95,
+      "symbol": "LT",
+      "close": 4049.3,
+      "mcap_cr": 557442.0,
+      "opp_score": 32.5,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 10.3,
+      "adx": 21.6,
+      "chop": 51.3,
+      "natr": 2.1,
+      "multifactor": 15.1,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 96,
+      "symbol": "GOLDIAM",
+      "close": 478.8,
+      "mcap_cr": 5407.0,
+      "opp_score": 56.6,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 68.5,
+      "adx": 45.4,
+      "chop": 45.4,
+      "natr": 5.6,
+      "multifactor": 15.1,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 97,
+      "symbol": "NETWEB",
+      "close": 4587.4,
+      "mcap_cr": 26104.0,
+      "opp_score": 61.4,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "No",
+      "nse_alpha": 39.9,
+      "adx": 31.0,
+      "chop": 47.4,
+      "natr": 6.3,
+      "multifactor": 15.1,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 98,
+      "symbol": "PRIVISCL",
+      "close": 3444.3,
+      "mcap_cr": 13481.0,
+      "opp_score": 39.5,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 8.1,
+      "adx": 23.8,
+      "chop": 57.9,
+      "natr": 3.2,
+      "multifactor": 15.0,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 99,
+      "symbol": "SAMMAANCAP",
+      "close": 174.42,
+      "mcap_cr": 20215.0,
+      "opp_score": 47.5,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 11.6,
+      "adx": 44.1,
+      "chop": 37.2,
+      "natr": 4.3,
+      "multifactor": 15.0,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 100,
+      "symbol": "AEROFLEX",
+      "close": 448.1,
+      "mcap_cr": 5925.0,
+      "opp_score": 61.7,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 77.4,
+      "adx": 21.7,
+      "chop": 60.3,
+      "natr": 6.4,
+      "multifactor": 15.0,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 101,
+      "symbol": "VBL",
+      "close": 522.2,
+      "mcap_cr": 176674.0,
+      "opp_score": 34.2,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 31.9,
+      "adx": 22.8,
+      "chop": 58.9,
+      "natr": 2.5,
+      "multifactor": 14.8,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 102,
+      "symbol": "KRN",
+      "close": 1261.2,
+      "mcap_cr": 8242.0,
+      "opp_score": 53.1,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "No",
+      "nse_alpha": 40.0,
+      "adx": 17.0,
+      "chop": 44.5,
+      "natr": 5.2,
+      "multifactor": 14.8,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 103,
+      "symbol": "DEEPAKFERT",
+      "close": 1554.6,
+      "mcap_cr": 19603.0,
+      "opp_score": 44.5,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 55.6,
+      "adx": 29.5,
+      "chop": 46.8,
+      "natr": 4.0,
+      "multifactor": 14.8,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 104,
+      "symbol": "EXIDEIND",
+      "close": 391.95,
+      "mcap_cr": 33311.0,
+      "opp_score": 35.7,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 28.7,
+      "adx": 24.3,
+      "chop": 39.1,
+      "natr": 2.8,
+      "multifactor": 14.7,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 105,
+      "symbol": "ADANIPORTS",
+      "close": 1812.9,
+      "mcap_cr": 417638.0,
+      "opp_score": 32.3,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 31.6,
+      "adx": 16.7,
+      "chop": 61.6,
+      "natr": 2.3,
+      "multifactor": 14.7,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 106,
+      "symbol": "GRSE",
+      "close": 2648.7,
+      "mcap_cr": 30342.0,
+      "opp_score": 39.4,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 26.9,
+      "adx": 13.5,
+      "chop": 66.2,
+      "natr": 3.4,
+      "multifactor": 14.6,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 107,
+      "symbol": "NAM-INDIA",
+      "close": 1089.1,
+      "mcap_cr": 69527.0,
+      "opp_score": 42.6,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 23.4,
+      "adx": 24.5,
+      "chop": 63.3,
+      "natr": 3.8,
+      "multifactor": 14.6,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 108,
+      "symbol": "TITAN",
+      "close": 4184.0,
+      "mcap_cr": 371477.0,
+      "opp_score": 34.2,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 0.1,
+      "adx": 20.4,
+      "chop": 57.0,
+      "natr": 2.7,
+      "multifactor": 14.5,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 109,
+      "symbol": "MTARTECH",
+      "close": 7159.5,
+      "mcap_cr": 22059.0,
+      "opp_score": 76.0,
+      "track_count": 1,
+      "tier": "TIER 1 \u2014 HIGH CONVICTION",
+      "stage2": true,
+      "vcp": "No",
+      "nse_alpha": 73.7,
+      "adx": 24.9,
+      "chop": 47.6,
+      "natr": 8.7,
+      "multifactor": 14.5,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 110,
+      "symbol": "RAIN",
+      "close": 196.87,
+      "mcap_cr": 6621.0,
+      "opp_score": 50.4,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 75.7,
+      "adx": 63.4,
+      "chop": 39.6,
+      "natr": 5.0,
+      "multifactor": 14.5,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 111,
+      "symbol": "GRASIM",
+      "close": 3105.5,
+      "mcap_cr": 211347.0,
+      "opp_score": 29.0,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 15.8,
+      "adx": 17.3,
+      "chop": 52.6,
+      "natr": 2.0,
+      "multifactor": 14.4,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 112,
+      "symbol": "DIVISLAB",
+      "close": 6638.0,
+      "mcap_cr": 176331.0,
+      "opp_score": 31.9,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 9.3,
+      "adx": 26.2,
+      "chop": 58.9,
+      "natr": 2.4,
+      "multifactor": 14.4,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 113,
+      "symbol": "ASTERDM",
+      "close": 814.95,
+      "mcap_cr": 42201.0,
+      "opp_score": 36.9,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 20.6,
+      "adx": 40.1,
+      "chop": 44.8,
+      "natr": 3.2,
+      "multifactor": 14.3,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 114,
+      "symbol": "AJANTPHARM",
+      "close": 3131.0,
+      "mcap_cr": 39159.0,
+      "opp_score": 37.4,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 10.3,
+      "adx": 26.5,
+      "chop": 52.8,
+      "natr": 3.3,
+      "multifactor": 14.3,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 115,
+      "symbol": "BALAMINES",
+      "close": 2133.0,
+      "mcap_cr": 6905.0,
+      "opp_score": 63.3,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "No",
+      "nse_alpha": 95.7,
+      "adx": 40.4,
+      "chop": 46.9,
+      "natr": 7.0,
+      "multifactor": 14.2,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 116,
+      "symbol": "PIDILITIND",
+      "close": 1535.5,
+      "mcap_cr": 156279.0,
+      "opp_score": 27.3,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 12.3,
+      "adx": 20.7,
+      "chop": 50.9,
+      "natr": 1.9,
+      "multifactor": 14.0,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 117,
+      "symbol": "SURYAROSNI",
+      "close": 263.01,
+      "mcap_cr": 5733.0,
+      "opp_score": 45.7,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 32.2,
+      "adx": 17.9,
+      "chop": 50.5,
+      "natr": 4.6,
+      "multifactor": 13.9,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 118,
+      "symbol": "INDUSINDBK",
+      "close": 917.35,
+      "mcap_cr": 71397.0,
+      "opp_score": 32.7,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 15.2,
+      "adx": 17.5,
+      "chop": 63.1,
+      "natr": 2.8,
+      "multifactor": 13.9,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 119,
+      "symbol": "PAGEIND",
+      "close": 38625.0,
+      "mcap_cr": 43131.0,
+      "opp_score": 32.3,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 15.4,
+      "adx": 26.3,
+      "chop": 57.1,
+      "natr": 2.7,
+      "multifactor": 13.9,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 120,
+      "symbol": "ENGINERSIN",
+      "close": 234.68,
+      "mcap_cr": 13178.0,
+      "opp_score": 43.7,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 21.8,
+      "adx": 16.9,
+      "chop": 60.6,
+      "natr": 4.4,
+      "multifactor": 13.8,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 121,
+      "symbol": "SHAILY",
+      "close": 2972.0,
+      "mcap_cr": 13705.0,
+      "opp_score": 51.0,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "[VCP]",
+      "nse_alpha": 34.3,
+      "adx": 49.4,
+      "chop": 47.7,
+      "natr": 5.5,
+      "multifactor": 13.7,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 122,
+      "symbol": "FORTIS",
+      "close": 990.35,
+      "mcap_cr": 74771.0,
+      "opp_score": 30.5,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 19.7,
+      "adx": 31.7,
+      "chop": 46.2,
+      "natr": 2.6,
+      "multifactor": 13.6,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 123,
+      "symbol": "SAREGAMA",
+      "close": 455.85,
+      "mcap_cr": 8785.0,
+      "opp_score": 47.0,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 34.9,
+      "adx": 70.3,
+      "chop": 48.8,
+      "natr": 5.0,
+      "multifactor": 13.5,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 124,
+      "symbol": "HUDCO",
+      "close": 205.68,
+      "mcap_cr": 41242.0,
+      "opp_score": 31.0,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 21.8,
+      "adx": 21.3,
+      "chop": 68.7,
+      "natr": 2.7,
+      "multifactor": 13.4,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 125,
+      "symbol": "ANANTRAJ",
+      "close": 534.75,
+      "mcap_cr": 19235.0,
+      "opp_score": 43.1,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 24.6,
+      "adx": 22.4,
+      "chop": 42.6,
+      "natr": 4.5,
+      "multifactor": 13.3,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 126,
+      "symbol": "PNBHOUSING",
+      "close": 989.9,
+      "mcap_cr": 25758.0,
+      "opp_score": 32.3,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 23.9,
+      "adx": 40.6,
+      "chop": 42.6,
+      "natr": 3.2,
+      "multifactor": 13.0,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 127,
+      "symbol": "GMDCLTD",
+      "close": 612.3,
+      "mcap_cr": 19479.0,
+      "opp_score": 40.8,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 2.2,
+      "adx": 43.9,
+      "chop": 44.5,
+      "natr": 4.4,
+      "multifactor": 13.0,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 128,
+      "symbol": "BOSCHLTD",
+      "close": 39060.0,
+      "mcap_cr": 115273.0,
+      "opp_score": 30.1,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 25.0,
+      "adx": 22.7,
+      "chop": 62.7,
+      "natr": 2.9,
+      "multifactor": 13.0,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 129,
+      "symbol": "BANKINDIA",
+      "close": 145.68,
+      "mcap_cr": 66267.0,
+      "opp_score": 31.4,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 3.8,
+      "adx": 21.9,
+      "chop": 51.1,
+      "natr": 3.1,
+      "multifactor": 12.9,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 130,
+      "symbol": "ANGELONE",
+      "close": 339.5,
+      "mcap_cr": 31032.0,
+      "opp_score": 37.0,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 41.0,
+      "adx": 21.3,
+      "chop": 58.1,
+      "natr": 3.9,
+      "multifactor": 12.9,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 131,
+      "symbol": "JINDALSAW",
+      "close": 238.5,
+      "mcap_cr": 15228.0,
+      "opp_score": 45.0,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "No",
+      "nse_alpha": 24.3,
+      "adx": 19.4,
+      "chop": 47.5,
+      "natr": 5.1,
+      "multifactor": 12.8,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 132,
+      "symbol": "CARTRADE",
+      "close": 2345.3,
+      "mcap_cr": 11240.0,
+      "opp_score": 50.3,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "No",
+      "nse_alpha": 35.0,
+      "adx": 52.7,
+      "chop": 30.0,
+      "natr": 5.9,
+      "multifactor": 12.7,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 133,
+      "symbol": "CENTUM",
+      "close": 3582.8,
+      "mcap_cr": 5288.0,
+      "opp_score": 47.2,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 19.1,
+      "adx": 37.2,
+      "chop": 49.4,
+      "natr": 5.5,
+      "multifactor": 12.6,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 134,
+      "symbol": "POWERMECH",
+      "close": 2789.5,
+      "mcap_cr": 8816.0,
+      "opp_score": 36.4,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 52.2,
+      "adx": 31.1,
+      "chop": 49.5,
+      "natr": 4.0,
+      "multifactor": 12.4,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 135,
+      "symbol": "TATACOMM",
+      "close": 1966.6,
+      "mcap_cr": 56061.0,
+      "opp_score": 34.8,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 38.5,
+      "adx": 31.6,
+      "chop": 57.2,
+      "natr": 3.9,
+      "multifactor": 12.1,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 136,
+      "symbol": "EICHERMOT",
+      "close": 7312.0,
+      "mcap_cr": 200632.0,
+      "opp_score": 22.3,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 3.9,
+      "adx": 24.1,
+      "chop": 55.6,
+      "natr": 2.2,
+      "multifactor": 12.0,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 137,
+      "symbol": "KARURVYSYA",
+      "close": 288.95,
+      "mcap_cr": 27907.0,
+      "opp_score": 32.2,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": -5.6,
+      "adx": 28.3,
+      "chop": 59.6,
+      "natr": 3.7,
+      "multifactor": 11.9,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 138,
+      "symbol": "KOTAKBANK",
+      "close": 403.3,
+      "mcap_cr": 401398.0,
+      "opp_score": 22.4,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 5.8,
+      "adx": 29.1,
+      "chop": 57.8,
+      "natr": 2.3,
+      "multifactor": 11.9,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 139,
+      "symbol": "HBLENGINE",
+      "close": 774.3,
+      "mcap_cr": 21488.0,
+      "opp_score": 32.0,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 19.1,
+      "adx": 20.7,
+      "chop": 44.2,
+      "natr": 3.7,
+      "multifactor": 11.8,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 140,
+      "symbol": "ICICIBANK",
+      "close": 1340.8,
+      "mcap_cr": 961329.0,
+      "opp_score": 20.5,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 5.2,
+      "adx": 25.5,
+      "chop": 45.7,
+      "natr": 2.2,
+      "multifactor": 11.6,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 141,
+      "symbol": "SUNPHARMA",
+      "close": 1807.7,
+      "mcap_cr": 433704.0,
+      "opp_score": 17.3,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": -1.4,
+      "adx": 30.2,
+      "chop": 47.9,
+      "natr": 1.8,
+      "multifactor": 11.5,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 142,
+      "symbol": "AUBANK",
+      "close": 1015.5,
+      "mcap_cr": 75929.0,
+      "opp_score": 22.4,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 7.5,
+      "adx": 24.8,
+      "chop": 56.8,
+      "natr": 2.5,
+      "multifactor": 11.4,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 143,
+      "symbol": "STLTECH",
+      "close": 583.65,
+      "mcap_cr": 28303.0,
+      "opp_score": 46.5,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": true,
+      "vcp": "No",
+      "nse_alpha": 200.9,
+      "adx": 68.3,
+      "chop": 25.3,
+      "natr": 6.1,
+      "multifactor": 11.2,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 144,
+      "symbol": "ASIANPAINT",
+      "close": 2747.4,
+      "mcap_cr": 263520.0,
+      "opp_score": 18.3,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 20.1,
+      "adx": 39.4,
+      "chop": 56.5,
+      "natr": 2.1,
+      "multifactor": 11.1,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 145,
+      "symbol": "WOCKPHARMA",
+      "close": 1938.0,
+      "mcap_cr": 31439.0,
+      "opp_score": 51.4,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "No",
+      "nse_alpha": 59.3,
+      "adx": 35.1,
+      "chop": 33.5,
+      "natr": 6.9,
+      "multifactor": 11.1,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 146,
+      "symbol": "BLUEJET",
+      "close": 512.5,
+      "mcap_cr": 8890.0,
+      "opp_score": 38.9,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 48.0,
+      "adx": 28.8,
+      "chop": 52.4,
+      "natr": 5.2,
+      "multifactor": 10.8,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 147,
+      "symbol": "TITAGARH",
+      "close": 858.65,
+      "mcap_cr": 11564.0,
+      "opp_score": 27.1,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 41.2,
+      "adx": 17.1,
+      "chop": 53.6,
+      "natr": 3.6,
+      "multifactor": 10.6,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 148,
+      "symbol": "VOLTAMP",
+      "close": 9719.5,
+      "mcap_cr": 9788.0,
+      "opp_score": 29.1,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 11.3,
+      "adx": 39.0,
+      "chop": 55.7,
+      "natr": 3.9,
+      "multifactor": 10.5,
+      "factor_breakdown": {
+        "momentum": 0,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 149,
+      "symbol": "GAIL",
+      "close": 170.5,
+      "mcap_cr": 112132.0,
+      "opp_score": 15.9,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 17.0,
+      "adx": 15.7,
+      "chop": 56.8,
+      "natr": 2.4,
+      "multifactor": 9.7,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 150,
+      "symbol": "KSB",
+      "close": 834.8,
+      "mcap_cr": 14526.0,
+      "opp_score": 21.9,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": -0.5,
+      "adx": 37.9,
+      "chop": 54.1,
+      "natr": 3.4,
+      "multifactor": 9.5,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 151,
+      "symbol": "UNIMECH",
+      "close": 1159.55,
+      "mcap_cr": 5884.0,
+      "opp_score": 39.0,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "No",
+      "nse_alpha": 55.2,
+      "adx": 36.9,
+      "chop": 42.6,
+      "natr": 5.9,
+      "multifactor": 9.4,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 152,
+      "symbol": "AIIL",
+      "close": 530.15,
+      "mcap_cr": 45080.0,
+      "opp_score": 32.5,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 16.6,
+      "adx": 31.4,
+      "chop": 46.7,
+      "natr": 5.2,
+      "multifactor": 9.0,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 153,
+      "symbol": "ABDL",
+      "close": 644.45,
+      "mcap_cr": 18026.0,
+      "opp_score": 24.2,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "No",
+      "nse_alpha": 50.8,
+      "adx": 43.6,
+      "chop": 38.1,
+      "natr": 4.0,
+      "multifactor": 8.9,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 154,
+      "symbol": "INOXGREEN",
+      "close": 189.9,
+      "mcap_cr": 7652.0,
+      "opp_score": 25.3,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 32.0,
+      "adx": 30.8,
+      "chop": 51.3,
+      "natr": 4.2,
+      "multifactor": 8.8,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 155,
+      "symbol": "BORORENEW",
+      "close": 544.6,
+      "mcap_cr": 7641.0,
+      "opp_score": 20.8,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 36.6,
+      "adx": 30.5,
+      "chop": 60.4,
+      "natr": 4.2,
+      "multifactor": 7.7,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 156,
+      "symbol": "MOTILALOFS",
+      "close": 888.45,
+      "mcap_cr": 53495.0,
+      "opp_score": 13.1,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 22.5,
+      "adx": 21.5,
+      "chop": 55.1,
+      "natr": 3.4,
+      "multifactor": 7.0,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 157,
+      "symbol": "SUVEN",
+      "close": 268.25,
+      "mcap_cr": 7072.0,
+      "opp_score": 33.6,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "No",
+      "nse_alpha": 92.5,
+      "adx": 31.0,
+      "chop": 49.4,
+      "natr": 6.5,
+      "multifactor": 6.7,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 158,
+      "symbol": "TEJASNET",
+      "close": 598.85,
+      "mcap_cr": 10654.0,
+      "opp_score": 31.4,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "[VCP]",
+      "nse_alpha": 37.6,
+      "adx": 52.2,
+      "chop": 38.8,
+      "natr": 6.3,
+      "multifactor": 6.6,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    },
+    {
+      "rank": 159,
+      "symbol": "ZEEL",
+      "close": 112.6,
+      "mcap_cr": 10810.0,
+      "opp_score": 28.6,
+      "track_count": 1,
+      "tier": "TIER 3 \u2014 LOW CONVICTION",
+      "stage2": false,
+      "vcp": "No",
+      "nse_alpha": 49.0,
+      "adx": 51.8,
+      "chop": 37.5,
+      "natr": 6.2,
+      "multifactor": 5.8,
+      "factor_breakdown": {
+        "momentum": 1,
+        "growth": 0,
+        "quality": 0,
+        "low_vol": 1,
+        "institutional": 0,
+        "pead": 0
+      }
+    }
+  ]
+}

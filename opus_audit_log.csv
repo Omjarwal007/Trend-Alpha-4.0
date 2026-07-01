@@ -1,0 +1,4 @@
+timestamp,symbol,verdict,reason
+2026-06-21 12:12:14,RELIANCE,CONFIRM,"Gemini and Grok agree, no governance concerns"
+2026-06-21 12:12:14,TCS,ADJUST -1,Grok sentiment negative but Gemini positive - mild contradiction
+2026-06-21 12:12:14,HDFCBANK,RED FLAG,Promoter pledging increased 15% in last quarter
