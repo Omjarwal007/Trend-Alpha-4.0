@@ -4,7 +4,7 @@ import numpy as np
 import yfinance as yf
 from datetime import datetime, timedelta
 from utils import log_info, log_warning, log_error, categorize_fund_by_name, get_global_mf_name_map, extract_fund_keywords
-from config import MAX_CORE_ETFS, CORE_FRICTION_PENALTY_PCT, BASE_DIR, CORE_ETF_ZONES
+from config import MAX_CORE_ETFS, CORE_FRICTION_PENALTY_PCT, BASE_DIR, CORE_ETF_ZONES, CORE_ALLOCATION_PCT
 from universe_generator import generate_curated_universe
 from cache_manager import get_historical_data
 from scipy.stats import linregress
@@ -380,9 +380,9 @@ def run_core_momentum_engine(date_str, existing_core_holdings=None):
         
         total_weight = final_selection["Combined_Weight"].sum()
         if total_weight > 0:
-            final_selection["Core_Weight"] = final_selection["Combined_Weight"] / total_weight
+            final_selection["Core_Weight"] = (final_selection["Combined_Weight"] / total_weight) * CORE_ALLOCATION_PCT
         else:
-            final_selection["Core_Weight"] = 1.0 / len(final_selection)
+            final_selection["Core_Weight"] = (1.0 / len(final_selection)) * CORE_ALLOCATION_PCT
             
     top_etfs = final_selection.copy()
     

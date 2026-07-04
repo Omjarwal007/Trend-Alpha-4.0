@@ -1784,7 +1784,7 @@ def fetch_chartink_universe_rest(date_str, export_dir, urls):
 
 def fetch_chartink_universe(date_str=None):
     """
-    Fetches the active stock universe from the 11 Chartink screeners.
+    Fetches the active stock universe from the 15 Chartink screeners.
     Uses fast REST API scraper to query the Chartink screeners directly.
     """
     try:
@@ -1801,7 +1801,11 @@ def fetch_chartink_universe(date_str=None):
             "https://chartink.com/screener/200dma-scan-6",
             "https://chartink.com/screener/52w-h-ath",
             "https://chartink.com/screener/the-techno-funda-leader-screener",
-            "https://chartink.com/screener/trend-alfa"
+            "https://chartink.com/screener/trend-alfa",
+            "https://chartink.com/screener/deep-u-shape-recovery",
+            "https://chartink.com/screener/reversal-deep-u-sahpe-2",
+            "https://chartink.com/screener/deep-reversal-scan",
+            "https://chartink.com/screener/lang-term-u-shape-recovery",
         ]
 
     if not date_str:
@@ -1842,6 +1846,6 @@ def fetch_chartink_universe(date_str=None):
         log_success(f"Loaded {len(universe)} unique tickers from local Chartink cache.")
         return universe
 
-    log_info("Fetching active stock list from 11 Chartink screeners via REST fallback...")
+    log_info("Fetching active stock list from 15 Chartink screeners via REST fallback...")
     universe = fetch_chartink_universe_rest(date_str, export_dir, CHARTINK_URLS)
     return universe

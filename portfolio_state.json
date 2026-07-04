@@ -1,6 +1,16 @@
 {
     "initial_capital": 10000000.0,
-    "cash_balance": 10000000.0,
+    "cash_balance": 9900083.403930664,
     "peak_portfolio_value": 10000000.0,
-    "holdings": {}
+    "holdings": {
+        "NYKAA": {
+            "Symbol": "NYKAA",
+            "Quantity": 322,
+            "Entry_Price": 310.29998779296875,
+            "Highest_Price_Since_Entry": 310.29998779296875,
+            "Entry_Date": "2026-07-03",
+            "Allocation_Pct": 1.0,
+            "Tier": "TIER 1 (V)"
+        }
+    }
 }

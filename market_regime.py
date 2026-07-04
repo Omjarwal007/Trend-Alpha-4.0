@@ -6,6 +6,29 @@ from utils import log_info, log_success, log_warning
 from cache_manager import get_historical_data
 from pipeline_data import calculate_chop_index
 
+def fetch_nifty500_constituents():
+    """Fetch Nifty 500 constituent stocks from NSE archives CSV."""
+    try:
+        import requests
+        url = "https://archives.nseindia.com/content/indices/ind_nifty500list.csv"
+        resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=15)
+        if resp.status_code == 200:
+            lines = resp.text.strip().split("\n")
+            symbols = []
+            for line in lines[1:]:  # skip header
+                parts = line.split(",")
+                if len(parts) >= 3:
+                    sym = parts[2].strip()
+                    if sym:
+                        symbols.append(sym)
+            if symbols and len(symbols) >= 300:
+                log_success(f"Fetched {len(symbols)} Nifty 500 constituents from NSE archives.")
+                return symbols
+        log_warning(f"NSE archives returned status {resp.status_code}")
+    except Exception as e:
+        log_warning(f"Could not fetch Nifty 500 constituents: {e}")
+    return []
+
 def determine_index_trend(df):
     """Evaluates trend parameters for index data."""
     if df is None or df.empty:
@@ -51,7 +74,7 @@ def run_market_regime(pipeline_data, date_str=None):
     n250_params = determine_index_trend(nifty250_df)
     nmicro250_params = determine_index_trend(niftymicro250_df)
     
-    # ── CALCULATE MARKET BREADTH (using Chartink universe + bhavcopy cache for broader coverage) ──
+    # ── CALCULATE MARKET BREADTH (using Nifty 500 constituents for accuracy) ──
     above_20dma = 0
     above_50dma = 0
     above_150dma = 0
@@ -61,43 +84,42 @@ def run_market_regime(pipeline_data, date_str=None):
     # Reconstruct daily breadth history for Breadth Thrust calculation
     thrust_pct_series = []
     
-    # Use CHARTINK stock set (more comprehensive) than just 29 SYMBOLS
-    # Try to load broader universe from Chartink or bhavcopy
-    breadth_symbols = list(SYMBOLS)  # Start with 29 benchmarks
-    
-    # Try to expand with Chartink universe (if available)
-    try:
-        from screener_fetcher import fetch_chartink_universe
-        chartink_stocks = fetch_chartink_universe(date_str)
-        if chartink_stocks and len(chartink_stocks) > len(breadth_symbols):
-            # Add unique Chartink stocks
-            chartink_symbols = [s.replace(".NS","") for s in chartink_stocks if s]
-            for cs in chartink_symbols:
-                if cs not in breadth_symbols:
-                    breadth_symbols.append(cs)
-        log_info(f"Market breadth using {len(breadth_symbols)} stocks ({len(chartink_stocks) if chartink_stocks else 0} from Chartink)")
-    except Exception as e:
-        log_warning(f"Could not expand breadth universe: {e}")
-    
-    # Try to expand with bhavcopy cache stocks (all NSE stocks)
-    try:
-        import glob
-        cache_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "Hermes", "bhavcopy_cache")
-        if os.path.isdir(cache_dir):
-            parquet_files = sorted(glob.glob(os.path.join(cache_dir, "bhav_*.parquet")))
-            if parquet_files:
-                latest_bhav = pd.read_parquet(parquet_files[-1])
-                if "SYMBOL" in latest_bhav.columns:
-                    bhav_symbols = latest_bhav["SYMBOL"].unique().tolist()
-                    # Add at most 200 unique symbols from bhavcopy
-                    added = 0
-                    for bs in bhav_symbols:
-                        if bs not in breadth_symbols and added < 200:
-                            breadth_symbols.append(bs)
-                            added += 1
-                    log_info(f"Expanded breadth to {len(breadth_symbols)} stocks (+{added} from bhavcopy)")
-    except Exception as e:
-        log_warning(f"Could not expand via bhavcopy: {e}")
+    # Primary: Nifty 500 constituents from NSE API (most representative for breadth)
+    n500_symbols = fetch_nifty500_constituents()
+    if n500_symbols and len(n500_symbols) >= 100:
+        breadth_symbols = n500_symbols
+        log_info(f"Market breadth using {len(breadth_symbols)} Nifty 500 stocks from NSE API.")
+    else:
+        # Fallback: use Chartink universe + bhavcopy as before
+        breadth_symbols = list(SYMBOLS)  # Start with 29 benchmarks
+        try:
+            from screener_fetcher import fetch_chartink_universe
+            chartink_stocks = fetch_chartink_universe(date_str)
+            if chartink_stocks and len(chartink_stocks) > len(breadth_symbols):
+                chartink_symbols = [s.replace(".NS","") for s in chartink_stocks if s]
+                for cs in chartink_symbols:
+                    if cs not in breadth_symbols:
+                        breadth_symbols.append(cs)
+            log_info(f"Market breadth using {len(breadth_symbols)} stocks ({len(chartink_stocks) if chartink_stocks else 0} from Chartink)")
+        except Exception as e:
+            log_warning(f"Could not expand breadth universe: {e}")
+        try:
+            import glob
+            cache_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "Hermes", "bhavcopy_cache")
+            if os.path.isdir(cache_dir):
+                parquet_files = sorted(glob.glob(os.path.join(cache_dir, "bhav_*.parquet")))
+                if parquet_files:
+                    latest_bhav = pd.read_parquet(parquet_files[-1])
+                    if "SYMBOL" in latest_bhav.columns:
+                        bhav_symbols = latest_bhav["SYMBOL"].unique().tolist()
+                        added = 0
+                        for bs in bhav_symbols:
+                            if bs not in breadth_symbols and added < 200:
+                                breadth_symbols.append(bs)
+                                added += 1
+                        log_info(f"Expanded breadth to {len(breadth_symbols)} stocks (+{added} from bhavcopy)")
+        except Exception as e:
+            log_warning(f"Could not expand via bhavcopy: {e}")
     
     # Build benchmark_histories from the expanded breadth_symbols list
     benchmark_histories = {}

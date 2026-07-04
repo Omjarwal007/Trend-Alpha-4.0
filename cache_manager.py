@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 import datetime
-from utils import log_info, log_warning, log_success
+from utils import log_info, log_warning, log_success, log_error
 
 # Local cache paths
 CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache")
@@ -192,11 +192,22 @@ def _get_historical_data_raw(symbol, days=350, end_date=None):
             if ticker_symbol.endswith(".NS"):
                 ticker_symbol = ticker_symbol[:-3]
                 
+            is_global_or_index = (
+                ticker_symbol.startswith("^") or
+                "=" in ticker_symbol or
+                "-" in ticker_symbol or
+                ticker_symbol.upper() in [
+                    "DBB", "CPER", "GLD", "SLV",
+                    "SMH", "SOXX", "AIQ", "GRID", "SRVR", "XLU", "BOTZ", "ROBO", "XBI", "IBB", "ARKG",
+                    "WGMI", "BLOK", "LIT", "REMX", "OZEM", "URA", "BUG", "CIBR", "ITA", "WCLD"
+                ]
+            )
+            
             if ticker_symbol not in [
                 "MCX_GOLD", "MCX_SILVER", "NIFTY_50", "NIFTY_MIDCAP_150", "NIFTY_NEXT_50", "NIFTY_SMALLCAP_250", "NIFTY_500",
                 "SBI_SMALL_CAP", "NIPPON_SMALL_CAP", "HDFC_SMALL_CAP", "AXIS_SMALL_CAP", "KOTAK_SMALL_CAP", "MOTILAL_SMLCAP_250",
                 "INDIA_VIX"
-            ] and not ticker_symbol.endswith(".BO"):
+            ] and not ticker_symbol.endswith(".BO") and not is_global_or_index:
                 ticker_symbol = f"{ticker_symbol}.NS"
             elif symbol == "NIFTY_50":
                 ticker_symbol = "^NSEI"

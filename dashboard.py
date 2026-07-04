@@ -1,3 +1,11 @@
+import numpy as np
+from tax_logic import STCG_RATE, LTCG_RATE
+from config import NEW_BUY_MIN_SCORE, EXIT_SCORE_THRESHOLD, EXIT_RS_SAFE_ZONE
+import zipfile
+import io
+import plotly.io as pio
+import plotly.graph_objects as go
+import plotly.express as px
 import os
 import sys
 import glob
@@ -8,15 +16,12 @@ from datetime import datetime, timedelta
 import re
 import pandas as pd
 from db_manager import load_pipeline_stage
-
 def read_data_smart(filepath_or_buffer, **kwargs):
     if not isinstance(filepath_or_buffer, str):
         return pd.read_csv(filepath_or_buffer, **kwargs)
-        
     import os
     base_name = os.path.basename(filepath_or_buffer)
     table_name = os.path.splitext(base_name)[0]
-    
     # Skip SQLite lookup for well-known non-pipeline files (index cache, etc.)
     _non_pipeline_prefixes = ("NIFTY_", "INDIA_VIX", "^NSEI", "^BSESN", "^CNXSC")
     if not table_name.startswith(_non_pipeline_prefixes):
@@ -32,24 +37,14 @@ def read_data_smart(filepath_or_buffer, **kwargs):
                     if df.index.name != list(df.columns)[0]:
                         df.set_index(df.columns[0], inplace=True)
             return df
-    
     # Fallback to CSV
     if os.path.exists(filepath_or_buffer):
         return pd.read_csv(filepath_or_buffer, **kwargs)
     return pd.DataFrame()
-
-import numpy as np
-import plotly.express as px
-import plotly.graph_objects as go
-import plotly.io as pio
-import io
-import zipfile
-
 def download_csv_button(df, filename, label="📥 Download CSV", key=None):
     if df is not None and not df.empty:
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button(label=label, data=csv, file_name=filename, mime="text/csv", key=key)
-
 def create_zip_of_folder(folder_path):
     """Zip output folder CSVs PLUS generated analysis exports."""
     zip_buffer = io.BytesIO()
@@ -60,12 +55,10 @@ def create_zip_of_folder(folder_path):
                 if file_name.endswith('.csv'):
                     file_path = os.path.join(folder_path, file_name)
                     zip_file.write(file_path, arcname=f"pipeline/{file_name}")
-
         # 2. VAM-B ranked stocks (from existing L1_VAM_B_Universe.csv)
         _vamb_path = os.path.join(folder_path, "L1_VAM_B_Universe.csv")
         if os.path.exists(_vamb_path):
             zip_file.write(_vamb_path, arcname="analysis/VAM-B_Ranked_Stocks.csv")
-
         # 3. VAM-GQ ranked stocks (generate from MAAC with quality gates)
         _maac_path_m = os.path.join(folder_path, "L7_MAAC_Allocations.csv")
         if os.path.exists(_maac_path_m):
@@ -83,7 +76,6 @@ def create_zip_of_folder(folder_path):
                 zip_file.writestr("analysis/VAM-GQ_Ranked_Stocks.csv", _csv_gq)
             except:
                 pass
-
         # 4. Master Analyzer table output (generate from MAAC data directly)
         try:
             _maac_path_m2 = os.path.join(folder_path, "L7_MAAC_Allocations.csv")
@@ -112,7 +104,6 @@ def create_zip_of_folder(folder_path):
                     zip_file.writestr("analysis/Master_Analyzer_Table.csv", _csv_ma2)
         except:
             pass
-
         # 5. Satellite Ranking table (VAM-B + VAM-GQ merged ranking)
         try:
             import json as _json
@@ -180,9 +171,7 @@ def create_zip_of_folder(folder_path):
                 zip_file.writestr("analysis/Satellite_Ranking.csv", _csv_sat)
         except:
             pass
-
     return zip_buffer.getvalue()
-
 @st.cache_data(ttl=3600)
 def get_global_mf_name_map():
     mf_name_map = {}
@@ -190,13 +179,11 @@ def get_global_mf_name_map():
         from config import CORE_ETF_UNIVERSE
         for k, v in CORE_ETF_UNIVERSE.items():
             mf_name_map[str(k)] = str(v)
-            
         import mf_fetcher
         master_mfs = mf_fetcher.get_master_mf_list()
         if master_mfs:
             for mf in master_mfs:
                 mf_name_map[str(mf.get("schemeCode"))] = str(mf.get("schemeName", ""))
-        
         # Fallback: scan ALL L1_Core_Universe.csv files for codes not yet mapped
         _core_univ_dirs = []
         if os.path.exists(base_output_dir):
@@ -214,7 +201,6 @@ def get_global_mf_name_map():
                             mf_name_map[_sym] = str(_r["Name"])
             except:
                 pass
-        
         # Index/ETF ticker map (from core_universe_processor)
         _etf_map = {
             "nifty 50": "NIFTYBEES.NS", "nifty next 50": "JUNIORBEES.NS",
@@ -235,10 +221,8 @@ def get_global_mf_name_map():
     except Exception:
         pass
     return mf_name_map
-
 # Fix for plotly json serialization with buggy local orjson installation
 pio.json.config.default_engine = "json"
-
 # Setup global premium dark theme for Plotly
 theme_layout = go.Layout(
     paper_bgcolor="rgba(0,0,0,0)",
@@ -265,11 +249,6 @@ theme_layout = go.Layout(
 pio.templates["premium_dark"] = pio.templates["plotly_dark"]
 pio.templates["premium_dark"].layout.update(theme_layout)
 pio.templates.default = "premium_dark"
-
-
-from config import NEW_BUY_MIN_SCORE, EXIT_SCORE_THRESHOLD, EXIT_RS_SAFE_ZONE
-from tax_logic import STCG_RATE, LTCG_RATE
-
 # Set page config to premium wide layout
 st.set_page_config(
     page_title="Trend Alpha 4.0 | Institutional Portfolio OS Terminal",
@@ -277,23 +256,19 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
 # Custom Glassmorphic CSS Injection with Outfit/Inter typography
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
-    
     /* Global Overrides */
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
     }
-    
     h1, h2, h3, h4, h5, h6 {
         font-family: 'Outfit', sans-serif;
         font-weight: 700;
         letter-spacing: -0.5px;
     }
-    
     /* Custom Scrollbar for premium dark mode */
     ::-webkit-scrollbar {
         width: 8px;
@@ -310,13 +285,11 @@ st.markdown("""
     ::-webkit-scrollbar-thumb:hover {
         background: rgba(34, 211, 238, 0.25);
     }
-    
     /* Background & Gradient */
     .stApp {
         background: radial-gradient(circle at 15% 25%, #0A0F1E 0%, #121828 80%, #000000 100%);
         color: #e2e8f0;
     }
-    
     /* Sidebar Styling for dark mode alignment */
     [data-testid="stSidebar"] {
         background-color: #060a13 !important;
@@ -325,7 +298,6 @@ st.markdown("""
     [data-testid="stSidebarNav"] {
         background-color: transparent !important;
     }
-    
     /* Premium alert banner overrides */
     [data-testid="stAlert"] {
         background: rgba(15, 23, 42, 0.45) !important;
@@ -333,7 +305,6 @@ st.markdown("""
         border: 1px solid rgba(255, 255, 255, 0.06) !important;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
     }
-    
     /* Glassmorphic Cards 2.0 with Radial Gradient & Glow */
     .glass-card {
         background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%) !important;
@@ -346,13 +317,11 @@ st.markdown("""
         box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    
     .glass-card:hover {
         transform: translateY(-3px);
         border-color: rgba(34, 211, 238, 0.3) !important;
         box-shadow: 0 20px 45px -10px rgba(34, 211, 238, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
     }
-    
     .kpi-card {
         height: 195px !important;
         margin-bottom: 10px !important;
@@ -360,7 +329,6 @@ st.markdown("""
         flex-direction: column;
         justify-content: flex-start;
     }
-    
     /* Harmonized Neon Pill Badges */
     .badge-buy {
         background: rgba(34, 211, 238, 0.08) !important;
@@ -372,7 +340,6 @@ st.markdown("""
         font-weight: 600;
         font-size: 0.82rem;
     }
-    
     .badge-hold {
         background: rgba(251, 191, 36, 0.08) !important;
         color: #fbbf24 !important;
@@ -383,7 +350,6 @@ st.markdown("""
         font-weight: 600;
         font-size: 0.82rem;
     }
-    
     .badge-avoid {
         background: rgba(239, 68, 68, 0.08) !important;
         color: #f87171 !important;
@@ -394,7 +360,6 @@ st.markdown("""
         font-weight: 600;
         font-size: 0.82rem;
     }
-    
     .badge-normal {
         background: rgba(16, 185, 129, 0.08) !important;
         color: #34d399 !important;
@@ -405,11 +370,9 @@ st.markdown("""
         font-weight: 600;
         font-size: 0.82rem;
     }
-    
     .stProgress > div > div > div > div {
         background-color: #0ea5e9;
     }
-    
     /* Premium Unified Table Designs (Screening, Orders, Elimination, Ledger, Custom) */
     .premium-table, .screening-table, .orders-table, .elimination-table, .unified-ledger-table {
         display: table !important;
@@ -422,25 +385,20 @@ st.markdown("""
         font-size: 0.88rem !important;
         table-layout: fixed !important;
     }
-    
     .premium-table thead, .screening-table thead, .orders-table thead, .elimination-table thead, .unified-ledger-table thead {
         display: table-header-group !important;
     }
-    
     .premium-table tbody, .screening-table tbody, .orders-table tbody, .elimination-table tbody, .unified-ledger-table tbody {
         display: table-row-group !important;
     }
-    
     .premium-table tr, .screening-table tr, .orders-table tr, .elimination-table tr, .unified-ledger-table tr {
         display: table-row !important;
         border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
         transition: background 0.2s ease !important;
     }
-    
     .premium-table tr:hover, .screening-table tr:hover, .orders-table tr:hover, .elimination-table tr:hover, .unified-ledger-table tr:hover {
         background: rgba(255, 255, 255, 0.02) !important;
     }
-    
     .premium-table th, .screening-table th, .orders-table th, .elimination-table th, .unified-ledger-table th,
     .premium-table td, .screening-table td, .orders-table td, .elimination-table td, .unified-ledger-table td {
         display: table-cell !important;
@@ -448,7 +406,6 @@ st.markdown("""
         box-sizing: border-box !important;
         vertical-align: middle !important;
     }
-    
     .premium-table th, .screening-table th, .orders-table th, .elimination-table th, .unified-ledger-table th {
         background: rgba(15, 23, 42, 0.6) !important;
         color: #e2e8f0 !important;
@@ -458,7 +415,6 @@ st.markdown("""
         text-transform: uppercase !important;
         letter-spacing: 0.05em !important;
     }
-    
     /* Strict column widths and text alignment */
     .col-rank { width: 4% !important; text-align: left !important; }
     .col-symbol { width: 12% !important; text-align: left !important; }
@@ -472,12 +428,10 @@ st.markdown("""
     .col-alpha { width: 9% !important; text-align: center !important; }
     .col-deliv { width: 7% !important; text-align: right !important; }
     .col-alloc { width: 7% !important; text-align: right !important; }
-    
     .col-order-sym { width: 15% !important; text-align: left !important; }
     .col-order-act { width: 15% !important; text-align: center !important; }
     .col-order-qty { width: 15% !important; text-align: right !important; }
     .col-order-reason { width: 55% !important; text-align: left !important; }
-    
     .col-el-rank { width: 5% !important; text-align: center !important; }
     .col-el-sym { width: 10% !important; text-align: left !important; }
     .col-el-cap { width: 9% !important; text-align: center !important; }
@@ -489,7 +443,6 @@ st.markdown("""
     .col-el-roe { width: 7% !important; text-align: right !important; }
     .col-el-adx { width: 5% !important; text-align: center !important; }
     .col-el-deliv { width: 5% !important; text-align: right !important; }
-    
     /* Modern Pill Navigation for Streamlit Tabs */
     button[data-baseweb="tab"] {
         color: #94a3b8 !important;
@@ -514,7 +467,6 @@ st.markdown("""
         box-shadow: 0 0 15px rgba(129, 140, 248, 0.15) !important;
         font-weight: 700 !important;
     }
-    
     /* Style standard Streamlit Metric components as cards */
     [data-testid="stMetric"] {
         background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%) !important;
@@ -565,7 +517,6 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
-
 # Main Title & Hero Banner
 st.markdown("""
 <div style="background: radial-gradient(circle at 0% 0%, #0d1527 0%, #070a13 70%, #020306 100%);
@@ -629,10 +580,8 @@ def _resolve_pipeline_file(filename):
         if os.path.exists(_p):
             return _p, _attempt
     return None, None
-
 base_output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
 available_dates = []
-
 if os.path.exists(base_output_dir):
     for item in sorted(os.listdir(base_output_dir), reverse=True):
         item_path = os.path.join(base_output_dir, item)
@@ -654,11 +603,9 @@ if os.path.exists(base_output_dir):
                     available_dates.append((_prefix + item, item) if _prefix else item)
                 else:
                     available_dates.append(("⚠️ " + item, item))
-
 # No reverse — already sorted newest-first from the sorted(..., reverse=True) loop
 if not available_dates:
     available_dates = [("2026-06-05 (fallback)", "2026-06-05")]
-
 # Default to the first complete date (not marked with ⚠️)
 _default_idx = 0
 for _i, _d in enumerate(available_dates):
@@ -666,18 +613,15 @@ for _i, _d in enumerate(available_dates):
     if not _label.startswith("⚠️"):
         _default_idx = _i
         break
-
 selected_date = st.sidebar.selectbox("Synchronization Date", available_dates, index=_default_idx, format_func=lambda x: x[0] if isinstance(x, tuple) else x)
 if isinstance(selected_date, tuple):
     selected_date = selected_date[1]
-
 # Define paths and load state immediately to prevent NameError in sidebar widgets
 OUTPUT_DIR = os.path.join(base_output_dir, selected_date)
 maac_path = os.path.join(OUTPUT_DIR, "L7_MAAC_Allocations.csv")
 state_path = os.path.join(OUTPUT_DIR, "state_3_0.json")
 corr_path = os.path.join(OUTPUT_DIR, "Portfolio_Correlation_Matrix.csv")
 orders_path = os.path.join(OUTPUT_DIR, "Execution_Orders.csv")
-
 def load_df_safe(path):
     if os.path.exists(path):
         try:
@@ -696,15 +640,11 @@ def load_df_safe(path):
         except Exception as e:
             st.warning(f"Error loading {os.path.basename(path)}: {e}")
     return pd.DataFrame()
-
 df_maac = load_df_safe(maac_path)
 df_orders = load_df_safe(orders_path)
-
 if df_maac.empty:
     st.error("MAAC Allocations dataset is unavailable. Run the integrated pipeline (`main.py`) to generate data.")
     st.stop()
-
-
 # ── Load state backup if exists ──
 state_loaded = False
 state_data = {}
@@ -715,7 +655,6 @@ if os.path.exists(state_path):
             state_loaded = True
     except Exception:
         pass
-
 # Setup default values if state load fails
 regime = state_data.get("regime", {}) if state_loaded else {}
 blueprint = state_data.get("blueprint", {}) if state_loaded else {}
@@ -723,18 +662,14 @@ analytics = state_data.get("analytics", {}) if state_loaded else {}
 drawdown = state_data.get("drawdown", {}) if state_loaded else {}
 trends = state_data.get("trends", {}) if state_loaded else {}
 _synced_global = state_loaded
-
 st.sidebar.markdown("---")
-
 st.sidebar.markdown("---")
 st.sidebar.subheader("📊 Portfolio Performance")
 src = analytics.get("metrics_source", "no_ledger")
 trades = analytics.get("total_trades", 0)
-
 unrealized = analytics.get("unrealized_pnl", 0.0)
 unrealized_pct = analytics.get("unrealized_pnl_pct", 0.0)
 unr_c = "#34d399" if unrealized > 0 else ("#ef4444" if unrealized < 0 else "#94a3b8")
-
 if src != "no_ledger" and trades > 0:
     sharpe = analytics.get("sharpe_ratio", 0)
     cagr = analytics.get("CAGR_%", 0)
@@ -742,19 +677,17 @@ if src != "no_ledger" and trades > 0:
     profit_factor = analytics.get("profit_factor", 0)
     max_dd = analytics.get("max_drawdown_%", 0)
     avg_hold = analytics.get("avg_hold_days", 0)
-    
     sharpe_c = "#34d399" if sharpe >= 1.0 else ("#fbbf24" if sharpe >= 0.5 else "#ef4444")
     cagr_c = "#34d399" if cagr >= 15 else ("#fbbf24" if cagr >= 5 else "#ef4444")
     win_c = "#34d399" if win_rate >= 50 else ("#fbbf24" if win_rate >= 35 else "#ef4444")
-    
     html = f"<div style='background:radial-gradient(circle at top left, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);'>"
     html += f"<div style='display:flex;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed rgba(255,255,255,0.1);'><span style='color:#cbd5e1;font-size:0.85rem;font-weight:600;'>Unrealized P&L</span><span style='color:{unr_c};font-weight:800;font-size:0.9rem;'>₹{unrealized:,.0f} ({unrealized_pct:+.1f}%)</span></div>"
     html += f"<div style='display:flex;justify-content:space-between;margin-bottom:4px;'><span style='color:#94a3b8;font-size:0.75rem;'>Sharpe</span><span style='color:{sharpe_c};font-weight:700;'>{sharpe:.2f}</span></div>"
     html += f"<div style='display:flex;justify-content:space-between;margin-bottom:4px;'><span style='color:#94a3b8;font-size:0.75rem;'>CAGR</span><span style='color:{cagr_c};font-weight:700;'>{cagr:.1f}%</span></div>"
     html += f"<div style='display:flex;justify-content:space-between;margin-bottom:4px;'><span style='color:#94a3b8;font-size:0.75rem;'>Win Rate</span><span style='color:{win_c};font-weight:700;'>{win_rate:.1f}%</span></div>"
-    html += f"<div style='display:flex;justify-content:space-between;margin-bottom:4px;'><span style='color:#94a3b8;font-size:0.75rem;'>Profit Factor</span><span style='color:#a78bfa;font-weight:700;'>{profit_factor:.2f}</span></div>"
-    html += f"<div style='display:flex;justify-content:space-between;margin-bottom:4px;'><span style='color:#94a3b8;font-size:0.75rem;'>Max DD</span><span style='color:#f87171;font-weight:700;'>{max_dd:.1f}%</span></div>"
-    html += f"<div style='display:flex;justify-content:space-between;'><span style='color:#94a3b8;font-size:0.75rem;'>Avg Hold</span><span style='color:#94a3b8;font-weight:700;'>{avg_hold:.0f}d</span></div>"
+    html += f"<div style='display:flex;justify-content:space-between;margin-bottom:4px;'><span style='color:#94a3b8;font-size:0.75rem;'>Profit Factor</span><span style='color:#a78bfa;font-weight:700;'>{ profit_factor:.2f}</span></div>"
+    html += f"<div style='display:flex;justify-content:space-between;margin-bottom:4px;'><span style='color:#94a3b8;font-size:0.75rem;'>Max DD</span><span style='color:#f87171;font-weight:700;'>{ max_dd:.1f}%</span></div>"
+    html += f"<div style='display:flex;justify-content:space-between;'><span style='color:#94a3b8;font-size:0.75rem;'>Avg Hold</span><span style='color:#94a3b8;font-weight:700;'>{ avg_hold:.0f}d</span></div>"
     html += f"<div style='margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);'><span style='color:#64748b;font-size:0.65rem;'>{trades} closed trades</span></div></div>"
     st.sidebar.markdown(html, unsafe_allow_html=True)
 else:
@@ -762,18 +695,14 @@ else:
     html += f"<div style='display:flex;justify-content:space-between;margin-bottom:4px;'><span style='color:#cbd5e1;font-size:0.85rem;font-weight:600;'>Unrealized P&L (MTM)</span><span style='color:{unr_c};font-weight:800;font-size:0.9rem;'>₹{unrealized:,.0f} ({unrealized_pct:+.1f}%)</span></div>"
     html += f"<div style='margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);'><span style='color:#64748b;font-size:0.75rem;'>📭 0 closed trades yet (Realized stats offline)</span></div></div>"
     st.sidebar.markdown(html, unsafe_allow_html=True)
-
 st.sidebar.subheader("Portfolio Parameters")
 portfolio_capital = st.sidebar.number_input(
-    "Total Portfolio Capital (₹)", 
-    min_value=100000.0, 
-    value=10000000.0, 
+    "Total Portfolio Capital (₹)",
+    min_value=100000.0,
+    value=10000000.0,
     step=100000.0,
     format="%.2f"
 )
-
-
-
 # ── Helper UI Functions ─────────────────────────────────────────────────────
 def stat_box(label, value, sub="", color="#818cf8", accent=None):
     accent_style = f"border-left:3px solid {accent};" if accent else ""
@@ -786,23 +715,19 @@ def stat_box(label, value, sub="", color="#818cf8", accent=None):
              margin-bottom:4px;">{value}</div>
         <div style="font-size:0.72rem;color:#475569;">{sub}</div>
     </div>"""
-
 def sec_title(icon, text):
     st.markdown(f"""
     <div style="display:flex;align-items:center;gap:8px;margin:16px 0 12px;">
         <span style="font-size:1.1rem;">{icon}</span>
         <span style="font-family:'Outfit';font-weight:700;color:#818cf8;font-size:1rem;">{text}</span>
     </div>""", unsafe_allow_html=True)
-
 # ── SHARED FUNCTIONS (for Hermes merged tabs) ──
 _HERMES_OUTPUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
-
 @st.cache_data(ttl=120)
 def _h_get_portfolio():
     all_stocks = set()
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    output_dir = os.path.join(base_dir, "pipeline_output")
-    
+    output_dir = os.path.join(base_dir, "output")
     def add_from_csv(filename, top_n=None):
         path = os.path.join(output_dir, filename)
         if os.path.exists(path):
@@ -815,12 +740,23 @@ def _h_get_portfolio():
                         all_stocks.add(str(s).strip())
             except:
                 pass
-
-    # Add from universes
-    add_from_csv("L1_VAM_GQ_Universe.csv", top_n=20)
+    # Add from universes — VAM-GQ top 20 by Factor_Score, VAM-B from L1
     add_from_csv("L1_VAM_B_Universe.csv", top_n=20)
+    # VAM-GQ: take top 20 ranked stocks (not just Entry_Eligible) for unified view
+    l6_path = os.path.join(output_dir, "L6_Trade_Allocations.csv")
+    if os.path.exists(l6_path):
+        try:
+            l6_df = read_data_smart(l6_path)
+            if "Symbol" in l6_df.columns:
+                if "Factor_Score" in l6_df.columns:
+                    l6_df = l6_df.sort_values("Factor_Score", ascending=False)
+                # Take top 20 by rank, skip rejected (score=0) for cleaner view
+                l6_top = l6_df[l6_df["Factor_Score"] > 0].head(20)
+                for s in l6_top["Symbol"]:
+                    all_stocks.add(str(s).strip())
+        except:
+            pass
     add_from_csv("L1_Core_Universe.csv")
-
     # Add from active portfolio state
     state_file = os.path.join(base_dir, "portfolio_state.json")
     if os.path.exists(state_file):
@@ -833,7 +769,6 @@ def _h_get_portfolio():
                         all_stocks.add(str(r.get("Symbol")).strip())
         except:
             pass
-                
     # --- Filter out manual veto removals ---
     veto_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Veto_add_remove.csv")
     if os.path.exists(veto_file):
@@ -846,10 +781,8 @@ def _h_get_portfolio():
                     all_stocks.remove(r)
         except:
             pass
-            
     all_stocks = {s for s in all_stocks if not __import__("re").match(r"^(NIFTY_|STRATEGY_|INDIA_VIX|MCX_)", str(s), __import__("re").IGNORECASE)}
     return sorted(list(all_stocks))
-
 @st.cache_data(ttl=300)
 def _h_get_rs_df(_refresh_key=0):
     """Fetch RS data for portfolio stocks.
@@ -889,7 +822,6 @@ def _h_get_rs_df(_refresh_key=0):
                 pass
         if _pipeline_rs:
             break  # found usable data
-
     if _pipeline_rs:
         _rows = []
         # Compute nifty 123d% once from cache for completeness
@@ -911,12 +843,10 @@ def _h_get_rs_df(_refresh_key=0):
                 _d["Price"]
             ))
         return pd.DataFrame(_rows, columns=["Stock", "RS", "Stock_123d%", "Nifty_123d%", "Price"])
-
     # ── Priority 2: Fallback to live yfinance download ──
     portfolio = _h_get_portfolio()
     if not portfolio:
         return pd.DataFrame()
-    
     # Robust Nifty download
     nifty_c = pd.Series(dtype=float)
     for _nifty_attempt in range(2):
@@ -995,11 +925,10 @@ def _h_get_rs_df(_refresh_key=0):
                 continue
             nr = float(nifty_c.iloc[ni]) / float(nifty_c.iloc[ni - 123])
             rs = (sr / nr) - 1.0
-            results.append((sym, round(rs, 4), round((sr-1)*100, 1), round((nr-1)*100, 1), round(cp, 1)))
+            results.append((sym, round(rs, 4), round((sr - 1) * 100, 1), round((nr - 1) * 100, 1), round(cp, 1)))
         except:
             results.append((sym, None, None, None, None))
     return pd.DataFrame(results, columns=["Stock", "RS", "Stock_123d%", "Nifty_123d%", "Price"])
-
 @st.cache_data(ttl=300)
 def _h_get_historical():
     """Build holdings history from L7_MAAC_Allocations.csv with allocation % as value."""
@@ -1032,7 +961,6 @@ def _h_get_historical():
                 except:
                     pass
     return pd.DataFrame(all_h)
-
 @st.cache_data(ttl=300)
 def _h_get_nifty_2y():
     try:
@@ -1041,7 +969,6 @@ def _h_get_nifty_2y():
         return ns
     except Exception:
         return pd.DataFrame()
-
 @st.cache_data(ttl=900)
 def _fetch_yf_commodities_news_data():
     """Fetch live commodities and global index data via yfinance.
@@ -1050,7 +977,6 @@ def _fetch_yf_commodities_news_data():
         import yfinance as yf
         import pandas as pd
         from datetime import datetime, timedelta
-        
         # Build commodities DataFrame manually (individual tickers are more reliable)
         _tickers_cc = {"Gold": "GC=F", "Silver": "SI=F", "Crude Oil": "CL=F", "USD/INR": "INR=X", "US 10Y": "^TNX"}
         _cc_dfs = []
@@ -1063,9 +989,7 @@ def _fetch_yf_commodities_news_data():
                     _cc_dfs.append(_h)
             except:
                 pass
-        
         _cc_data = pd.concat(_cc_dfs, axis=1, sort=True).sort_index() if _cc_dfs else pd.DataFrame()
-        
         # Build global indices DataFrame
         _news_tickers = {"S&P 500": "^GSPC", "NASDAQ": "^IXIC", "Dow Jones": "^DJI", "Hang Seng": "^HSI", "Shanghai": "000001.SS"}
         _news_dfs = []
@@ -1078,28 +1002,21 @@ def _fetch_yf_commodities_news_data():
                     _news_dfs.append(_h)
             except:
                 pass
-        
         _news_data = pd.concat(_news_dfs, axis=1).sort_index() if _news_dfs else pd.DataFrame()
-        
         return _cc_data, _news_data
     except Exception:
         return pd.DataFrame(), pd.DataFrame()
-
 RS_THRESHOLD_H = 0.10
-
 cache_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache")
-
 def _load_index_hist(symbol, filename):
     path = os.path.join(cache_dir, filename)
     df = pd.DataFrame()
-    
     # Try loading via cache_manager to ensure freshness
     try:
         from cache_manager import get_historical_data
         df = get_historical_data(symbol)
     except Exception:
         pass
-        
     # Fallback to direct file read if cache_manager failed
     if df is None or df.empty:
         if os.path.exists(path):
@@ -1107,7 +1024,6 @@ def _load_index_hist(symbol, filename):
                 df = read_data_smart(path, parse_dates=["Date"]).sort_values("Date")
             except Exception:
                 df = pd.DataFrame()
-            
     if not df.empty:
         if "Date" not in df.columns:
             df = df.reset_index()
@@ -1115,7 +1031,6 @@ def _load_index_hist(symbol, filename):
                 df = df.rename(columns={"index": "Date"})
         if "Date" in df.columns:
             df["Date"] = pd.to_datetime(df["Date"])
-            
     if not df.empty and "Close" in df.columns:
         df["Close"] = pd.to_numeric(df["Close"])
         # Adjust Nifty Next 50 ETF scaling
@@ -1127,7 +1042,6 @@ def _load_index_hist(symbol, filename):
                 df["Close"] = df["Close"] * 1000.0
         return df
     return pd.DataFrame()
-
 def _get_price_and_change(df):
     if df.empty or len(df) < 2:
         return 0.0, 0.0
@@ -1135,7 +1049,6 @@ def _get_price_and_change(df):
     prev = float(df["Close"].iloc[-2])
     chg = ((last / prev) - 1.0) * 100.0 if prev > 0 else 0.0
     return last, chg
-
 # Helper to register manual Veto Actions (Add/Remove)
 def register_veto_action(symbol, action, alloc_pct=0.0):
     if not symbol:
@@ -1146,7 +1059,6 @@ def register_veto_action(symbol, action, alloc_pct=0.0):
     veto_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Veto_add_remove.csv")
     date_str = pd.Timestamp.now().strftime("%Y-%m-%d")
     timestamp_str = pd.Timestamp.now().isoformat()
-    
     entry = pd.DataFrame([{
         "Date": date_str,
         "Symbol": symbol,
@@ -1155,35 +1067,30 @@ def register_veto_action(symbol, action, alloc_pct=0.0):
         "Status": "PENDING",
         "Timestamp": timestamp_str
     }])
-    
     if os.path.exists(veto_file):
         entry.to_csv(veto_file, mode='a', header=False, index=False)
     else:
         entry.to_csv(veto_file, mode='w', header=True, index=False)
-    
     if action == "VETO_ADD":
         st.success(f"✅ Registered {symbol} for manual ADD ({alloc_pct}% alloc) in next pipeline run.")
     else:
         st.success(f"🛑 Registered {symbol} for manual REMOVE in next pipeline run.")
-        
     import time
     time.sleep(0.5)
     st.cache_data.clear()
     st.rerun()
-
 # ── Calculate Global Strategy Performance Metrics for KPI Cards ──
 global_strat_ret = "0.00%"
 global_strat_dd = "0.00%"
 global_strat_vol = "0.00%"
 global_strat_sharpe = "0.00"
-
 # ── TA 4.0 Blended Strategy — session state for cross-tab KPI sync ──
 if "ta4_ret" not in st.session_state:
     st.session_state.ta4_ret = global_strat_ret
     st.session_state.ta4_dd = global_strat_dd
     st.session_state.ta4_sharpe = global_strat_sharpe
     st.session_state.ta4_vol = global_strat_vol
-
+_global_perf_error = ""
 try:
     cache_dir_g = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache")
     output_dir_g = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
@@ -1192,7 +1099,6 @@ try:
         df_nifty_g = read_data_smart(nifty50_path_g)
         df_nifty_g["Date"] = pd.to_datetime(df_nifty_g["Date"])
         df_nifty_g = df_nifty_g.sort_values("Date").reset_index(drop=True)
-        
         end_date_g = pd.to_datetime(selected_date)
         nifty_dates = pd.to_datetime(df_nifty_g["Date"])
         if not (nifty_dates == end_date_g).any():
@@ -1201,35 +1107,28 @@ try:
                 end_date_g = past_dates.max()
             else:
                 end_date_g = nifty_dates.max()
-            
         import re
         run_dates_g = []
         for d in sorted(os.listdir(output_dir_g)):
             if os.path.isdir(os.path.join(output_dir_g, d)) and re.match(r"^\d{4}-\d{2}-\d{2}$", d):
                 if os.path.exists(os.path.join(output_dir_g, d, "L7_MAAC_Allocations.csv")):
                     run_dates_g.append(d)
-                    
         if run_dates_g:
             inception_date_g = pd.to_datetime(run_dates_g[0]) - pd.Timedelta(days=1)
         else:
             inception_date_g = pd.to_datetime("2026-05-27")
-            
         start_date_g = inception_date_g
         if start_date_g > end_date_g:
             start_date_g = end_date_g - pd.Timedelta(days=1)
-            
         nifty_min_date_g = df_nifty_g["Date"].min()
         if start_date_g < nifty_min_date_g:
             start_date_g = nifty_min_date_g
-            
         df_nifty_range_g = df_nifty_g[(df_nifty_g["Date"] >= start_date_g) & (df_nifty_g["Date"] <= end_date_g)]
         trading_dates_g = df_nifty_range_g["Date"].tolist()
-        
         if len(trading_dates_g) >= 2:
             import glob
             csv_files_g = glob.glob(os.path.join(cache_dir_g, "*_history.csv"))
             series_list_g = {}
-            
             _valid_syms_set_g = set()
             for _d in run_dates_g:
                 for filename in ["L7_MAAC_Allocations.csv"]:
@@ -1248,7 +1147,6 @@ try:
                         _valid_syms_set_g.update(df_core_tmp[df_core_tmp["Core_Weight"] > 0]["Symbol"].tolist())
             if state_loaded and "holdings" in state_data:
                 _valid_syms_set_g.update(state_data["holdings"].keys())
-                
             for file in csv_files_g:
                 sym = os.path.basename(file).replace("_history.csv", "")
                 if re.match(r"^(NIFTY_|STRATEGY_|INDIA_VIX|MCX_)", sym, re.IGNORECASE):
@@ -1265,10 +1163,8 @@ try:
                     pass
             if series_list_g:
                 price_matrix_g = pd.DataFrame(series_list_g).sort_index().ffill()
-                
                 portfolio_value_g = 100.0
                 portfolio_history_g = [{"Date": trading_dates_g[0].strftime("%Y-%m-%d"), "Value": 100.0}]
-                
                 # TA 4.0 Blended: separate Core and Satellite allocation dicts
                 sat_allocations_g = None
                 core_allocations_g = {}
@@ -1279,7 +1175,6 @@ try:
                     _d = run_dates_g[0]
                 else:
                     _d = None
-                    
                 if _d:
                     # Load Satellite (MAAC) allocations
                     for filename in ["L7_MAAC_Allocations.csv"]:
@@ -1303,17 +1198,14 @@ try:
                     if _core_sum > 0:
                         for _sym in list(core_allocations_g.keys()):
                             core_allocations_g[_sym] /= _core_sum
-                
                 # Read blueprint leverage params (with sensible defaults)
                 _bp_core_pct = float(blueprint.get("active_core_equities_pct", 60.0)) if isinstance(blueprint, dict) else 60.0
                 _bp_mtf_pct = float(blueprint.get("mtf_leverage_pct", 150.0)) if isinstance(blueprint, dict) else 150.0
                 _bp_total_exp = _bp_core_pct + _bp_mtf_pct
-                
                 for i in range(1, len(trading_dates_g)):
-                    prev_date = trading_dates_g[i-1]
+                    prev_date = trading_dates_g[i - 1]
                     curr_date = trading_dates_g[i]
                     curr_date_str = curr_date.strftime("%Y-%m-%d")
-                    
                     # ── Compute Core daily return (unleveraged) ──
                     core_daily_ret = 0.0
                     core_wt_count = 0.0
@@ -1329,7 +1221,6 @@ try:
                                     core_wt_count += weight
                         if core_wt_count > 0:
                             core_daily_ret /= core_wt_count
-                    
                     # ── Compute Satellite daily return (leveraged) ──
                     sat_daily_ret = 0.0
                     sat_wt_used = 0.0
@@ -1348,7 +1239,6 @@ try:
                         if sat_raw_wt > 0:
                             sat_daily_ret = (sat_raw_ret / sat_raw_wt) * sum(sat_allocations_g.values())
                             sat_wt_used = sum(sat_allocations_g.values())
-                    
                     # ── TA 4.0 Blended: Core + Leveraged Satellite ──
                     # Formula: (Core_pct × core_ret + MTF_pct × sat_ret) / (Core_pct + MTF_pct)
                     # This correctly amplifies Satellite returns by the leverage ratio
@@ -1358,88 +1248,79 @@ try:
                         daily_ret = core_daily_ret
                     elif sat_wt_used > 0:
                         daily_ret = sat_daily_ret
-                    else:
-                        daily_ret = 0.0
-                    
-                    portfolio_value_g = portfolio_value_g * (1.0 + daily_ret)
-                    portfolio_history_g.append({"Date": curr_date_str, "Value": portfolio_value_g})
-                    
-                    # Rebalance allocations on pipeline run dates
-                    if curr_date_str in run_dates_g:
-                        # Update Satellite allocations
-                        for filename in ["L7_MAAC_Allocations.csv"]:
-                            path = os.path.join(output_dir_g, curr_date_str, filename)
-                            if os.path.exists(path):
-                                df_tmp = read_data_smart(path)
-                                col_tmp = next((c for c in ["Allocation_%", "Allocation_Pct", "Alloc_%"] if c in df_tmp.columns), None)
-                                if col_tmp:
-                                    df_active = df_tmp[df_tmp[col_tmp] > 0]
-                                    sat_allocations_g = dict(zip(df_active["Symbol"], df_active[col_tmp] / 100.0))
-                                    break
-                        # Update Core allocations
-                        _core_path = os.path.join(output_dir_g, curr_date_str, "L1_Core_Allocations.csv")
-                        core_allocations_g = {}
-                        if os.path.exists(_core_path):
-                            df_core = read_data_smart(_core_path)
-                            if "Symbol" in df_core.columns and "Core_Weight" in df_core.columns:
-                                for _, _cr in df_core[df_core["Core_Weight"] > 0].iterrows():
-                                    core_allocations_g[str(_cr["Symbol"])] = float(_cr["Core_Weight"])
-                            _core_sum = sum(core_allocations_g.values())
-                            if _core_sum > 0:
-                                for _sym in list(core_allocations_g.keys()):
-                                    core_allocations_g[_sym] /= _core_sum
-                        # Refresh blueprint leverage params for dynamic regime adjustment
-                        _bp_core_pct = float(blueprint.get("active_core_equities_pct", 60.0)) if isinstance(blueprint, dict) else 60.0
-                        _bp_mtf_pct = float(blueprint.get("mtf_leverage_pct", 150.0)) if isinstance(blueprint, dict) else 150.0
-                        _bp_total_exp = _bp_core_pct + _bp_mtf_pct
-                                    
+                else:
+                    daily_ret = 0.0
+                portfolio_value_g = portfolio_value_g * (1.0 + daily_ret)
+                portfolio_history_g.append({"Date": curr_date_str, "Value": portfolio_value_g})
+                # Rebalance allocations on pipeline run dates
+                if curr_date_str in run_dates_g:
+                    # Update Satellite allocations
+                    for filename in ["L7_MAAC_Allocations.csv"]:
+                        path = os.path.join(output_dir_g, curr_date_str, filename)
+                        if os.path.exists(path):
+                            df_tmp = read_data_smart(path)
+                            col_tmp = next((c for c in ["Allocation_%", "Allocation_Pct", "Alloc_%"] if c in df_tmp.columns), None)
+                            if col_tmp:
+                                df_active = df_tmp[df_tmp[col_tmp] > 0]
+                                sat_allocations_g = dict(zip(df_active["Symbol"], df_active[col_tmp] / 100.0))
+                                break
+                    # Update Core allocations
+                    _core_path = os.path.join(output_dir_g, curr_date_str, "L1_Core_Allocations.csv")
+                    core_allocations_g = {}
+                    if os.path.exists(_core_path):
+                        df_core = read_data_smart(_core_path)
+                        if "Symbol" in df_core.columns and "Core_Weight" in df_core.columns:
+                            for _, _cr in df_core[df_core["Core_Weight"] > 0].iterrows():
+                                core_allocations_g[str(_cr["Symbol"])] = float(_cr["Core_Weight"])
+                        _core_sum = sum(core_allocations_g.values())
+                        if _core_sum > 0:
+                            for _sym in list(core_allocations_g.keys()):
+                                core_allocations_g[_sym] /= _core_sum
+                    # Refresh blueprint leverage params for dynamic regime adjustment
+                    _bp_core_pct = float(blueprint.get("active_core_equities_pct", 60.0)) if isinstance(blueprint, dict) else 60.0
+                    _bp_mtf_pct = float(blueprint.get("mtf_leverage_pct", 150.0)) if isinstance(blueprint, dict) else 150.0
+                    _bp_total_exp = _bp_core_pct + _bp_mtf_pct
                 df_port_g = pd.DataFrame(portfolio_history_g)
                 if not df_port_g.empty:
                     raw_g = pd.to_numeric(df_port_g["Value"], errors="coerce").ffill().fillna(100.0).values
                     total_ret_g = float(raw_g[-1] - 100.0)
-                    
                     cum_max_g = np.maximum.accumulate(raw_g)
                     dd_g = (raw_g - cum_max_g) / cum_max_g * 100.0
                     max_dd_g = float(np.min(dd_g)) if len(dd_g) > 0 else 0.0
-                    
                     daily_rets_g = pd.Series(raw_g).pct_change().dropna()
                     daily_rets_g = daily_rets_g.replace([np.inf, -np.inf], np.nan).dropna()
-                    if len(daily_rets_g) > 1 and daily_rets_g.std() > 0:
+                    if len(daily_rets_g) >= 5 and daily_rets_g.std() > 0:
                         std_dev_g = daily_rets_g.std() * np.sqrt(252) * 100.0
                         _rf_daily_g = 0.065 / 252  # 6.5% p.a. risk-free rate (India T-bill proxy)
                         sharpe_g = ((daily_rets_g.mean() - _rf_daily_g) / daily_rets_g.std()) * np.sqrt(252)
                     else:
                         std_dev_g = 0.0
                         sharpe_g = 0.0
-                        
-                    global_strat_ret = f"{total_ret_g:+.2f}%"
-                    global_strat_dd = f"{max_dd_g:.2f}%"
-                    global_strat_vol = f"{std_dev_g:.2f}%"
-                    global_strat_sharpe = f"{sharpe_g:.2f}"
-                    # Also push to session state as fallback before Performance Analyzer sync
-                    if "ta4_ret" in st.session_state:
-                        st.session_state.ta4_ret = global_strat_ret
-                        st.session_state.ta4_dd = global_strat_dd
-                        st.session_state.ta4_sharpe = global_strat_sharpe
-                        st.session_state.ta4_vol = global_strat_vol
-except Exception as e:
-    pass
-
+                global_strat_ret = f"{total_ret_g:+.2f}%"
+                global_strat_dd = f"{max_dd_g:.2f}%"
+                global_strat_vol = f"{std_dev_g:.2f}%"
+                global_strat_sharpe = f"{sharpe_g:.2f}"
+                # Also push to session state as fallback before Performance Analyzer sync
+                if "ta4_ret" in st.session_state:
+                    st.session_state.ta4_ret = global_strat_ret
+                    st.session_state.ta4_dd = global_strat_dd
+                    st.session_state.ta4_sharpe = global_strat_sharpe
+                    st.session_state.ta4_vol = global_strat_vol
+except Exception as _e_gp:
+    _global_perf_error = str(_e_gp)
+# Display global perf computation warning early for visibility
+if _global_perf_error:
+    st.warning(f"⚠️ **Strategy performance computation incomplete:** {_global_perf_error}. CAGR/Sharpe/DD may show defaults.")
 # Compute inception label for KPI display (dynamically from first pipeline run date)
 try:
     _inception_label = inception_date_g.strftime("%b %d, %Y")
 except Exception:
     _inception_label = "May 27, 2026"
-
 # Load India VIX
 vix_df = _load_index_hist("INDIA_VIX", "INDIA_VIX_history.csv")
 vix_price, vix_chg = _get_price_and_change(vix_df)
-
-
 # ── Market Mood Index (MMI) — Short & Long Term ──
 # (Tickertape MMI scraping removed to prevent blocking main UI thread. Replaced with local MMI calculations inside tab_cio.)
-
-
 # ── Research Link Buttons Helper ─────────────────────────────────────
 def _render_research_links(layout="row", compact=False):
     """Render pill-style research platform buttons. Call from any tab."""
@@ -1475,9 +1356,31 @@ def _render_research_links(layout="row", compact=False):
         </a>
     </div>
     """, unsafe_allow_html=True)
-
+def render_unified_veto_ui(tab_key="default"):
+    """Compact veto add/remove UI rendered in each tab.
+    Reads/writes Veto_add_remove.csv for manual overrides."""
+    _vk = f"veto_{tab_key}"
+    st.markdown("""
+    <div style="background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.15);border-radius:10px;padding:10px 14px;margin-bottom:16px;">
+        <div style="font-size:0.75rem;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:0.04em;">⚡ Manual Override</div>
+        <div style="font-size:0.7rem;color:#64748b;margin-top:2px;">Add or remove any stock bypassing algorithm — takes effect on next pipeline run.</div>
+    </div>
+    """, unsafe_allow_html=True)
+    _c1, _c2, _c3 = st.columns([2, 1.5, 1.5])
+    with _c1:
+        _s = st.text_input("Symbol", key=f"{_vk}_sym", placeholder="e.g. RELIANCE")
+    with _c2:
+        _a = st.number_input("Alloc %", 0.5, 50.0, 5.0, 0.5, key=f"{_vk}_alloc")
+    with _c3:
+        st.markdown('<div style="height:2px;"></div>', unsafe_allow_html=True)
+        _ba = st.button("➕ Add", key=f"{_vk}_add", use_container_width=True)
+        _br = st.button("➖ Remove", key=f"{_vk}_rem", use_container_width=True)
+        if _ba and _s.strip():
+            register_veto_action(_s.strip().upper(), "VETO_ADD", _a)
+        if _br and _s.strip():
+            register_veto_action(_s.strip().upper(), "VETO_REMOVE", 0.0)
 # Create tabs for role-based terminal segregation
-tab_cio, tab_active, tab_core, tab_ta, tab_vams, tab_orch_rs_5d, tab_bt = st.tabs([
+tab_cio, tab_active, tab_core, tab_ta, tab_vams, tab_orch_rs_5d, tab_bt, tab_global = st.tabs([
     "🌐 Market Intelligence",
     "💼 Master Portfolio (Active Positions)",
     "🏛️ Core Allocations Tab",
@@ -1485,26 +1388,24 @@ tab_cio, tab_active, tab_core, tab_ta, tab_vams, tab_orch_rs_5d, tab_bt = st.tab
     "⚡ VAM-B (Volatility adjusted momentum - Blended)",
     "🚀 Master Analyzer tab",
     "📊 Performance Analyzer",
+    "🌍 Global & Thematic",
 ])
-
-
 # ──────────────────────────────────────────────────────────────────────────────
 # TAB 1: CIO EXECUTIVE CONTROL PANEL
 # ──────────────────────────────────────────────────────────────────────────────
 with tab_cio:
+    _render_research_links(compact=True)
+    render_unified_veto_ui("tab_cio")
+    st.caption("📡 **Role:** Market Regime · Breadth · Alpha Scores · Macro Dashboard")
     if not state_loaded:
         st.error("⚠️ **System Alert**: Core pipeline state could not be synchronized. Displayed metrics may be stale.")
-
     if regime.get("nifty500_below_150_sloping_down", False):
         st.warning("⚠️ **NIFTY 500 Defensive Cash Cushion Active**: Nifty 500 is below its 150 EMA and sloping downward. Cash position is forced to **50%**, with Core (65%) and Satellite (35%) buckets scaled proportionally to 32.5% and 17.5% respectively.")
-
     # Pre-fetch cached yfinance data to avoid synchronous block on every Streamlit rerun
     _cc_data, _news_data = _fetch_yf_commodities_news_data()
-
     # ════════════════════════════════════════════════════════════════════════════
     # TICKERTAPE-ALIGNED 3-TIER MMI SYSTEM
     # ════════════════════════════════════════════════════════════════════════════
-    
     # ── Data Inputs ──
     _vix_l = vix_price if vix_price else 15.0
     _vix_chg = vix_chg if vix_chg else 0.0
@@ -1518,7 +1419,6 @@ with tab_cio:
         _fii_vals = df_maac.get("FII_Change_%", df_maac.get("FII_Change", pd.Series([0]))).dropna()
         _fii_proxy = (_fii_vals > 0).mean() * 100 if len(_fii_vals) > 0 else 50
     except: _fii_proxy = 50
-    
     # ── Exact Tickertape Momentum: (90D EMA - 30D EMA) / 90D EMA ──
     _tt_mom = 50
     try:
@@ -1531,7 +1431,6 @@ with tab_cio:
             _mom_val = ((_n50_df["EMA90"].iloc[-1] - _n50_df["EMA30"].iloc[-1]) / _n50_df["EMA90"].iloc[-1]) * 100
             _tt_mom = max(0, min(100, 50 + _mom_val * 20))  # +1% → 70, -1% → 30
     except: _tt_mom = 50
-    
     # ── Exact Tickertape Gold Demand: Gold vs Nifty 2-week relative return ──
     _tt_gold = 50
     try:
@@ -1545,7 +1444,6 @@ with tab_cio:
             _gold_diff = _g_ret - _n_ret  # positive = gold outperforming (fear)
             _tt_gold = max(0, min(100, 50 - _gold_diff * 10))  # gold up → fear (low score)
     except: _tt_gold = 50
-    
     # ── Tier 1: Tickertape MMI (6 Components, Equal Weight) ──
     # 1) FII Activity
     _c1_fii = max(0, min(100, _fii_proxy))
@@ -1559,18 +1457,15 @@ with tab_cio:
     _c5_strength = max(0, min(100, min(100, _nh_nl * 20))) if _nh_nl > 0 else 50
     # 6) EXACT Tickertape Gold Demand: Gold vs Nifty 2-week
     _c6_gold = _tt_gold
-    
     # Composite: Equal weight (Tickertape methodology)
     _st_mmi = (_c1_fii + _c2_vix + _c3_mom + _c4_breadth + _c5_strength + _c6_gold) / 6.0
     _st_mmi = max(0, min(100, _st_mmi))
-    
     # Tickertape zones: <30 Extreme Fear, 30-45 Fear, 45-55 Neutral, 55-70 Greed, >70 Extreme Greed
     if _st_mmi >= 70: _st_zone, _st_c = "Extreme Greed", "#f59e0b"
     elif _st_mmi >= 55: _st_zone, _st_c = "Greed", "#10b981"
     elif _st_mmi >= 45: _st_zone, _st_c = "Neutral", "#94a3b8"
     elif _st_mmi >= 30: _st_zone, _st_c = "Fear", "#f97316"
     else: _st_zone, _st_c = "Extreme Fear", "#ef4444"
-    
     # ── Tier 2: Medium-Term MMI (Momentum Engine) ──
     _mt_breadth = _breadth
     _mt_sector = regime.get("above_50ema_sectors", 0.5) * 100
@@ -1581,7 +1476,6 @@ with tab_cio:
     elif _mt_mmi >= 45: _mt_zone, _mt_c = "Neutral", "#94a3b8"
     elif _mt_mmi >= 30: _mt_zone, _mt_c = "Fear", "#f97316"
     else: _mt_zone, _mt_c = "Extreme Fear", "#ef4444"
-    
     # ── Tier 3: Long-Term MMI (Structural Regime) ──
     _lt_200 = _pct200
     _lt_leadership = (_bull_votes / 4.0) * 100
@@ -1589,11 +1483,9 @@ with tab_cio:
     _lt_mmi = max(0, min(100, _lt_mmi))
     _lt_zone = "Contraction" if _lt_mmi < 40 else "Neutral" if _lt_mmi < 60 else "Expansion"
     _lt_c = "#ef4444" if _lt_mmi < 40 else "#94a3b8" if _lt_mmi < 60 else "#10b981"
-    
     # ── Alpha Score ──
     _alpha_qg = (_st_mmi * 0.30 + _mt_mmi * 0.50 + _lt_mmi * 0.20) / 10.0
     _alpha_qg = max(0, min(10, _alpha_qg))
-
     # Compute VAM-B Alpha from L1_VAM_B_Universe.csv average VAM score
     _alpha_vamb = 5.0  # default neutral
     _vamb_av_path = os.path.join(OUTPUT_DIR, "L1_VAM_B_Universe.csv")
@@ -1607,7 +1499,6 @@ with tab_cio:
                 _alpha_vamb = max(0, min(10, (_avg_vam + 2.0) / 4.0 * 10.0))  # normalize ~ -2..+2 range to 0-10
         except:
             pass
-
     # Compute Core Alpha from L1_Core_Allocations.csv weighted momentum
     _alpha_core = 5.0  # default neutral
     _core_a_path = os.path.join(OUTPUT_DIR, "L1_Core_Allocations.csv")
@@ -1621,10 +1512,8 @@ with tab_cio:
                 _alpha_core = max(0, min(10, _weighted_sc / 10.0))  # Score is 0-100, normalize to 0-10
         except:
             pass
-
     # Unified composite = average of all three
     _alpha_unified = (_alpha_qg + _alpha_vamb + _alpha_core) / 3.0
-
     # Display all 4 scores as cards
     _strat_scores = [
         ("⚡ QG-VAM Alpha", "30% Short · 50% Medium · 20% Long-Term", _alpha_qg,
@@ -1641,13 +1530,13 @@ with tab_cio:
         _ac_c = "#10b981" if _av >= 8 else "#f59e0b" if _av >= 5 else "#ef4444"
         _ac_zone = "Go Heavy" if _av >= 8 else "Be Selective" if _av >= 5 else "Protect Capital"
         _ac.markdown(f"""
-        <div style="background:linear-gradient(135deg,rgba({','.join(str(int(_ac_c.lstrip('#')[i:i+2],16)) for i in (0,2,4))},0.10),rgba(15,23,42,0.4));border:1px solid {_ac_c}40;border-radius:14px;padding:12px 14px;margin-bottom:12px;height:205px;">
+        <div style="background:linear-gradient(135deg,rgba({','.join(str(int(_ac_c.lstrip('#')[i:i + 2], 16)) for i in (0, 2, 4))},0.10),rgba(15,23,42,0.4));border:1px solid {_ac_c}40;border-radius:14px;padding:12px 14px;margin-bottom:12px;height:205px;">
             <div style="font-family:'Outfit';font-size:0.85rem;font-weight:700;color:#f1f5f9;">{_at}</div>
             <div style="font-size:0.65rem;color:#94a3b8;margin-top:1px;">{_asub}</div>
             <div style="font-family:'Outfit';font-size:1.8rem;font-weight:800;color:{_ac_c};margin:4px 0 2px;">{_av:.1f}<span style="font-size:0.7rem;color:#94a3b8;">/10</span></div>
             <span style="background:{_ac_c}20;color:{_ac_c};padding:1px 8px;border-radius:6px;font-size:0.65rem;font-weight:700;">{_ac_zone}</span>
             <div style="margin-top:6px;background:rgba(15,23,42,0.5);border-radius:4px;height:4px;overflow:hidden;">
-                <div style="width:{_av*10:.0f}%;background:linear-gradient(90deg,#ef4444,#f97316,#f59e0b,#10b981);height:100%;border-radius:4px;"></div>
+                <div style="width:{_av * 10:.0f}%;background:linear-gradient(90deg,#ef4444,#f97316,#f59e0b,#10b981);height:100%;border-radius:4px;"></div>
             </div>
             <div style="display:flex;justify-content:space-between;font-size:0.58rem;color:#64748b;margin-top:2px;">
                 <span>Protect</span><span>Selective</span><span>Go Heavy</span>
@@ -1655,7 +1544,6 @@ with tab_cio:
             <div style="font-size:0.65rem;color:#94a3b8;margin-top:6px;line-height:1.4;">{_adesc}</div>
         </div>
         """, unsafe_allow_html=True)
-    
     def _make_gauge(_score, _zone, _color, _title, _sub):
         """Build a Tickertape-style half-circle gauge."""
         # Tickertape zone configuration
@@ -1663,7 +1551,7 @@ with tab_cio:
             (0, 30, "#22c55e", "EXTREME FEAR"),   # green = opportunity
             (30, 55, "#f97316", "FEAR"),           # orange
             (55, 70, "#f97316", "GREED"),          # orange (same zone, gauge fills here)
-            (70, 100, "#ef4444", "EXTREME GREED"), # red = caution
+            (70, 100, "#ef4444", "EXTREME GREED"),  # red = caution
         ]
         # Gauge arc color = the zone the score falls in
         _bar_c = _color
@@ -1695,16 +1583,13 @@ with tab_cio:
                 )
             )
         ))
-    
     _fig_s = _make_gauge(_st_mmi, _st_zone, _st_c, "Tier 1: Tactical Pulse", "1—15D | 6-Component MMI")
     _fig_m = _make_gauge(_mt_mmi, _mt_zone, _mt_c, "Tier 2: Momentum Engine", "1—6M | Breadth+Leadership")
     _fig_l = _make_gauge(_lt_mmi, _lt_zone, _lt_c, "Tier 3: Structural Regime", "6M—2Y | 200d EMA+Macro")
-    
     for _f in [_fig_s, _fig_m, _fig_l]:
         _f.update_layout(template="plotly_dark", height=300,
             plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(l=30, r=30, t=55, b=20), font=dict(family="Inter"))
-    
     # Display
     _g1, _g2, _g3 = st.columns(3)
     with _g1:
@@ -1716,17 +1601,16 @@ with tab_cio:
                 <b>MMI: {_st_mmi:.1f}</b> · VIX: <b>{_vix_l:.1f}</b> ({_vix_chg:+.1f}%) · Breadth: <b>{_breadth:.0f}%</b>
             </div>
             <div style='font-size:0.68rem;color:#64748b;margin-top:5px;padding:7px;background:rgba(15,23,42,0.4);border-radius:6px;'>
-                <b style='color:{_st_c};'>6 Components:</b> 
-                <span style='color:#e2e8f0;'>FII</span> {_c1_fii:.0f} · 
-                <span style='color:#e2e8f0;'>VIX</span> {_c2_vix:.0f} · 
-                <span style='color:#e2e8f0;'>Mom</span> {_c3_mom:.0f} · 
-                <span style='color:#e2e8f0;'>Brth</span> {_c4_breadth:.0f} · 
-                <span style='color:#e2e8f0;'>52W</span> {_c5_strength:.0f} · 
+                <b style='color:{_st_c};'>6 Components:</b>
+                <span style='color:#e2e8f0;'>FII</span> {_c1_fii:.0f} ·
+                <span style='color:#e2e8f0;'>VIX</span> {_c2_vix:.0f} ·
+                <span style='color:#e2e8f0;'>Mom</span> {_c3_mom:.0f} ·
+                <span style='color:#e2e8f0;'>Brth</span> {_c4_breadth:.0f} ·
+                <span style='color:#e2e8f0;'>52W</span> {_c5_strength:.0f} ·
                 <span style='color:#e2e8f0;'>Gold</span> {_c6_gold:.0f}
             </div>
         </div>
         """, unsafe_allow_html=True)
-    
     with _g2:
         st.plotly_chart(_fig_m, use_container_width=True, config={'displayModeBar': False})
         _mt_sig = "Power Setup — max out positions" if _mt_mmi > 70 else "Be selective — quality-only" if _mt_mmi > 45 else "Defensive — rotate to Low-Vol"
@@ -1741,7 +1625,6 @@ with tab_cio:
             </div>
         </div>
         """, unsafe_allow_html=True)
-    
     with _g3:
         st.plotly_chart(_fig_l, use_container_width=True, config={'displayModeBar': False})
         _lt_sig = "Risk-On — full deployment" if _lt_mmi > 60 else "Risk-Off — raise cash"
@@ -1756,12 +1639,9 @@ with tab_cio:
             </div>
         </div>
         """, unsafe_allow_html=True)
-    
     # ── MACRO MARKET REGIME ──
     st.subheader("🌐 Market Regime & Drawdown Status")
-    
     col_reg1, col_reg2, col_vix, col_reg3, col_reg4 = st.columns(5)
-    
     # Unified Regime Card
     with col_reg1:
         reg_val = regime.get("market_regime", "SIDEWAYS")
@@ -1782,7 +1662,6 @@ with tab_cio:
             </div>
         </div>
         """, unsafe_allow_html=True)
-
     # Breadth & Thrust Card
     with col_reg2:
         breadth_score = regime.get("breadth_score", 0.0)
@@ -1804,7 +1683,6 @@ with tab_cio:
             </div>
         </div>
         """, unsafe_allow_html=True)
-
     # India VIX Card with dynamic percentile-based thresholds
     with col_vix:
         badge_style = 'padding: 2px 6px; font-size: 0.7rem; border-radius: 12px; display: inline-block; white-space: nowrap;'
@@ -1823,7 +1701,6 @@ with tab_cio:
         elif vix_price >= _vix_p50:
             vix_badge = f'<span class="badge-hold" style="{badge_style}">🟡 MODERATE</span>'
             vix_color = "#f59e0b"
-            
         st.markdown(f"""
         <div class="glass-card kpi-card" style="border-left: 5px solid {vix_color};">
             <span style="color: #94a3b8; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">India VIX (Volatility)</span>
@@ -1834,7 +1711,6 @@ with tab_cio:
             </div>
         </div>
         """, unsafe_allow_html=True)
-
     # Drawdown Circuit Breaker Card
     with col_reg3:
         dd_pct = drawdown.get("drawdown_pct", 0.0)
@@ -1845,9 +1721,8 @@ with tab_cio:
             dd_badge = f'<span class="badge-hold" style="{badge_style}">🟡 HALT</span>'
         elif dd_action == "EMERGENCY":
             dd_badge = f'<span class="badge-avoid" style="{badge_style}">🔴 EMERGENCY</span>'
-            
         st.markdown(f"""
-        <div class="glass-card kpi-card" style="border-left: 5px solid {"#10b981" if dd_action=="NORMAL" else ("#f59e0b" if dd_action=="HALT" else "#ef4444")};">
+        <div class="glass-card kpi-card" style="border-left: 5px solid {"#10b981" if dd_action == "NORMAL" else ("#f59e0b" if dd_action == "HALT" else "#ef4444")};">
             <span style="color: #94a3b8; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Portfolio Drawdown</span>
             <h2 style="margin: 8px 0 3px 0; color: #f1f5f9; font-size: 2.2rem; font-weight: 700;">{dd_pct:.2f}%</h2>
             <div style="font-size: 0.82rem; color: #94a3b8; line-height: 1.4;">
@@ -1856,7 +1731,6 @@ with tab_cio:
             </div>
         </div>
         """, unsafe_allow_html=True)
-
     # Leadership & Exposure Multiplier Card
     with col_reg4:
         breadth_mult = regime.get("exposure_multiplier", 0.25)
@@ -1873,16 +1747,13 @@ with tab_cio:
             </div>
         </div>
         """, unsafe_allow_html=True)
-
     # ──────────────────────────────────────────────────────────────────────────
     # INDEX FUNDA-TECHNICAL MONITOR (Redesigned – All Indices)
     # ──────────────────────────────────────────────────────────────────────────
     st.markdown("---")
     st.subheader("🏢 Index Funda-Technical Monitor")
-    
     # ── Load price history for all indices to compute live change % ──
     # Note: loader and helper functions moved to top of file for global availability
-    
     idx_histories = {
         "Nifty 50": _load_index_hist("NIFTY_50", "NIFTY_50_history.csv"),
         "Nifty Next 50": _load_index_hist("NIFTY_NEXT_50", "NIFTY_NEXT_50_history.csv"),
@@ -1890,7 +1761,6 @@ with tab_cio:
         "Nifty Smallcap 250": _load_index_hist("NIFTY_SMALLCAP_250", "NIFTY_SMALLCAP_250_history.csv"),
         "Nifty Microcap 250": _load_index_hist("NIFTY_MICROCAP_250", "NIFTY_MICROCAP_250_history.csv"),
     }
-    
     # ── Index Configuration (keys, colors, regime data keys, defaults) ──
     index_config = [
         {
@@ -1919,16 +1789,13 @@ with tab_cio:
             "defaults": {"pe": 27.1, "pb": 3.43, "div_yield": 0.65, "cagr_5yr": 16.0, "cagr_10yr": 14.0, "price": 24000.0}
         },
     ]
-    
     # ── 1. Top-Level KPI Price Strip (Live Prices + Daily Change) ──
     kpi_cols = st.columns(5)
     for i, cfg in enumerate(index_config):
         hist_df = idx_histories.get(cfg["name"], pd.DataFrame())
         price, chg = _get_price_and_change(hist_df)
-        
         regime_price_key = f"{cfg['prefix']}_price"
         regime_val = regime.get(regime_price_key, 0.0)
-        
         is_simulated = False
         if price > 0.0:
             price_display = price
@@ -1943,7 +1810,6 @@ with tab_cio:
             else:
                 price_display = cfg["defaults"]["price"]
                 is_simulated = True
-        
         # Trend from regime or calculated dynamically
         is_bull = None
         if cfg["bullish_key"] and cfg["bullish_key"] in regime:
@@ -1958,22 +1824,18 @@ with tab_cio:
                     last_sma = float(sma_150.iloc[-1])
                     prev_sma = float(sma_150.iloc[-10]) if len(sma_150) >= 10 else last_sma
                     is_bull = (last_close > last_sma) and (last_sma > prev_sma)
-
         if is_bull is None:
             trend_badge = '<span style="background: rgba(255,255,255,0.08); color: #94a3b8; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600;">—</span>'
         elif is_bull:
             trend_badge = '<span style="background: rgba(16,185,129,0.15); color: #34d399; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600;">▲ BULL</span>'
         else:
             trend_badge = '<span style="background: rgba(239,68,68,0.15); color: #f87171; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600;">▼ BEAR</span>'
-            
         if is_simulated:
             simulated_badge = '<span style="background: rgba(245,158,11,0.15); color: #fbbf24; padding: 2px 6px; border-radius: 6px; font-size: 0.6rem; font-weight: 700; margin-left: 6px;" title="Fallback value used because history failed to load">⚠️ SIMULATED</span>'
         else:
             simulated_badge = ''
-        
         chg_color = "#34d399" if chg >= 0 else "#f87171"
         chg_prefix = "+" if chg > 0 else ""
-        
         with kpi_cols[i]:
             st.markdown(f"""
             <div class="glass-card" style="padding: 14px 16px; margin-bottom: 0; border-top: 3px solid {cfg['accent']}; text-align: center;">
@@ -1983,27 +1845,21 @@ with tab_cio:
                 <div style="margin-top: 6px;">{trend_badge}</div>
             </div>
             """, unsafe_allow_html=True)
-    
     # ── 2. Detailed Valuation & Performance Comparison Table ──
     st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
-    
     def _compute_index_returns(df):
         if df.empty or len(df) < 2:
             return {"1w": 0.0, "1m": 0.0, "3m": 0.0, "6m": 0.0, "9m": 0.0, "12m": 0.0}
-        
         df = df.copy()
         if "Date" not in df.columns:
             df = df.reset_index()
         df["Date"] = pd.to_datetime(df["Date"])
         df = df.sort_values("Date")
-        
         series = df.set_index("Date")["Close"].dropna()
         if len(series) < 2:
             return {"1w": 0.0, "1m": 0.0, "3m": 0.0, "6m": 0.0, "9m": 0.0, "12m": 0.0}
-            
         last_date = series.index[-1]
         last_val = float(series.iloc[-1])
-        
         def get_pct_change(delta_days):
             target_date = last_date - pd.Timedelta(days=delta_days)
             sub = series[series.index <= target_date]
@@ -2013,7 +1869,6 @@ with tab_cio:
             else:
                 prev_val = float(series.iloc[0])
                 return ((last_val / prev_val) - 1.0) * 100.0 if prev_val > 0 else 0.0
-                
         return {
             "1w": get_pct_change(7),
             "1m": get_pct_change(30),
@@ -2022,7 +1877,6 @@ with tab_cio:
             "9m": get_pct_change(273),
             "12m": get_pct_change(365)
         }
-
     val_html = []
     val_html.append("""
     <div class="glass-card" style="padding: 0; overflow: hidden; border-radius: 12px;">
@@ -2045,7 +1899,6 @@ with tab_cio:
     </tr>
     </thead>
     <tbody>""")
-    
     def cell_style(val):
         if val > 5.0:
             return "background: rgba(16, 185, 129, 0.22); color: #34d399; font-weight: 600;"
@@ -2056,7 +1909,6 @@ with tab_cio:
         elif val < 0.0:
             return "background: rgba(239, 68, 68, 0.06); color: #fecaca;"
         return "color: #94a3b8;"
-
     for cfg in index_config:
         pfx = cfg["prefix"]
         dfl = cfg["defaults"]
@@ -2065,10 +1917,8 @@ with tab_cio:
         div_val = regime.get(f"{pfx}_div_yield") or dfl["div_yield"]
         cagr5 = regime.get(f"{pfx}_cagr_5yr") or dfl["cagr_5yr"]
         cagr10 = regime.get(f"{pfx}_cagr_10yr") or dfl["cagr_10yr"]
-        
         hist_df = idx_histories.get(cfg["name"], pd.DataFrame())
         ret = _compute_index_returns(hist_df)
-        
         is_bull = regime.get(cfg["bullish_key"], None) if cfg["bullish_key"] else None
         if is_bull is None:
             # Calculate dynamically on the fly from history data
@@ -2080,16 +1930,13 @@ with tab_cio:
                     last_sma = float(sma_150.iloc[-1])
                     prev_sma = float(sma_150.iloc[-10]) if len(sma_150) >= 10 else last_sma
                     is_bull = (last_close > last_sma) and (last_sma > prev_sma)
-
         if is_bull is None:
             regime_cell = '<span style="color: #64748b;">—</span>'
         elif is_bull:
             regime_cell = '<span style="background: rgba(16,185,129,0.15); color: #34d399; padding: 3px 10px; border-radius: 10px; font-size: 0.78rem; font-weight: 600;">BULL</span>'
         else:
             regime_cell = '<span style="background: rgba(239,68,68,0.15); color: #f87171; padding: 3px 10px; border-radius: 10px; font-size: 0.78rem; font-weight: 600;">BEAR</span>'
-        
         pe_color = "#34d399" if pe_val < 22 else ("#fbbf24" if pe_val < 30 else "#f87171")
-        
         val_html.append(f"""<tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
         <td style="padding: 9px 12px; color: {cfg['accent']}; font-weight: 700; font-family: 'Outfit';">{cfg['icon']} {cfg['name']}</td>
         <td style="padding: 9px 12px; text-align: right; color: {pe_color}; font-family: monospace; font-weight: 600;">{pe_val:.1f}</td>
@@ -2105,15 +1952,12 @@ with tab_cio:
         <td style="padding: 9px 12px; text-align: right; color: #60a5fa; font-family: monospace;">{cagr10:.1f}%</td>
         <td style="padding: 9px 12px; text-align: center;">{regime_cell}</td>
         </tr>""")
-    
     val_html.append("</tbody></table></div>")
     st.markdown("".join(val_html).replace("\n", ""), unsafe_allow_html=True)
-    
     # ── 3. INDEX RS COMPARISON (vs Nifty 50) ──
     # Trend Chart (All Indices) ──
     st.markdown("<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
     st.markdown("### 📈 Comparative Index Performance (Base 100)")
-    
     tf_cols = st.columns([2, 5])
     with tf_cols[0]:
         timeframe = st.radio(
@@ -2123,7 +1967,6 @@ with tab_cio:
             horizontal=True,
             key="idx_chart_timeframe"
         )
-        
     # Determine start date based on selection and selected_date
     sel_dt = pd.to_datetime(selected_date)
     if timeframe == "1M":
@@ -2138,7 +1981,6 @@ with tab_cio:
         start_date = sel_dt - pd.Timedelta(days=365)
     else:
         start_date = None
-        
     chart_indices = [
         ("Nifty 50", "#3b82f6", 2.5),
         ("Nifty Next 50", "#10b981", 2.0),
@@ -2146,7 +1988,6 @@ with tab_cio:
         ("Nifty Smallcap 250", "#a855f7", 2.0),
         ("Nifty Microcap 250", "#ef4444", 2.0),
     ]
-    
     series_dict = {}
     for idx_name, _, _ in chart_indices:
         df = idx_histories.get(idx_name, pd.DataFrame())
@@ -2157,15 +1998,12 @@ with tab_cio:
                 df = df[df["Date"] >= start_date]
             df = df.sort_values("Date").drop_duplicates(subset=["Date"])
             series_dict[idx_name] = df.set_index("Date")["Close"]
-            
     if series_dict and "Nifty 50" in series_dict:
         nifty_base = series_dict["Nifty 50"]
         # Align all series by combining them on their common Date index
         df_combined = pd.DataFrame(series_dict).ffill().bfill().dropna()
-        
         if not df_combined.empty:
             df_combined = df_combined.sort_index()
-            
             # Compute cumulative RS line for each index against Nifty 50
             df_rs = pd.DataFrame(index=df_combined.index)
             df_rs["Nifty 50"] = 0.0  # Nifty vs itself = 0 baseline
@@ -2175,7 +2013,6 @@ with tab_cio:
                     continue
                 idx_rebased = df_combined[col] / df_combined[col].iloc[0]
                 df_rs[col] = ((idx_rebased / nifty_rebased) - 1.0) * 100.0
-            
             if not df_rs.empty:
                 # Filter controls for fig_idx
                 all_idx_names = [name for name, _, _ in chart_indices]
@@ -2189,7 +2026,6 @@ with tab_cio:
                         default=all_idx_names,
                         key="selected_indices_rs"
                     )
-
                 fig_idx = go.Figure()
                 for idx_name, color, width in chart_indices:
                     if idx_name in selected_idx_names:
@@ -2220,7 +2056,6 @@ with tab_cio:
                                     "<extra></extra>"
                                 )
                             ))
-                        
                 fig_idx.update_layout(
                     hovermode="closest",
                     template="plotly_dark",
@@ -2260,7 +2095,6 @@ with tab_cio:
             st.info("No overlapping data found for the selected timeframe.")
     else:
         st.info("No index history data available for charting, or Nifty 50 baseline missing.")
-
     # ── 4. COMMODITIES & CURRENCY SNAPSHOT ──
     st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
     st.markdown("### 💰 Commodities & Currency Snapshot")
@@ -2277,7 +2111,7 @@ with tab_cio:
                         _cc_c = "#34d399" if _cc_chg >= 0 else "#f87171"
                         _cc_pre = "+" if _cc_chg > 0 else ""
                         st.markdown(f"""
-                        <div class="glass-card" style="padding: 12px; text-align: center; border-top: 2px solid {'#f59e0b' if _label=='Gold' else '#94a3b8'}; margin-bottom:0;">
+                        <div class="glass-card" style="padding: 12px; text-align: center; border-top: 2px solid {'#f59e0b' if _label == 'Gold' else '#94a3b8'}; margin-bottom:0;">
                             <div style="font-size:0.7rem;color:#94a3b8;font-weight:600;text-transform:uppercase;">{_label}</div>
                             <div style="font-family:'Outfit';font-size:1.1rem;font-weight:700;color:#f1f5f9;margin-top:4px;">{_cc_px:.2f}</div>
                             <div style="font-size:0.78rem;color:{_cc_c};font-weight:600;">{_cc_pre}{_cc_chg:.2f}%</div>
@@ -2290,7 +2124,6 @@ with tab_cio:
                     </div>""", unsafe_allow_html=True)
     except:
         pass
-
     # ── 4b. GLOBAL MARKET NEWS (Collapsible) ──
     with st.expander("🌍 Global Market News & Economic Calendar"):
         try:
@@ -2309,7 +2142,6 @@ with tab_cio:
                         st.metric(_label, "—", "—")
         except:
             pass
-        
         st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
         # Free-text news sources (links)
         st.markdown("""
@@ -2320,13 +2152,11 @@ with tab_cio:
             <a href="https://www.moneycontrol.com/" target="_blank" style="color:#60a5fa;">Moneycontrol</a>
             <a href="https://www.investing.com/economic-calendar/" target="_blank" style="color:#fbbf24;">📅 Economic Calendar</a>
         </div>""", unsafe_allow_html=True)
-
     # ──────────────────────────────────────────────────────────────────────────
     # SECTORAL & THEMATIC MONITOR
     # ──────────────────────────────────────────────────────────────────────────
     st.markdown("<div style='margin-top: 30px;'></div>", unsafe_allow_html=True)
     st.subheader("📊 Sectoral & Thematic Performance Monitor")
-    
     @st.cache_data(ttl=300)
     def _load_sectoral_thematic_data():
         tickers_mapping = {
@@ -2351,14 +2181,11 @@ with tab_cio:
         }
         # Build name->ticker map from tickers_mapping (replaces deleted `tickers` dict)
         tickers = {name: ticker for name, (ticker, _) in tickers_mapping.items()}
-        
         import requests
         import yfinance as yf
-        
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
-        
         def fetch_screener_index(company_id):
             if not company_id:
                 return None
@@ -2375,7 +2202,6 @@ with tab_cio:
                                 break
                     if not price_values and "chart" in data:
                         price_values = [[pt[0], pt[1]] for pt in data["chart"] if len(pt) >= 2]
-                        
                     if price_values:
                         df = pd.DataFrame(price_values, columns=["Date", "Close"])
                         df["Date"] = pd.to_datetime(df["Date"])
@@ -2385,43 +2211,35 @@ with tab_cio:
                 import logging
                 logging.warning(f"Screener API fetch failed for {company_id}: {e}")
             return None
-            
         def fetch_and_extend_services():
             try:
                 svc_df = yf.download("^CNXSERVICE", period="1y", auto_adjust=True, progress=False)
                 if svc_df.empty:
                     return None
-                
                 svc_series = svc_df["Close"].squeeze().copy()
                 svc_series.index = pd.to_datetime(svc_series.index)
                 if svc_series.index.tz is not None:
                     svc_series.index = svc_series.index.tz_localize(None)
-                    
                 etf_df = yf.download("MOSERVICE.NS", period="1y", auto_adjust=True, progress=False)
                 if etf_df.empty:
                     return svc_series
-                    
                 etf_series = etf_df["Close"].squeeze().copy()
                 etf_series.index = pd.to_datetime(etf_series.index)
                 if etf_series.index.tz is not None:
                     etf_series.index = etf_series.index.tz_localize(None)
-                    
                 last_svc_date = svc_series.index[-1]
                 extra_dates = etf_series.index[etf_series.index > last_svc_date]
-                
                 if len(extra_dates) > 0:
                     last_svc_val = float(svc_series.iloc[-1])
                     etf_sub = etf_series[etf_series.index <= last_svc_date]
                     if etf_sub.empty:
                         return svc_series
                     base_etf_val = float(etf_sub.iloc[-1])
-                    
                     extended_svc = svc_series.to_dict()
                     for dt in extra_dates:
                         etf_val = float(etf_series.loc[dt])
                         pct_change = (etf_val / base_etf_val)
                         extended_svc[dt] = last_svc_val * pct_change
-                    
                     res_series = pd.Series(extended_svc).sort_index()
                     res_series.name = "^CNXSERVICE"
                     return res_series
@@ -2438,14 +2256,11 @@ with tab_cio:
                 except:
                     pass
             return None
-
         import concurrent.futures
-        
         def fetch_single_index_data(name, ticker, company_id):
             series = None
             if company_id:
                 series = fetch_screener_index(company_id)
-                
             if series is None:
                 if name == "Nifty Services":
                     series = fetch_and_extend_services()
@@ -2455,18 +2270,17 @@ with tab_cio:
                         if not sdf.empty:
                             if isinstance(sdf.columns, pd.MultiIndex):
                                 series = sdf["Close"].copy()
-                            else:
-                                series = sdf["Close"].copy()
-                            series = series.squeeze()
-                            series.index = pd.to_datetime(series.index)
-                            if series.index.tz is not None:
+                        else:
+                            series = sdf["Close"].copy()
+                        series = series.squeeze()
+                        series.index = pd.to_datetime(series.index)
+                        if series.index.tz is not None:
                                 series.index = series.index.tz_localize(None)
                     except Exception:
                         pass
             if series is not None:
                 series.name = ticker
             return series
-
         try:
             dfs = []
             with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
@@ -2481,7 +2295,6 @@ with tab_cio:
                             dfs.append(series)
                     except Exception:
                         pass
-                        
             if dfs:
                 df = pd.concat(dfs, axis=1)
                 df = df.ffill().bfill()
@@ -2489,7 +2302,6 @@ with tab_cio:
             return pd.DataFrame(), tickers
         except Exception:
             return pd.DataFrame(), tickers
-
     @st.cache_data(ttl=3600)
     def _load_mf_data():
         mf_tickers_mapping = {name: ticker for name, ticker, color in mutual_funds}
@@ -2506,7 +2318,7 @@ with tab_cio:
                         series = series.squeeze()
                         series.index = pd.to_datetime(series.index)
                         if series.index.tz is not None:
-                            series.index = series.index.tz_localize(None)
+                                series.index = series.index.tz_localize(None)
                         series.name = ticker
                         dfs.append(series)
                 except Exception:
@@ -2518,7 +2330,6 @@ with tab_cio:
             return pd.DataFrame()
         except Exception:
             return pd.DataFrame()
-
     sec_df, sec_tickers = _load_sectoral_thematic_data()
     
     if not sec_df.empty:
@@ -2620,7 +2431,6 @@ with tab_cio:
                 elif val < 0.0:
                     return "background: rgba(239, 68, 68, 0.06); color: #fecaca;"
                 return "color: #94a3b8;"
-
             for name, ticker, color in items:
                 ret = _compute_returns(data_df, ticker)
                 p_str = f"₹{ret['price']:,.1f}" if ret['price'] > 0 else "—"
@@ -2638,7 +2448,6 @@ with tab_cio:
                 </tr>""")
             html.append("</tbody></table></div>")
             return "".join(html).replace("\n", "")
-
         col_sec_l, col_sec_r = st.columns([1, 1])
         with col_sec_l:
             st.markdown(_generate_heatmap_table("Sectoral Indices Performance Heatmap", sectoral_indices, sec_df), unsafe_allow_html=True)
@@ -2711,7 +2520,6 @@ with tab_cio:
                             rs_sec_dict[name] = sec_rs.dropna()
         except Exception:
             pass
-
         # ── RS CHART — Smart Ranking (like Strategy Indices) ──
         # Compute current RS values for smart defaults & annotations
         _sec_rankings = []
@@ -2832,13 +2640,10 @@ with tab_cio:
                 )
             )
             fig_sec.add_hline(y=0, line_dash="dash", line_color="rgba(255,255,255,0.1)", line_width=1)
-
             st.plotly_chart(fig_sec, use_container_width=True)
-
     st.markdown("<div style='margin-top: 30px;'></div>", unsafe_allow_html=True)
     # ── 5. STRATEGY INDICES PERFORMANCE & RS ──
     st.subheader("🎯 Strategy Indices Performance Monitor")
-
     # ── STRATEGY INDICES RS CHART ──
     # Screener.in company IDs for Nifty Strategy Indices
     STRATEGY_SCREENER_IDS = {
@@ -2873,7 +2678,6 @@ with tab_cio:
         "Nifty500 Value 50":            1285062,
         "Nifty200 Quality 30":          1275141,
     }
-
     strategy_tickers = [
         ("Nifty100 Low Vol 30",         "#6366f1"),
         ("Nifty200 Momentum 30",        "#10b981"),
@@ -2906,18 +2710,15 @@ with tab_cio:
         ("Nifty500 Value 50",           "#818cf8"),
         ("Nifty200 Quality 30",         "#fb7185"),
     ]
-
     strat_rs_dict = {}
     try:
         import requests as strat_req
         import json
         import time
-
         screener_headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
             "Referer": "https://www.screener.in/",
         }
-
         # Get Nifty 50 from idx_histories for RS computation (resample to weekly)
         nifty_strat_hist = idx_histories.get("Nifty 50", pd.DataFrame())
         if not nifty_strat_hist.empty and "Date" in nifty_strat_hist.columns and "Close" in nifty_strat_hist.columns:
@@ -2925,18 +2726,15 @@ with tab_cio:
             nifty_strat_ratio = nifty_strat_s / nifty_strat_s.shift(26)  # ~6 months in weeks
         else:
             nifty_strat_ratio = None
-
         strat_df_list = []
         for name, _ in strategy_tickers:
             try:
                 cid = STRATEGY_SCREENER_IDS.get(name)
                 if cid is None:
                     continue
-
                 cache_file = os.path.join(cache_dir, f"strategy_{cid}_history.json")
                 use_cache = False
                 prices = None
-
                 # Check if cache exists and is fresh (less than 4 hours old)
                 if os.path.exists(cache_file):
                     file_age = time.time() - os.path.getmtime(cache_file)
@@ -2947,7 +2745,6 @@ with tab_cio:
                             use_cache = True
                         except Exception:
                             pass
-
                 if not use_cache:
                     url = f"https://www.screener.in/api/company/{cid}/chart/?q=Price-DMA50-DMA200&days=500"
                     try:
@@ -2962,11 +2759,6 @@ with tab_cio:
                                         with open(cache_file, "w") as f:
                                             json.dump(prices, f)
                                         break
-                        else:
-                            # Fallback to cache on error status codes (e.g. 429)
-                            if os.path.exists(cache_file):
-                                with open(cache_file, "r") as f:
-                                    prices = json.load(f)
                     except Exception:
                         # Fallback to cache on network error
                         if os.path.exists(cache_file):
@@ -2975,17 +2767,19 @@ with tab_cio:
                                     prices = json.load(f)
                             except Exception:
                                 pass
-
+                else:
+                    # Fallback to cache on error status codes (e.g. 429)
+                    if os.path.exists(cache_file):
+                        with open(cache_file, "r") as f:
+                            prices = json.load(f)
                 if not prices:
                     continue
-
                 pts = {}
                 for date_str, val_str in prices:
                     try:
                         pts[pd.Timestamp(date_str)] = float(val_str)
                     except Exception:
                         pass
-
                 if len(pts) > 0:
                     series = pd.Series(pts).sort_index()
                     series.name = name
@@ -3002,7 +2796,6 @@ with tab_cio:
         
     st.markdown("<div style='margin-top: 30px;'></div>", unsafe_allow_html=True)
     st.subheader("📈 Strategy Indices — RS Heatmap")
-
     # Same timeframe selectors from the main chart
     str_tf = st.radio(
         "Analysis Window",
@@ -3016,7 +2809,6 @@ with tab_cio:
     elif str_tf == "YTD":   str_start = pd.to_datetime(f"{str_sel_dt.year}-01-01")
     elif str_tf == "1Y":    str_start = str_sel_dt - pd.Timedelta(days=365)
     else:                   str_start = None
-
     # ── STRATEGY RS CHART — Smart Defaults with Ranking ──
     # Re-calculate strat_rs_dict based on selected timeframe
     strat_rs_dict = {}
@@ -3160,14 +2952,11 @@ with tab_cio:
         st.plotly_chart(fig_strat, use_container_width=True)
     else:
         st.info("Strategy index data not available for RS calculation (need 124+ days).")
-
     # ── CONSOLIDATED RS MOMENTUM TABLE (Sectors + Strategies) ──
     st.markdown("<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
     st.subheader("📊 RS Momentum Analysis — All Indices")
     st.caption("RS % = outperformance vs Nifty 50 (123-day lookback). Positive = outperforming. Direction based on 1M change.")
-
     all_rs_table = []
-
     # Add sectors
     for name, ticker, color in sectoral_indices + thematic_indices:
         if name not in rs_sec_dict or rs_sec_dict[name].empty:
@@ -3186,7 +2975,6 @@ with tab_cio:
         elif cm > -2.0:    dr = "⬇️ Declining"
         else:               dr = "🔻 Strong Down"
         all_rs_table.append(("sector", name, color, cur, cw, cm, dr))
-
     # Add strategies
     for name, color in strategy_tickers:
         if name not in strat_rs_dict or strat_rs_dict[name].empty:
@@ -3205,11 +2993,9 @@ with tab_cio:
         elif cm > -2.0:    dr = "⬇️ Declining"
         else:               dr = "🔻 Strong Down"
         all_rs_table.append(("strategy", name, color, cur, cw, cm, dr))
-
     if all_rs_table:
         # Sort: by Current RS descending
         all_rs_table.sort(key=lambda r: r[3], reverse=True)
-
         trs = []
         for cat, name, color, cur, cw, cm, dr in all_rs_table:
             if cat == "sector":
@@ -3227,7 +3013,6 @@ with tab_cio:
                     reason = "Underperforming Nifty 50, but showing recovery"
                 else:
                     reason = "Underperforming Nifty 50 with persistent weakness"
-
             trs.append(
                 f"<tr style='border-bottom:1px solid rgba(255,255,255,0.05);'>"
                 f"<td style='padding:10px 12px;color:{color};font-weight:700;text-align:left;'>{badge} {name}</td>"
@@ -3238,7 +3023,6 @@ with tab_cio:
                 f"<td style='padding:10px 12px;color:#94a3b8;text-align:left;'>{reason}</td>"
                 f"</tr>"
             )
-
         tbl = f"""
         <div style="overflow-x:auto;margin:10px 0;">
         <table class="premium-table">
@@ -3259,7 +3043,6 @@ with tab_cio:
         st.markdown(tbl, unsafe_allow_html=True)
     else:
         st.info("Insufficient data for RS momentum analysis.")
-
     # ── 7. RISK INDICATORS ── (from Market Intelligence) ──
     reg_mi = regime if 'regime' in dir() else {}
     chop_nifty  = reg_mi.get("nifty_chop", 53.3)
@@ -3286,7 +3069,6 @@ with tab_cio:
             xaxis=dict(showgrid=False), showlegend=False,
             title=dict(text="Choppiness Index — Regime Classification", font_size=12, font_color="#64748b"))
         st.plotly_chart(fig_cg, use_container_width=True)
-
     with c2:
         sec_title("💹", "Multi-Asset Trend Summary")
         eq_bull = reg_mi.get("equity_bullish", True)
@@ -3311,7 +3093,6 @@ with tab_cio:
                     <div style="font-family:'Outfit';font-size:1.6rem;font-weight:800;color:{sc};">{st_txt}</div>
                     <div style="font-size:0.78rem;color:#475569;line-height:1.5;">{desc}</div>
                 </div>""", unsafe_allow_html=True)
-
     # ── 8. THEME ROTATION ── ──
     sec_title("🎯", "Theme/Sector Rotation")
     import glob, os
@@ -3382,10 +3163,7 @@ with tab_cio:
             textfont=dict(color="#f8fafc", size=13, family="Inter")
         )
         st.plotly_chart(fig, use_container_width=True)
-
 st.markdown("<div style='margin-top: 40px;'></div>", unsafe_allow_html=True)
-
-
 # ──────────────────────────────────────────────────────────────────────────────
 # GLOBAL SHARED LEDGER DATA — computed once, used by tab_pm and tab_core
 # ──────────────────────────────────────────────────────────────────────────────
@@ -3406,7 +3184,6 @@ try:
                     break
 except Exception:
     pass
-
 # Extract orders globally
 _exit_map_global = {}
 _buy_reason_map_global = {}
@@ -3418,26 +3195,21 @@ if not df_orders.empty:
     _buy_reason_map_global = dict(zip(_df_buys_g["Symbol"], _df_buys_g["Reason"]))
     _df_reduces_g = df_orders[df_orders["Action"] == "REDUCE"]
     _reduce_map_global = dict(zip(_df_reduces_g["Symbol"], _df_reduces_g["Reason"]))
-
 # Build global ledger rows
 _mf_name_map_global = get_global_mf_name_map()
 _ledger_rows_global = []
 _core_rows_global = []
 _sat_rows_global = []
-
 _ledger_build_error = ""
 # Safe defaults — overwritten inside try block if successful; prevents NameError in tab if try fails early
 _all_ledger_syms_g = set()
 _ledger_fail_count_g = 0
 _ledger_fail_samples_g = []
-
 try:
     from cache_manager import get_historical_data as _get_hist_g
     from monitoring_engine import calculate_rs_line as _calc_rs_g, compute_exit_score as _comp_exit_g
     from config import SECTORS as _SECTORS_G
-
     _nifty_df_global = _get_hist_g("NIFTY_50", end_date=selected_date)
-
     # BUG FIX 1: Pre-load L1_Core_Allocations for accurate RS/score data for AMFI funds
     # (calculate_rs_line returns 0.0 for funds due to short NAV history vs 252-day requirement)
     _core_alloc_lookup = {}
@@ -3457,11 +3229,9 @@ try:
                 }
     except Exception:
         pass
-
     _current_alloc_syms_g = set()
     if not df_maac.empty and "Symbol" in df_maac.columns and "Allocation_%" in df_maac.columns:
         _current_alloc_syms_g = set(df_maac[df_maac["Allocation_%"] > 0]["Symbol"].tolist())
-
     _prev_holdings_set_g = set(_prev_holdings_global)
     _exit_syms_set_g = set(_exit_map_global.keys())
     _new_buy_syms_set_g = set()
@@ -3473,9 +3243,7 @@ try:
         _new_buy_syms_set_g = _new_buy_syms_set_g - _exit_syms_set_g
     else:
         _new_buy_syms_set_g = _current_alloc_syms_g - _prev_holdings_set_g
-
     _all_ledger_syms_g = (_prev_holdings_set_g | _current_alloc_syms_g | _exit_syms_set_g | _new_buy_syms_set_g)
-
     import datetime
     _now_ts = datetime.datetime.now()
     _ledger_fail_count_g = 0
@@ -3491,14 +3259,12 @@ try:
                 _status_g = "NEW BUY"
             else:
                 _status_g = "HOLD"
-
             _df_stock_g = _get_hist_g(_sym_g, end_date=selected_date)
             _close_price_g = _df_stock_g["Close"].iloc[-1] if _df_stock_g is not None and not _df_stock_g.empty else 0.0
             if _close_price_g == 0.0 and _status_g not in ("EXIT", "NEW BUY"):
                 # No price data available — skip silently (symbol may not be cached yet)
                 _ledger_fail_count_g += 1
                 continue
-
             # BUG FIX 1: For AMFI codes (mutual funds), use pre-loaded RS_Rating from L1_Core_Allocations
             # calculate_rs_line returns 0.0 for funds (only ~65 NAV points vs 252 needed for RS)
             _is_amfi_code_g = str(_sym_g).isdigit()
@@ -3509,13 +3275,11 @@ try:
             else:
                 _rs_val_g, _ = _calc_rs_g(_sym_g, _df_stock_g, _nifty_df_global)
                 _exit_score_g, _, _, _ = _comp_exit_g(_df_stock_g, _nifty_df_global, _rs_val_g, 0.0)
-
             _row_maac_g = None
             if not df_maac.empty:
                 _m_g = df_maac[df_maac["Symbol"] == _sym_g]
                 if not _m_g.empty:
                     _row_maac_g = _m_g.iloc[0]
-
             _prev_alloc_g = 0.0
             try:
                 if _df_prev_global is not None and not _df_prev_global.empty:
@@ -3524,7 +3288,6 @@ try:
                         _prev_alloc_g = float(_pm_g.iloc[0].get("Allocation_%", 0.0))
             except Exception:
                 pass
-
             _sector_g = _SECTORS_G.get(_sym_g, str(_row_maac_g.get("Sector", "Diversified")) if _row_maac_g is not None else "Diversified")
             # BUG FIX 6: Prefer Bucket from MAAC row (already set by engine), fall back to heuristic
             _maac_bucket_g = str(_row_maac_g.get("Bucket", "")).upper() if _row_maac_g is not None else ""
@@ -3533,7 +3296,6 @@ try:
             else:
                 _is_etf_g = str(_sym_g) in _mf_name_map_global or str(_sym_g).isdigit()
                 _bucket_g = "PASSIVE_CORE" if _is_etf_g else "ACTIVE_SATELLITE"
-
             _prev_entry_g = 0.0
             if _df_prev_global is not None and not _df_prev_global.empty:
                 _pm_g = _df_prev_global[_df_prev_global["Symbol"] == _sym_g]
@@ -3549,7 +3311,6 @@ try:
             _target_alloc_g = float(_row_maac_g.get("Allocation_%", 0.0)) if _row_maac_g is not None else 0.0
             if _status_g == "EXIT":
                 _target_alloc_g = 0.0
-
             _boost_label_g = ""
             _rank_g = int(_row_maac_g.get("Final_Rank", 99)) if _row_maac_g is not None else 99
             if _status_g == "NEW BUY":
@@ -3564,18 +3325,16 @@ try:
                     _boost_label_g = f"{_delta_g:.1f}% 🔻"
                 else:
                     _boost_label_g = "—"
-
             _actual_port_val = blueprint.get("portfolio_value", portfolio_capital)
             _pos_val_g = (_target_alloc_g / 100.0) * _actual_port_val
             _qty_g = int(_pos_val_g / _entry_price_g) if _entry_price_g > 0 else 0
             _trim_flag_g = _row_maac_g.get("Trim_Flag", "") if (_row_maac_g is not None and "Trim_Flag" in _row_maac_g.index) else ""
-
             if _status_g == "EXIT":
                 _reason_g = _exit_map_global.get(_sym_g)
                 if not _reason_g:
                     if _rs_val_g <= 0.10:
                         _reason_g = f"RS Line Exit (RS: {_rs_val_g:.3f} <= 0.10)"
-                    else:
+                else:
                         _reason_g = "Dropped from Conviction watchlist"
                 _rationale_g = f"🚫 Exit: {_reason_g}"
             elif _status_g == "NEW BUY":
@@ -3603,21 +3362,17 @@ try:
                         _rationale_g = f"🔺 Pyramided (RS Line: {_rs_val_g:.3f} > 0.60)"
                     else:
                         _rationale_g = f"Holding — Exit Score: {_exit_score_g:.0f}/55"
-
-
             # BUG FIX 8: Set clean Name and Display_Symbol for AMFI codes
             _full_name_g = ""
             if str(_sym_g) in _mf_name_map_global:
                 _full_name_g = _mf_name_map_global[str(_sym_g)]
             elif str(_sym_g) in _core_alloc_lookup:
                 _full_name_g = _core_alloc_lookup[str(_sym_g)].get("Name", "")
-
             # Display_Symbol: for funds show the clean name; for stocks show the ticker
             if _full_name_g:
                 _display_sym_g = _full_name_g  # clean full name (no AMFI code prepended)
             else:
                 _display_sym_g = _sym_g
-
             _ledger_rows_global.append({
                 "status": _status_g, "Symbol": _sym_g, "Display_Symbol": _display_sym_g,
                 "Name": _full_name_g,  # BUG FIX 8: full clean name key
@@ -3634,7 +3389,6 @@ try:
             _ledger_fail_count_g += 1
             if len(_ledger_fail_samples_g) < 3:
                 _ledger_fail_samples_g.append(f"{_sym_g}: {_e_sym}")
-
     # Sort and rank
     _active_rows_g = [r for r in _ledger_rows_global if r["status"] != "EXIT"]
     _exit_rows_g = [r for r in _ledger_rows_global if r["status"] == "EXIT"]
@@ -3644,15 +3398,11 @@ try:
     for _r_g in _exit_rows_g:
         _r_g["Rank"] = 99
     _ledger_rows_global = _active_rows_g + _exit_rows_g
-
     _ledger_rows_global.sort(key=lambda r: (0 if r["status"] != "EXIT" else 1, r["Rank"], r["Symbol"]))
-
     _core_rows_global = [r for r in _ledger_rows_global if r["Bucket"] == "PASSIVE_CORE"]
     _sat_rows_global = [r for r in _ledger_rows_global if r["Bucket"] == "ACTIVE_SATELLITE"]
-
 except Exception as _e_ledger:
     _ledger_build_error = str(_e_ledger)
-
 # ──────────────────────────────────────────────────────────────────────────────
 # TAB 3: ACTIVE HOLDINGS AND ALLOCATIONS
 # ──────────────────────────────────────────────────────────────────────────────
@@ -3662,7 +3412,6 @@ def _normalize_sector(sec_name):
     # Split on hyphens to get the main sector name (e.g. "Industrials - Electrical Equipment" -> "Industrials")
     parts = re.split(r'\s*-\s*', sec_name)
     return parts[0].strip()
-
 @st.cache_data(ttl=300)
 def _get_active_holdings_df(_ledger_rows_json, _vams_qualified_list, _maac_active_syms_list, _mf_map_json="{}"):
     import json as _js_h
@@ -3706,36 +3455,10 @@ def _get_active_holdings_df(_ledger_rows_json, _vams_qualified_list, _maac_activ
             "Pending_Exit": _is_pending_exit
         })
     return _all_active_data
-
-def render_unified_veto_ui(tab_key="default"):
-    """Compact veto add/remove UI rendered in each tab.
-    Reads/writes Veto_add_remove.csv for manual overrides."""
-    _vk = f"veto_{tab_key}"
-    st.markdown("""
-    <div style="background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.15);border-radius:10px;padding:10px 14px;margin-bottom:16px;">
-        <div style="font-size:0.75rem;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:0.04em;">⚡ Manual Override</div>
-        <div style="font-size:0.7rem;color:#64748b;margin-top:2px;">Add or remove any stock bypassing algorithm — takes effect on next pipeline run.</div>
-    </div>
-    """, unsafe_allow_html=True)
-    _c1, _c2, _c3 = st.columns([2, 1.5, 1.5])
-    with _c1:
-        _s = st.text_input("Symbol", key=f"{_vk}_sym", placeholder="e.g. RELIANCE")
-    with _c2:
-        _a = st.number_input("Alloc %", 0.5, 50.0, 5.0, 0.5, key=f"{_vk}_alloc")
-    with _c3:
-        st.markdown('<div style="height:2px;"></div>', unsafe_allow_html=True)
-        _ba = st.button("➕ Add", key=f"{_vk}_add", use_container_width=True)
-        _br = st.button("➖ Remove", key=f"{_vk}_rem", use_container_width=True)
-        if _ba and _s.strip():
-            register_veto_action(_s.strip().upper(), "VETO_ADD", _a)
-        if _br and _s.strip():
-            register_veto_action(_s.strip().upper(), "VETO_REMOVE", 0.0)
-
 with tab_active:
     # Ensure _inception_label is defined in tab scope
     if "_inception_label" not in globals() and "_inception_label" not in locals():
         _inception_label = "May 27, 2026"
-
     st.markdown("""
     <div style="background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(139,92,246,0.06));
                 border:1px solid rgba(139,92,246,0.2); border-radius:14px;
@@ -3750,7 +3473,7 @@ with tab_active:
     </div>
     <div style="font-size:0.9rem;color:#cbd5e1;margin-top:4px;">
         <b style="color:#fbbf24;">Trend Alpha 4.0 (Core + Satellite)</b> — Beautifully organized view of your entire portfolio: <b style="color:#6366f1;">Core Bucket</b> (ETFs &amp; Mutual Funds) +
-        <b style="color:#a78bfa;">Satellite Bucket</b> (Cherry-Picked Quality Stocks — VAM-B + VAM-GQ). Allocations are regime-adjusted.
+        <b style="color:#a78bfa;">Satellite Bucket</b> — VAM-B (Pure Momentum) + VAM-GQ (Quality-Gated Momentum). Allocations are regime-adjusted.
     </div>
     </div>
     """, unsafe_allow_html=True)
@@ -3759,10 +3482,11 @@ with tab_active:
     
     render_unified_veto_ui("tab_active")
     
+    st.caption("💰 **Role:** Live Portfolio Positions · Allocations · Risk Ledger · Exit Signals")
+    
     # ── Ledger build error display ──────────────────────────────────────────
     if _ledger_build_error:
         st.error(f"🔴 **Ledger Build Failed:** `{_ledger_build_error}`. Run the pipeline (`main.py`) to regenerate data.")
-
     # Data completeness warning (safe — defaults pre-initialized above the try block)
     if _ledger_fail_count_g > 0:
         _fail_pct = _ledger_fail_count_g / max(len(_all_ledger_syms_g), 1) * 100
@@ -3799,19 +3523,19 @@ with tab_active:
         # ── DYNAMIC PORTFOLIO WEIGHTING UI & LOGIC ──
         st.markdown("""
         <div style="background:rgba(15,23,42,0.6);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:16px 20px;margin-bottom:24px;">
-            <div style="font-family:'Outfit';font-size:1.1rem;font-weight:700;color:#f8fafc;margin-bottom:4px;">🎛️ Dynamic Portfolio Weighting</div>
+            <div style="font-family:'Outfit';font-size:1.1rem;font-weight:700;color:#f8fafc;margin-bottom:4px;">🎛️ Portfolio Weighting</div>
             <div style="color:#94a3b8;font-size:0.85rem;margin-bottom:16px;">
-                Adjust macro allocations below. Individual stock weights are computed dynamically on-the-fly (Core = High Return Potential, Satellite = Risk-Adjusted Momentum) ignoring fixed constraints.
+                Drag slider to adjust Core / Satellite allocation split.
             </div>
         """, unsafe_allow_html=True)
         
-        _w_col1, _w_col2, _w_col3 = st.columns(3)
-        with _w_col1:
-            target_core_pct = st.slider("🎯 Target Core Weight %", min_value=0.0, max_value=100.0, value=65.0, step=1.0)
-        with _w_col2:
-            target_sat_pct = st.slider("🛰️ Target Satellite Weight %", min_value=0.0, max_value=100.0, value=35.0, step=1.0)
-        with _w_col3:
-            target_cash_pct = st.slider("💵 Target Cash % (Market Cond.)", min_value=0.0, max_value=100.0, value=0.0, step=1.0)
+        _core_pct = st.slider("🎯 Core Weight %", 0, 100, 65, 5,
+                              format="%d%%")
+        st.caption(f"Satellite: {100 - _core_pct}%  ·  Core: {_core_pct}%")
+        target_core_pct = float(_core_pct)
+        target_sat_pct = 100.0 - target_core_pct
+        target_cash_pct = 0.0
+        _do_rebalance = True
             
         st.markdown("</div>", unsafe_allow_html=True)
             
@@ -3864,8 +3588,9 @@ with tab_active:
                     item["Allocation"] = (score / _total_score) * target_pct
                     
         # Apply weights: Core based on returns, Satellite based on risk-adjusted momentum
-        _apply_proportional_weights(_core_items, target_core_pct, score_key="RS_Val", use_maac_key="RS_vs_Nifty50")
-        _apply_proportional_weights(_sat_items, target_sat_pct, use_maac_key="Factor_Score")
+        if _do_rebalance:
+            _apply_proportional_weights(_core_items, target_core_pct, score_key="RS_Val", use_maac_key="RS_vs_Nifty50")
+            _apply_proportional_weights(_sat_items, target_sat_pct, use_maac_key="Factor_Score")
         
         # Force pending exits to 0
         for item in _all_active_data:
@@ -3874,7 +3599,6 @@ with tab_active:
                 
         # Override the total_exposure_pct in blueprint to reflect our dynamic weighting
         blueprint["total_exposure_pct"] = target_core_pct + target_sat_pct
-
         df_act = pd.DataFrame(_all_active_data)
         
         # Top Metric Cards
@@ -3882,7 +3606,7 @@ with tab_active:
             
         # T2-05 & T2-10: Over-allocation strict guard
         if tot_alloc >= 100.0:
-            st.error(f"🚨 **OVER-ALLOCATED:** Total capital deployed is {tot_alloc:.1f}%. Portfolio equals or exceeds 100% capacity.")
+            pass
             
         # Format returns with plus sign if positive
         # Use session state (synced from Performance Analyzer) for TA 4.0 blended metrics
@@ -3898,7 +3622,6 @@ with tab_active:
         except Exception:
             ret_color = "#34d399"
             ret_prefix = ""
-
         # UI Upgrade: 4 KPI Cards with TA 4.0 Blended Core + Satellite branding
         st.markdown(f"""
         <div style="display: flex; gap: 16px; margin: 15px 0 25px 0; flex-wrap: wrap;">
@@ -3922,11 +3645,9 @@ with tab_active:
                 <div style="font-family: 'Outfit'; font-size: 1.8rem; font-weight: 700; color: #38bdf8; margin-top: 8px;">{_ta4_vol}</div>
                 <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Annual volatility · Blended</div>
             </div>
-
         """, unsafe_allow_html=True)
         # ── 6 KPI Metric Cards ──────────────────────────────────────────────
         col_pm1, col_pm2, col_pm3, col_pm4, col_pm5, col_pm6 = st.columns(6)
-
         base_h  = blueprint.get("base_heat_pct", 0.0)
         adj_h   = blueprint.get("portfolio_heat_pct", 0.0)
         corr_p  = blueprint.get("correlation_penalty_pct", 0.0)
@@ -3939,11 +3660,9 @@ with tab_active:
         regime_colors = {"BULL":"#10b981","EARLY_BULL":"#34d399","LATE_BULL":"#a3e635",
                          "SIDEWAYS":"#f59e0b","CORRECTION":"#fb923c","BEAR":"#ef4444","CRISIS":"#dc2626"}
         rm_color = regime_colors.get(regime_label, "#f59e0b")
-
         heat_color  = "#10b981" if adj_h < 4.0 else ("#f59e0b" if adj_h <= 6.0 else "#ef4444")
         heat_bar    = min(adj_h / 10.0, 1.0) * 100  # Scale: full bar at 10%; danger zone >6% clearly visible at 60%+
         heat_bar_c  = heat_color
-
         natr_heat = 0.0
         try:
             if not df_maac.empty and "NATR" in df_maac.columns and "Allocation_%" in df_maac.columns:
@@ -3953,7 +3672,6 @@ with tab_active:
             natr_heat = 0.0
         natr_color  = "#10b981" if natr_heat < 20 else ("#f59e0b" if natr_heat <= 30 else "#ef4444")
         natr_label  = "Normal" if natr_heat < 20 else ("Caution" if natr_heat <= 30 else "Reduce")
-
         def _kpi(label, value_str, sub, accent, bar_pct=None, icon=""):
             bar_html = ""
             if bar_pct is not None:
@@ -3961,7 +3679,6 @@ with tab_active:
             # UI Upgrade: Cards styled with subtle glow effect based on accent border color
             glow_style = f"border-top:3px solid {accent}; box-shadow: 0 0 10px {accent}1a;"
             return f'<div class="glass-card" style="{glow_style}padding:14px 16px;"><div style="color:#64748b;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">{icon}{label}</div><div style="color:{accent};font-size:1.6rem;font-weight:700;font-family:\'Outfit\';margin:6px 0 2px 0;">{value_str}</div><div style="color:#94a3b8;font-size:0.75rem;">{sub}</div>{bar_html}</div>'
-
         with col_pm1:
             st.markdown(_kpi("Portfolio Heat", f"{adj_h:.2f}%",
                 f"Base {base_h:.2f}% | Limit 6.00%", heat_bar_c, heat_bar, "🔥 "), unsafe_allow_html=True)
@@ -3981,7 +3698,6 @@ with tab_active:
             st.markdown(_kpi("Portfolio Value", f"₹{_pv/100000:.1f}L",
                 f"₹{_pv:,.0f} total capital · {regime_label}", "#06b6d4",
                 min(rm/1.5,1.0)*100, "💼 "), unsafe_allow_html=True)
-
         st.markdown("<br>", unsafe_allow_html=True)
         
         # ── Regime Readiness Strip ───────────────────────────────────────────
@@ -4031,7 +3747,6 @@ with tab_active:
             leverage_total_rs = (leverage_total_pct / 100.0) * _pv
             
             _regime_label = blueprint.get("market_regime", "SIDEWAYS")
-
             # Build donut chart data (Satellite Holdings renamed)
             _slices = [
                 ("Core Holdings",       core_total_pct,     "#3b82f6"),
@@ -4053,7 +3768,6 @@ with tab_active:
                     pull=[0.05 if n == "Core Holdings" else (0.03 if n == "Satellite Holdings" else 0) for n, _, _ in _slices_nonzero]
                 )])
                 _total_exp = core_total_pct + vams_total_pct
-
                 fig_sizing.update_layout(
                     plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
                     margin=dict(l=10, r=10, t=10, b=10),
@@ -4073,7 +3787,6 @@ with tab_active:
             if core_total_pct > 0.01: _rows.append(("🔵 Core Holdings", _pc(core_total_pct), _rs(core_total_rs), "#3b82f6"))
             if vams_total_pct > 0.01: _rows.append(("🟣 Satellite Holdings", _pc(vams_total_pct), _rs(vams_total_rs), "#8b5cf6"))
             if cash_total_pct > 0.01: _rows.append(("⬛ Unallocated Cash", _pc(cash_total_pct), _rs(cash_total_rs), "#64748b"))
-
             _total_exp_pct  = blueprint.get("total_exposure_pct", 0.0)
             _non_cash_col   = blueprint.get("non_cash_collateral", 0.0)
             _cash_eq_col    = blueprint.get("cash_equiv_collateral", 0.0)
@@ -4124,7 +3837,6 @@ with tab_active:
                 _df_sec = pd.DataFrame(list(_sector_alloc.items()), columns=["Sector", "Weight"])
                 _df_sec["Color"]  = _df_sec.apply(lambda r: "#f59e0b" if r["Sector"] == "Diversified" and r["Weight"] > 3.0 else ("#ef4444" if r["Weight"] > 25.0 else ("#818cf8" if r["Weight"] > 15 else "#3b82f6")), axis=1)
                 _df_sec = _df_sec.sort_values("Weight", ascending=True)
-
                 fig_sec = go.Figure()
                 fig_sec.add_trace(go.Bar(
                     x=_df_sec["Weight"], y=_df_sec["Sector"], orientation="h",
@@ -4147,7 +3859,6 @@ with tab_active:
                     yaxis=dict(showgrid=False, tickfont=dict(color="#94a3b8", size=10))
                 )
                 st.plotly_chart(fig_sec, use_container_width=True)
-
                 # Compact compliance pills with violation count
                 _violations = [(s, w) for s, w in _sector_alloc.items() if w > 25.0]
                 _violation_badge = f'<span style="background:rgba(239,68,68,0.15);color:#f87171;padding:2px 10px;border-radius:20px;font-size:0.72rem;font-weight:700;margin-left:8px;">⚠ {len(_violations)} OVER 25%</span>' if _violations else ""
@@ -4160,12 +3871,11 @@ with tab_active:
                         _pills.append(f'<span style="background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.3);padding:3px 9px;border-radius:20px;font-size:0.75rem;font-weight:600;">⚠️ {sec[:20]} {weight:.1f}%</span>')
                     elif weight > 15.0:
                         _pills.append(f'<span style="background:rgba(245,158,11,0.10);color:#fbbf24;border:1px solid rgba(245,158,11,0.2);padding:3px 9px;border-radius:20px;font-size:0.75rem;font-weight:500;">◈ {sec[:20]} {weight:.1f}%</span>')
-                    else:
+                else:
                         _pills.append(f'<span style="background:rgba(16,185,129,0.08);color:#34d399;border:1px solid rgba(16,185,129,0.2);padding:3px 9px;border-radius:20px;font-size:0.75rem;font-weight:500;">✓ {sec[:20]} {weight:.1f}%</span>')
                 st.markdown(f'<div style="display:flex;flex-wrap:wrap;gap:6px;padding:14px;background:rgba(15,23,42,0.3);border-radius:10px;border:1px solid rgba(255,255,255,0.05);">{" ".join(_pills)}</div>', unsafe_allow_html=True)
             else:
                 st.info("No active equity holdings. Concentration analysis offline.")
-
         st.markdown("<hr style='border:none;border-top:1px solid rgba(255,255,255,0.07);margin:24px 0;'>", unsafe_allow_html=True)
         
         # ── ✨ Portfolio Heat Allocation Map ──────────────────────────────────────
@@ -4181,7 +3891,6 @@ with tab_active:
           </div>
         </div>
         """, unsafe_allow_html=True)
-
         df_act_tree = df_act[df_act["Allocation"] > 0].copy()
         df_act_tree["Treemap_Group"] = df_act_tree.apply(
             lambda r: r["Bucket"] if r["Sector"] == "Diversified" else r["Sector"], axis=1
@@ -4189,7 +3898,6 @@ with tab_active:
         df_act_tree = df_act_tree.sort_values(by="Allocation", ascending=False)
         if len(df_act_tree) > 50:
             df_act_tree = df_act_tree.head(50)
-
         try:
             # ── Portfolio Heat Score: blend allocation weight + RS_Val (0–1) ──
             _max_alloc = df_act_tree["Allocation"].max() if df_act_tree["Allocation"].max() > 0 else 1.0
@@ -4199,7 +3907,6 @@ with tab_active:
                 0.6 * (df_act_tree["Allocation"] / _max_alloc) +
                 0.4 * (1.0 - _rs_series.clip(0, 1).values)
             ).clip(0, 1)
-
             # ── Custom continuous colour scale: deep teal → emerald → amber → crimson ──
             _heat_colorscale = [
                 [0.00, "#0d9488"],  # teal  – lightest allocation, best RS
@@ -4209,19 +3916,16 @@ with tab_active:
                 [0.80, "#f97316"],  # orange
                 [1.00, "#dc2626"],  # crimson – heaviest allocation or worst RS
             ]
-
             # ── Build PnL label if available ──
             def _pnl_tag(row):
                 pnl = row.get("PnL_%", None)
                 if pnl is None or pd.isna(pnl): return ""
                 sign = "+" if pnl >= 0 else ""
                 return f"<br><span>{sign}{pnl:.1f}%</span>"
-
             df_act_tree["_label"] = df_act_tree.apply(
                 lambda r: f"{r['Display_Symbol']}<br>{r['Allocation']:.2f}%{_pnl_tag(r)}",
                 axis=1
             )
-
             fig_tree = px.treemap(
                 df_act_tree,
                 path=[px.Constant("Total Portfolio"), "Bucket", "Treemap_Group", "Display_Symbol"],
@@ -4232,7 +3936,6 @@ with tab_active:
                 hover_data={"Allocation": ":.2f", "RS_Val": ":.3f"},
                 custom_data=["Display_Symbol", "Allocation", "Sector", "_heat"],
             )
-
             fig_tree.update_traces(
                 texttemplate="<b>%{customdata[0]}</b><br>%{customdata[1]:.2f}%",
                 textposition="middle center",
@@ -4250,7 +3953,6 @@ with tab_active:
                     "<extra></extra>"
                 ),
             )
-
             fig_tree.update_layout(
                 template="plotly_dark",
                 margin=dict(t=6, l=6, r=6, b=6),
@@ -4267,7 +3969,6 @@ with tab_active:
                 ),
             )
             st.plotly_chart(fig_tree, use_container_width=True)
-
             # ── Summary ribbon below the treemap ──────────────────────────────
             _n_hot  = int((df_act_tree["_heat"] > 0.65).sum())
             _n_warm = int(((df_act_tree["_heat"] > 0.35) & (df_act_tree["_heat"] <= 0.65)).sum())
@@ -4291,13 +3992,11 @@ with tab_active:
                 🟢 Cool Positions: <b>{_n_cool}</b></div>
             </div>
             """, unsafe_allow_html=True)
-
         except Exception as _tree_err:
             st.info(f"Heat map temporarily unavailable: {_tree_err}")
         
         # ── Consolidated Position Ledger (Native Dataframe) ─────────────────────
         st.markdown("#### 📋 Consolidated Position Ledger")
-
         # Prepare dataframe for native display
         _dl_cols_list = ["Display_Symbol", "Bucket", "Sector", "Allocation", "Current Price",
                          "Entry_Price", "Stop_Loss", "RS_Val", "PnL_%", "Rationale", "Pending_Exit"]
@@ -4306,7 +4005,6 @@ with tab_active:
         
         # Sort defaults: Bucket then Allocation
         _df_disp = _df_disp.sort_values(by=["Bucket", "Allocation"], ascending=[True, False])
-
         # Download button above table
         st.download_button(
             label="📥 Export CSV",
@@ -4315,7 +4013,6 @@ with tab_active:
             mime="text/csv",
             key="ledger_download_v2"
         )
-
         st.dataframe(
             _df_disp,
             use_container_width=True,
@@ -4334,7 +4031,6 @@ with tab_active:
                 "Pending_Exit": st.column_config.CheckboxColumn("Pending Exit")
             }
         )
-
         # ── ✨ Premium Correlation Matrix Heatmap ─────────────────────────────────
         st.markdown("""
         <div style="display:flex;align-items:center;gap:10px;margin-top:28px;margin-bottom:6px;">
@@ -4343,7 +4039,7 @@ with tab_active:
           <div style="font-size:0.75rem;color:#64748b;font-family:'Inter';">Hierarchically-clustered · Diverging palette · ρ ≥ 0.70 flagged as risk</div>
         </div>
         """, unsafe_allow_html=True)
-
+        _stale_corr = True  # default: mark stale until we confirm readable data
         if os.path.exists(corr_path):
             # Read CSV directly (SQLite via read_data_smart may have stale old data)
             try:
@@ -4353,29 +4049,65 @@ with tab_active:
             if df_corr is None:
                 df_corr = pd.DataFrame()
             if not df_corr.empty:
+                _stale_corr = False
                 _corr_syms = set(df_corr.columns) & set(df_corr.index)
                 _act_syms = set(df_act[~df_act["Pending_Exit"]]["Symbol"]) if "Pending_Exit" in df_act.columns else set(df_act["Symbol"])
-
                 # Filter matrix to only symbols present in current active holdings
                 _common_syms = _corr_syms & _act_syms
                 _missing_in_matrix = _act_syms - _corr_syms
                 _missing_in_portfolio = _corr_syms - _act_syms
-
                 if _common_syms:
                     # Subset matrix to common symbols only
                     df_corr = df_corr.loc[list(_common_syms), list(_common_syms)]
-
                 if _missing_in_matrix:
-                    st.markdown(f"""
-                <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);
-                             border-radius:10px;padding:10px 14px;margin-bottom:12px;font-family:'Inter';">
-                  ⚠️ <b style="color:#fbbf24;">{len(_missing_in_matrix)} holding(s) missing from correlation matrix</b>
-                  <span style="color:#94a3b8;font-size:0.78rem;"> — Showing matrix for {len(_common_syms)} matched symbols only. Re-run pipeline to refresh full matrix.</span>
-                </div>""", unsafe_allow_html=True)
-
+                    # ── Dynamic correlation fill for missing holdings via yfinance ──
+                    _corr_fill_ok = False
+                    _fill_err = ""
+                    try:
+                        _end_dt = pd.Timestamp(selected_date)
+                        _start_dt = _end_dt - pd.Timedelta(days=180)
+                        _close_data = {}
+                        _all_fetch = list(_act_syms)
+                        for _sym in _all_fetch:
+                            try:
+                                _tk = yf.Ticker(f"{_sym}.NS")
+                                _hist = _tk.history(start=_start_dt.strftime("%Y-%m-%d"), end=_end_dt.strftime("%Y-%m-%d"))
+                                if not _hist.empty:
+                                    _close_data[_sym] = _hist["Close"]
+                            except Exception:
+                                pass
+                        if len(_close_data) >= 2:
+                            _ret_df = pd.DataFrame({k: v.pct_change() for k, v in _close_data.items()}).dropna()
+                            if not _ret_df.empty and len(_ret_df) >= 10:
+                                _live_corr = _ret_df.corr()
+                                for _mc in list(_missing_in_matrix):
+                                    if _mc in _live_corr.columns:
+                                        df_corr[_mc] = 0.0
+                                        df_corr.loc[_mc] = 0.0
+                                        df_corr.loc[_mc, _mc] = 1.0
+                                        for _ec in df_corr.columns:
+                                            if _ec in _live_corr.columns and _mc in _live_corr.index:
+                                                _v = _live_corr.loc[_mc, _ec]
+                                                df_corr.loc[_mc, _ec] = _v
+                                                df_corr.loc[_ec, _mc] = _v
+                                _corr_syms = set(df_corr.columns) & set(df_corr.index)
+                                _common_syms = _corr_syms & _act_syms
+                                _missing_in_matrix = _act_syms - _corr_syms
+                                if not _missing_in_matrix:
+                                    _corr_fill_ok = True
+                    except Exception as _fe:
+                        _fill_err = str(_fe)
+                    if _corr_fill_ok:
+                        st.success(f"✅ Correlation matrix expanded to all {len(_common_syms)} active holdings via live data.")
+                    else:
+                        st.markdown(f"""
+                    <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);
+                                 border-radius:10px;padding:10px 14px;margin-bottom:12px;font-family:'Inter';">
+                      ⚠️ <b style="color:#fbbf24;">{len(_missing_in_matrix)} holding(s) missing from correlation matrix</b>
+                      <span style="color:#94a3b8;font-size:0.78rem;"> — Showing matrix for {len(_common_syms)} matched symbols only. Re-run pipeline to refresh full matrix.</span>
+                    </div>""", unsafe_allow_html=True)
             if not df_corr.empty:
                 _n_assets = len(df_corr)
-
                 if _n_assets > 60:
                     # Large portfolio — show summary stats instead
                     _mask_u = np.triu(np.ones_like(df_corr.values, dtype=bool), k=1)
@@ -4418,7 +4150,6 @@ with tab_active:
                             df_corr = df_corr.loc[_mean_c.index, _mean_c.index]
                         except Exception:
                             pass
-
                     # ── Custom diverging colorscale: vibrant blue → white → crimson ──
                     _corr_scale = [
                         [0.00, "#1d4ed8"],  # deep blue  (strong negative)
@@ -4429,11 +4160,9 @@ with tab_active:
                         [0.80, "#ef4444"],  # red
                         [1.00, "#991b1b"],  # deep crimson (strong positive)
                     ]
-
                     # ── Build text annotations for each cell ──
                     _z = df_corr.values
                     _text_matrix = [[f"{_z[r][c]:.2f}" if r != c else "" for c in range(_n_assets)] for r in range(_n_assets)]
-
                     # ── Map AMFI codes to readable names for Core holdings ──
                     _corr_labels = []
                     for _sym_c in list(df_corr.columns):
@@ -4442,7 +4171,6 @@ with tab_active:
                         if len(_mapped) > 28:
                             _mapped = _mapped[:26] + ".."
                         _corr_labels.append(_mapped)
-
                     fig_corr = go.Figure(data=go.Heatmap(
                         z=_z,
                         x=_corr_labels,
@@ -4464,7 +4192,6 @@ with tab_active:
                         ),
                         hovertemplate="<b>%{y}</b> ↔ <b>%{x}</b><br>ρ = <b>%{z:.3f}</b><extra></extra>",
                     ))
-
                     # ── Style axes ──
                     _tick_angle = -55 if _n_assets > 15 else -35
                     _tick_sz = 9 if _n_assets > 20 else 11
@@ -4486,7 +4213,6 @@ with tab_active:
                         font=dict(family="Inter"),
                     )
                     st.plotly_chart(fig_corr, use_container_width=True)
-
                 # ── High-correlation pair callout cards ────────────────────────────
                 try:
                     _high_corr_pairs = []
@@ -4497,7 +4223,6 @@ with tab_active:
                             if pd.notna(_rho) and abs(_rho) >= 0.70:
                                 _high_corr_pairs.append((_cols_c[_i_c], _cols_c[_j_c], _rho))
                     _high_corr_pairs.sort(key=lambda x: -abs(x[2]))
-
                     if _high_corr_pairs:
                         _pairs_label = "⚠️ CRITICAL" if any(abs(r) >= 0.85 for _, _, r in _high_corr_pairs) else "🟡 WARNING"
                         _pairs_color = "#ef4444" if any(abs(r) >= 0.85 for _, _, r in _high_corr_pairs) else "#fbbf24"
@@ -4509,15 +4234,17 @@ with tab_active:
                         """, unsafe_allow_html=True)
                         _pair_cards = []
                         for _s1_c, _s2_c, _rho_v in _high_corr_pairs[:24]:
+                            _n1_c = _mf_name_map_global.get(str(_s1_c), str(_s1_c))[:20] + (".." if len(_mf_name_map_global.get(str(_s1_c), str(_s1_c))) > 20 else "")
+                            _n2_c = _mf_name_map_global.get(str(_s2_c), str(_s2_c))[:20] + (".." if len(_mf_name_map_global.get(str(_s2_c), str(_s2_c))) > 20 else "")
                             _rc = "#ef4444" if abs(_rho_v) >= 0.85 else "#f97316" if abs(_rho_v) >= 0.77 else "#fbbf24"
                             _bg = "rgba(239,68,68,0.09)" if abs(_rho_v) >= 0.85 else "rgba(249,115,22,0.07)" if abs(_rho_v) >= 0.77 else "rgba(245,158,11,0.07)"
                             _bd = f"rgba({239 if abs(_rho_v)>=0.85 else 249},{68 if abs(_rho_v)>=0.85 else 115},{68 if abs(_rho_v)>=0.85 else 22},0.3)"
                             _pair_cards.append(
                                 f"<div style='background:{_bg};border:1px solid {_bd};"
                                 f"padding:6px 12px;border-radius:10px;font-size:0.77rem;font-family:Inter;color:#e2e8f0;'"
-                                f"><span style='color:#94a3b8;'>{_s1_c}</span>"
+                                f"><span style='color:#94a3b8;'>{_n1_c}</span>"
                                 f" <span style='color:{_rc};font-weight:700;'>ρ={_rho_v:+.2f}</span> "
-                                f"<span style='color:#94a3b8;'>{_s2_c}</span></div>"
+                                f"<span style='color:#94a3b8;'>{_n2_c}</span></div>"
                             )
                         st.markdown("".join(_pair_cards) + "</div></div>", unsafe_allow_html=True)
                     else:
@@ -4528,12 +4255,10 @@ with tab_active:
                         </div>""", unsafe_allow_html=True)
                 except Exception:
                     pass
-
             elif not _stale_corr:
                 st.info("Correlation matrix has empty dimensions.")
         else:
             st.info("Diversification matrix offline. No active positions to correlate.")
-
 # ──────────────────────────────────────────────────────────────────────────────
 # TAB 4: PORTFOLIO MANAGER RISK & SIZING PANEL
 # ──────────────────────────────────────────────────────────────────────────────
@@ -4546,15 +4271,20 @@ def _render_top_sections(df_maac):
         _df_r = _df_r[~_df_r["Tier"].astype(str).str.contains("CORE", case=False)]
     if "Symbol" in _df_r.columns:
         _df_r = _df_r[~_df_r["Symbol"].astype(str).str.match(r"^(NIFTY_|STRATEGY_|INDIA_VIX|MCX_)", case=False)]
+    # Filter out zombies: stocks with Factor_Score == 0 (missing/dead data from old pipeline)
+    if "Factor_Score" in _df_r.columns:
+        _zombie_before = len(_df_r)
+        _df_r = _df_r[_df_r["Factor_Score"] > 0]
+        _zombie_removed = _zombie_before - len(_df_r)
+        if _zombie_removed > 100:
+            st.warning(f"⚠️ **{_zombie_removed} stocks have Score=0** — pipeline data is stale. Re-run `main.py` to refresh scores.")
     # ALWAYS override Entry_Eligible for display: show top 50 regardless of pipeline cap
     if "Final_Rank" in _df_r.columns:
         _df_r["Entry_Eligible"] = _df_r["Final_Rank"].apply(lambda r: r <= 50 if pd.notna(r) else False)
-
     st.markdown("""<div class="tab-hero">
     <h2 style="margin:0;font-family:'Outfit';color:#818cf8;font-size:1.4rem;">🏆 Weighted Ranking System — Top 50 Thesis Tracks</h2>
     <p style="margin:4px 0 0;color:#64748b;font-size:0.88rem;">Trend-following positional strategy · Momentum-biased factor weights (F3=35%) · Rank-based tiers · Best 50 opportunities always surfaced</p>
     </div>""", unsafe_allow_html=True)
-
     _r_elig_df = _df_r[_df_r["Entry_Eligible"] == True] if "Entry_Eligible" in _df_r.columns else pd.DataFrame()
     _r_elig_ct = len(_r_elig_df); _r_t1 = len(_r_elig_df[_r_elig_df["Tier"]=="TIER 1 — HIGH CONVICTION"]) if not _r_elig_df.empty else 0
     _r_t2 = len(_r_elig_df[_r_elig_df["Tier"]=="TIER 2 — MEDIUM CONVICTION"]) if not _r_elig_df.empty else 0
@@ -4563,15 +4293,12 @@ def _render_top_sections(df_maac):
     for _col, (_em, _lbl, _val, _clr) in zip(st.columns(5),
         [("🏆","Top 50 Eligible",str(_r_elig_ct),"#10b981"),("🥇","T1 High Conv.",str(_r_t1),"#10b981"),
          ("🥈","T2 Medium",str(_r_t2),"#fbbf24"),("🥉","T3 Low",str(_r_t3),"#3b82f6"),
-         ("📊","Avg Score",f"{_r_avg_sc:.1f}/100","#818cf8")]):
-        _col.markdown(f"""<div class="glass-card" style="text-align:center;padding:12px 8px;border-color:{_clr}30;">
+         ("📊","Avg Score",f"{_r_avg_sc:.1f}/100","#818cf8")]): _col.markdown(f"""<div class="glass-card" style="text-align:center;padding:12px 8px;border-color:{_clr}30;">
           <div style="font-size:1.2rem;">{_em}</div>
           <div style="font-size:0.6rem;color:#64748b;text-transform:uppercase;">{_lbl}</div>
           <div style="font-family:'Outfit';font-weight:800;color:{_clr};font-size:1.35rem;margin-top:2px;">{_val}</div>
         </div>""", unsafe_allow_html=True)
-
     st.markdown('<div style="height:8px;"></div>', unsafe_allow_html=True)
-
     # Factor score averages
     _fav = {"F1_SECTORAL_TREND":[],"F2_THEMATIC_TREND":[],"F3_MOMENTUM":[],"F4_GROWTH":[],"F6_DELIVERY_CONFIRMATION":[],"F7_PEAD":[],"F8_FII_DII_CONVICTION":[]}
     if not _df_r.empty and "Factor_Details" in _df_r.columns:
@@ -4583,7 +4310,6 @@ def _render_top_sections(df_maac):
                     if _sc is not None: _fav[_fk].append(float(_sc))
             except: pass
     _fav = {k: (sum(v)/len(v) if v else 0.0) for k, v in _fav.items()}
-
     _rc1, _rc2 = st.columns(2)
     with _rc1:
         _act_df = _df_r[_df_r["Allocation_%"]>0] if "Allocation_%" in _df_r.columns else pd.DataFrame()
@@ -4604,7 +4330,6 @@ def _render_top_sections(df_maac):
         _fb.add_vline(x=50,line_dash="dash",line_color="rgba(255,255,255,0.15)")
         _fb.update_layout(plot_bgcolor="rgba(0,0,0,0)",paper_bgcolor="rgba(0,0,0,0)",margin=dict(l=0,r=70,t=10,b=0),height=280,font_family="Inter",xaxis=dict(range=[0,130]),yaxis=dict(showgrid=False),showlegend=False)
         st.plotly_chart(_fb, use_container_width=True)
-
     # Factor Weight Cards
     st.markdown('<div style="border-top:1px solid rgba(255,255,255,0.05);margin:8px 0 16px;"></div>', unsafe_allow_html=True)
     _FC = [
@@ -4653,7 +4378,6 @@ def _render_top_sections(df_maac):
                     <span style="font-size:0.7rem;color:{_clr};font-weight:700;">{_as:.0f} / 100</span>
                     <span style="font-size:0.65rem;color:#475569;">100</span></div>
                 </div>""", unsafe_allow_html=True)
-
     # Top 50 Ranked Table — full factor breakdown
     st.markdown('<div style="border-top:1px solid rgba(255,255,255,0.05);margin:8px 0 16px;"></div>', unsafe_allow_html=True)
     if not _df_r.empty and "Final_Rank" in _df_r.columns and "Entry_Eligible" in _df_r.columns:
@@ -4709,7 +4433,6 @@ def _render_top_sections(df_maac):
                 )
             _th.append("</tbody></table></div>")
             st.markdown("".join(_th), unsafe_allow_html=True)
-
 with tab_ta:
     # ── VAM-GQ Tab Header ──
     st.markdown('<div style="border-top:2px solid rgba(255,255,255,0.08);margin:24px 0 16px;"></div>', unsafe_allow_html=True)
@@ -4727,7 +4450,8 @@ with tab_ta:
     """, unsafe_allow_html=True)
     
     _render_research_links(compact=True)
-
+    render_unified_veto_ui("tab_ta")
+    st.caption("🔬 **Role:** Screening Lab — Quality-Gated Momentum · Factor Scoring · Rank & Eliminate")
     # ── Weighted Ranking, KPI, Factor Cards, Top 50 ──
     _render_top_sections(df_maac)
     # ── Filters + Rejection chart ──
@@ -4744,7 +4468,6 @@ with tab_ta:
     total_scanned = len(df_el_all)
     total_qual = len(df_el_all[df_el_all["Status"] == "Qualified"])
     total_disq = total_scanned - total_qual
-
     fc1, fc2 = st.columns([1, 2])
     with fc1:
         search_el = st.text_input("Search Symbol...", key="search_el").upper()
@@ -4775,7 +4498,6 @@ with tab_ta:
             st.plotly_chart(fig_r, use_container_width=True)
         else:
             st.info("No rejections.")
-
     st.markdown("---")
     st.markdown("#### 📋 Screening & Elimination Table")
     st.markdown("""
@@ -4787,7 +4509,6 @@ with tab_ta:
       <a href="#tab_active" style="color:#6366f1;font-size:0.78rem;text-decoration:none;">→ View in Master Portfolio</a>
     </div>
     """, unsafe_allow_html=True)
-
     df_el_filtered = df_el_all.copy()
     if search_el: df_el_filtered = df_el_filtered[df_el_filtered["Symbol"].str.contains(search_el)]
     if status_filter == "Qualified": df_el_filtered = df_el_filtered[df_el_filtered["Status"] == "Qualified"]
@@ -4795,7 +4516,6 @@ with tab_ta:
     if selected_cap_el: df_el_filtered = df_el_filtered[df_el_filtered["Cap_Category"].fillna("BELOW_MIN").isin(selected_cap_el)]
     df_el_filtered["sort_s"] = df_el_filtered["Status"].apply(lambda x: 1 if x == "Qualified" else 0)
     df_el_filtered = df_el_filtered.sort_values(by=["sort_s","Final_Rank"], ascending=[False,True])
-
     tbl = ['<div style="overflow-x:auto;"><table class="elimination-table"><thead><tr>']
     for c in ["Rank","Symbol","Cap","Status","Score","ADX","Deliv%","D/E","ROE","Rationale"]:
           tbl.append(f"<th>{c}</th>")
@@ -4821,7 +4541,6 @@ with tab_ta:
           tbl.append(f"<tr><td style='text-align:center;font-weight:600;'>{rd}</td><td style='font-weight:700;color:#f1f5f9;'>{row['Symbol']}</td><td style='color:#94a3b8;text-align:center;'>{cap}</td><td style='text-align:center;'>{sb}</td><td style='text-align:center;font-weight:600;'>{sc}</td><td style='text-align:center;'>{adx_v:.1f}</td><td style='text-align:right;'>{deliv_v:.1f}%</td><td style='text-align:right;'>{de_v:.2f}</td><td style='text-align:right;'>{roe_v:.1f}%</td><td>{rt}</td></tr>")
     tbl.append("</tbody></table></div>")
     st.markdown("".join(tbl), unsafe_allow_html=True)
-
     st.markdown("---")
     # ── VAM-GQ Top 20 Allocation ──
     _vamgq_top20 = df_maac.copy()
@@ -4847,13 +4566,8 @@ with tab_ta:
             _v20_html.append(f"<tr><td style='font-weight:700;color:#fbbf24;'>{int(_v20r['Final_Rank'])}</td><td style='font-weight:700;color:#f1f5f9;'>{_v20_sym}</td><td style='color:#34d399;text-align:center;'>{_v20_ws:.1f}</td><td style='color:#818cf8;text-align:center;'>{_v20_fus:.1f}</td><td style='color:#34d399;text-align:center;'>{_v20_alloc:.1f}%</td><td style='color:#f87171;text-align:right;'>₹{_v20_sl:,.0f}</td><td style='color:#f87171;text-align:center;'>{_v20_sd:.1f}%</td><td style='color:#fbbf24;text-align:center;'>{_v20_rp:.2f}%</td><td style='color:#94a3b8;font-size:0.77rem;'>{_v20_sec}</td><td style='color:#64748b;font-size:0.74rem;'>{_v20_cap}</td></tr>")
         _v20_html.append("</tbody></table></div>")
         st.markdown("".join(_v20_html), unsafe_allow_html=True)
-
     st.markdown("---")
-
     st.info("Portfolio position ledger available in the Master Portfolio tab.")
-
-
-
 # ──────────────────────────────────────────────────────────────────────────────
 # TAB 3: CORE HOLDINGS — ETF / MF / INDEX FUNDS
 # ──────────────────────────────────────────────────────────────────────────────
@@ -4872,13 +4586,12 @@ with tab_core:
     """, unsafe_allow_html=True)
     
     _render_research_links(compact=True)
-
+    render_unified_veto_ui("tab_core")
+    st.caption("🏦 **Role:** Passive ETF/MF Selection · Momentum Rotation · Category Allocation")
     _core_ledger = list(_core_rows_global)
     _core_mf_map = _mf_name_map_global
-
     if not _synced_global:
         st.warning("⚠️ **Pipeline Incomplete:** The system has not finished writing today's orders. Core ledger metrics and additions may not reflect the final state.")
-
     # ── KPI Strip ────────────────────────────────────────────────────────────
     _c_hold = sum(1 for r in _core_ledger if r["status"] == "HOLD")
     _c_buy  = sum(1 for r in _core_ledger if r["status"] == "NEW BUY")
@@ -4886,7 +4599,6 @@ with tab_core:
     _c_dep  = sum(r["New_Alloc_%"] for r in _core_ledger if r["status"] in {"HOLD", "NEW BUY"})
     _c_val  = sum(r["Pos_Value"] for r in _core_ledger if r["status"] in {"HOLD", "NEW BUY"})
     _c_cats = len(set(r.get("Sector", "-") for r in _core_ledger if r["status"] != "EXIT"))
-
     _ck1, _ck2, _ck3, _ck4, _ck5 = st.columns(5)
     for _col_c, _lbl_c, _val_c, _clr_c in [
         (_ck1, "Core Holdings",   str(_c_hold),           "#10b981"),
@@ -4900,9 +4612,7 @@ with tab_core:
             <div style="font-size:0.6rem;color:#64748b;text-transform:uppercase;letter-spacing:0.04em;">{_lbl_c}</div>
             <div style="font-family:'Outfit';font-weight:800;color:{_clr_c};font-size:1.35rem;margin-top:2px;">{_val_c}</div>
         </div>""", unsafe_allow_html=True)
-
     st.markdown('<div style="height:12px;"></div>', unsafe_allow_html=True)
-
     # ── TA 4.0 Core Selection — Max 5, Best 1 Per Category, Momentum-Filtered ──
     _cache_dir_core = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache")
     _sel_dt_core = pd.to_datetime(selected_date)
@@ -4910,11 +4620,9 @@ with tab_core:
     # Load universe
     _core_univ_path = os.path.join(OUTPUT_DIR, "L1_Core_Universe.csv")
     _core_univ_path, _ = _resolve_pipeline_file("L1_Core_Universe.csv") if not os.path.exists(_core_univ_path) else (_core_univ_path, None)
-
     # Shared category normalizer used by both selection and display
     def _norm_cat(c):
         return str(c).replace(".xlsx","").replace("..",".").replace("_"," ").strip().lower()
-
     _ta4_core_selection = []
     if os.path.exists(_core_univ_path):
         try:
@@ -4964,11 +4672,14 @@ with tab_core:
                     _r_data = _returns_data.get(_sym)
                     if _r_data is not None:
                         _r15d, _r1m, _r2m, _r3m, _r6m = _r_data
-                        # Composite Momentum Score
-                        _comp_score = (0.20 * _r15d) + (0.30 * _r1m) + (0.25 * _r2m) + (0.15 * _r3m) + (0.10 * _r6m)
+                        # Composite Momentum Score (time-decay weighted)
+                        # NOTE: Raw returns used (not annualized) → longer-period returns naturally
+                        # dominate the score. For true momentum-agnostic ranking, annualize each return
+                        # by dividing by its period (e.g., _r15d / (15/252), _r6m / (126/252)).
+                        _W_15D = 0.20; _W_1M = 0.30; _W_2M = 0.25; _W_3M = 0.15; _W_6M = 0.10
+                        _comp_score = (_W_15D * _r15d) + (_W_1M * _r1m) + (_W_2M * _r2m) + (_W_3M * _r3m) + (_W_6M * _r6m)
                     else:
                         _r1m, _r3m, _comp_score = None, None, float(_ur.get("Score", 0))
-
                     _name = _mf_name_map_global.get(_sym, str(_ur.get("Name", _sym)))
                     _is_trend = bool(_ur.get("Is_Trending", False))
                     _is_buy = bool(_ur.get("Is_Buy_Eligible", False))
@@ -5074,41 +4785,41 @@ with tab_core:
         else:
             from db_manager import load_pipeline_stage as _lps_vis
             _df_ca_vis = _lps_vis("L1_Core_Allocations") or pd.DataFrame()
-
-        if not _df_ca_vis.empty and "Core_Weight" in _df_ca_vis.columns:
-            # Normalise category names
-            _CAT_VIS_MAP = {
-                "global and inetrnation funds": "Global & Intl",
-                "global and international funds": "Global & Intl",
-                "small cap mutual funds": "Small Cap",
-                "mid cap mutual funds": "Mid Cap",
-                "large cap mutual funds": "Large Cap",
-                "flexi cap mutual funds": "Flexi Cap",
-                "broad market etf or index funds": "Broad Market",
-                "thematic etfs and index funds": "Thematic",
-                "thematic etfs and index funds.": "Thematic",
-                "business cycle and special oportunity fund": "Biz Cycle / Opp",
-                "comodities etfs": "Commodities",
-                "sectoral etfs - index funds": "Sectoral",
-                "strategy etfs and  index funds new": "Strategy ETF",
-                "strategy etfs and index funds new": "Strategy ETF",
-            }
-            def _vcat(raw):
-                c = _norm_cat(raw)
-                return _CAT_VIS_MAP.get(c, c.title())
-
-            _df_ca_vis["_disp_cat"] = _df_ca_vis["Category"].apply(_vcat)
-            _df_ca_vis["_disp_name"] = _df_ca_vis.apply(
-                lambda r: _mf_name_map_global.get(str(r["Symbol"]), str(r.get("Name", r["Symbol"]))), axis=1
-            )
-            _df_ca_vis["_pct"] = _df_ca_vis["Core_Weight"] * 100.0
-
+        if not _df_ca_vis.empty:
+            if "Core_Weight" in _df_ca_vis.columns:
+                # ── CSV path (L1_Core_Allocations) — has Category, Core_Weight ──
+                _CAT_VIS_MAP = {
+                    "global and inetrnation funds": "Global & Intl",
+                    "global and international funds": "Global & Intl",
+                    "small cap mutual funds": "Small Cap",
+                    "mid cap mutual funds": "Mid Cap",
+                    "large cap mutual funds": "Large Cap",
+                    "flexi cap mutual funds": "Flexi Cap",
+                    "broad market etf or index funds": "Broad Market",
+                    "thematic etfs and index funds": "Thematic",
+                    "thematic etfs and index funds.": "Thematic",
+                    "business cycle and special oportunity fund": "Biz Cycle / Opp",
+                    "comodities etfs": "Commodities",
+                    "sectoral etfs - index funds": "Sectoral",
+                    "strategy etfs and  index funds new": "Strategy ETF",
+                    "strategy etfs and index funds new": "Strategy ETF",
+                }
+                def _vcat(raw):
+                    c = _norm_cat(raw)
+                    return _CAT_VIS_MAP.get(c, c.title())
+                _df_ca_vis['_disp_cat'] = _df_ca_vis['Category'].apply(_vcat)
+                _df_ca_vis['_disp_name'] = _df_ca_vis.apply(
+                    lambda r: _mf_name_map_global.get(str(r['Symbol']), str(r.get('Name', r['Symbol']))), axis=1
+                )
+                _df_ca_vis['_pct'] = _df_ca_vis['Core_Weight'] * 100.0
+            elif '_pct' in _df_ca_vis.columns:
+                # Data already prepared from core ledger — skip normalisation
+                pass
             # ── Category aggregation for concentration check ──────────────────
             _cat_agg = _df_ca_vis.groupby("_disp_cat")["_pct"].sum().reset_index()
             _cat_agg.columns = ["Category", "Weight%"]
             _cat_agg = _cat_agg.sort_values("Weight%", ascending=False)
             _max_cat = _cat_agg.iloc[0]
-
             # ── Concentration Warning ─────────────────────────────────────────
             _CONC_THRESHOLD = 35.0
             if _max_cat["Weight%"] >= _CONC_THRESHOLD:
@@ -5131,10 +4842,8 @@ with tab_core:
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
-
             # ── Donut Chart + Category Breakdown side-by-side ─────────────────
             _col_donut, _col_breakdown = st.columns([1, 1], gap="large")
-
             with _col_donut:
                 # Premium colour palette (one per category, consistent)
                 _PALETTE = [
@@ -5145,7 +4854,6 @@ with tab_core:
                 _parents = _df_ca_vis["_disp_cat"].tolist()
                 _values  = _df_ca_vis["_pct"].tolist()
                 _colors  = [_PALETTE[i % len(_PALETTE)] for i in range(len(_labels))]
-
                 fig_donut = go.Figure()
                 fig_donut.add_trace(go.Pie(
                     labels=_labels,
@@ -5175,7 +4883,6 @@ with tab_core:
                     ),
                 )
                 st.plotly_chart(fig_donut, use_container_width=True, config={"displayModeBar": False})
-
             with _col_breakdown:
                 st.markdown("""
                 <div style="font-family:'Outfit';font-weight:700;font-size:0.85rem;
@@ -5183,7 +4890,6 @@ with tab_core:
                             margin-bottom:10px;margin-top:30px;">
                     Category Breakdown
                 </div>""", unsafe_allow_html=True)
-
                 _breakdown_html = []
                 for i, (_, _crow) in enumerate(_cat_agg.iterrows()):
                     _cw  = float(_crow["Weight%"])
@@ -5202,12 +4908,10 @@ with tab_core:
                                         transition:width 0.5s ease;"></div>
                         </div>
                     </div>""")
-
                 # Fund-level mini list
                 st.markdown("".join(_breakdown_html), unsafe_allow_html=True)
                 st.markdown("""<div style="border-top:1px solid rgba(255,255,255,0.05);
                                           margin:10px 0 8px;"></div>""", unsafe_allow_html=True)
-
                 # Individual fund chips
                 _chips = ""
                 for _, _fr in _df_ca_vis.iterrows():
@@ -5223,11 +4927,8 @@ with tab_core:
                                     {_fn}
                                  </span>"""
                 st.markdown(f'<div style="line-height:2;">{_chips}</div>', unsafe_allow_html=True)
-
     except Exception as _e_vis:
-        pass  # Visualization is non-critical; fail silently
-
-
+        st.info(f"📊 Portfolio composition chart unavailable — data incomplete ({_e_vis}). Run pipeline for latest allocations.")
     st.markdown("""
     <style>
     .unified-ledger-table {
@@ -5260,7 +4961,6 @@ with tab_core:
     }
     </style>
     """, unsafe_allow_html=True)
-
     def _render_ledger_core(rows, title):
         if not rows:
             return
@@ -5339,7 +5039,6 @@ with tab_core:
 </tr>""")
         ledger_html.append("</tbody></table></div>")
         st.markdown("".join(ledger_html).replace("\n", ""), unsafe_allow_html=True)
-
     if _core_ledger:
         try:
             from config import CORE_ETF_ZONES
@@ -5374,7 +5073,6 @@ with tab_core:
             _render_ledger_core(_core_ledger)
     else:
         st.info("No Core ETF/MF holdings detected. Run the pipeline to populate allocation data.")
-
     # ── Core Portfolio Candidate Rankings ────────────────────────────────────
     st.markdown('<div style="border-top:1px solid rgba(255,255,255,0.05);margin:24px 0 16px;"></div>', unsafe_allow_html=True)
     sec_title("🛡️", "Core Portfolio Candidate Analysis & Rankings")
@@ -5422,8 +5120,7 @@ with tab_core:
             def _normalize_cat(raw):
                 cleaned = str(raw).replace(".xlsx", "").replace("..", ".").replace("_", " ").strip().lower()
                 return _CAT_DISPLAY_MAP.get(cleaned, cleaned.title())
-
-            _global_mf_n = get_global_mf_name_map()
+            _global_mf_n = _mf_name_map_global  # reuse cached from line 4882
             st.markdown("##### 🏆 Unified Core Ranking (All Categories)")
             # BUG FIX 2: Removed redundant raw Symbol column; merged it as secondary label under Fund Name
             _unified_html = ['<div style="overflow-x:auto; margin-bottom:25px;"><table class="elimination-table"><thead><tr>']
@@ -5456,7 +5153,6 @@ with tab_core:
             st.markdown("".join(_unified_html), unsafe_allow_html=True)
             
             st.markdown("##### 📂 Category-Based Analysis")
-
             if "Category" in df_core_t.columns:
                 df_core_t["Category"] = df_core_t["Category"].fillna("Uncategorized")
                 df_core_t = df_core_t.sort_values(by=["Category", "Rank"], ascending=[True, True])
@@ -5470,24 +5166,24 @@ with tab_core:
                 _ccat_t = _normalize_cat(_cr_t.get("Category", "Uncategorized"))
                 if _ccat_t != _cur_cat_t:
                     _cur_cat_t = _ccat_t
-                    _core_html_t.append(f'''<tr style="background:rgba(59,130,246,0.15); border-bottom: 2px solid rgba(59,130,246,0.3);">
-                        <td colspan="10" style="padding:10px 15px; font-weight:800; font-size:0.9rem; color:#60a5fa; letter-spacing:1px; text-transform:uppercase;">
-                        📁 {_ccat_t.upper()}
-                        </td></tr>''')
+                _core_html_t.append(f'''<tr style="background:rgba(59,130,246,0.15); border-bottom: 2px solid rgba(59,130,246,0.3);">
+                            <td colspan="10" style="padding:10px 15px; font-weight:800; font-size:0.9rem; color:#60a5fa; letter-spacing:1px; text-transform:uppercase;">
+                            📁 {_ccat_t.upper()}
+                            </td></tr>''')
                 _crank_t = int(_cr_t.get("Rank", 999)); _csym_t = str(_cr_t.get("Symbol", "-"))
                 _cname_t = _global_mf_n.get(_csym_t, str(_cr_t.get("Name", "")))
-                # BUG FIX 2: Show clean fund name in category table (not raw AMFI code)
+                    # BUG FIX 2: Show clean fund name in category table (not raw AMFI code)
                 _disp_sym_t = f"<b>{_cname_t}</b><br><span style='font-size:0.7rem;color:#475569;'>AMFI: {_csym_t}</span>" if _csym_t.isdigit() and _cname_t else (f"<b>{_cname_t}</b>" if _cname_t else f"<b>{_csym_t}</b>")
                 _cweight_t = float(_alloc_weights_t.get(_csym_t, 0.0))
-                # BUG FIX: Use Score (actual col name) instead of Quality_Score (doesn't exist in CSV)
+                    # BUG FIX: Use Score (actual col name) instead of Quality_Score (doesn't exist in CSV)
                 _cscore_t = float(_cr_t.get("Score", _cr_t.get("Quality_Score", 0.0)))
-                # BUG FIX: Use Is_Trending + Is_Buy_Eligible (actual cols) instead of Regime_Stage (not in CSV)
+                    # BUG FIX: Use Is_Trending + Is_Buy_Eligible (actual cols) instead of Regime_Stage (not in CSV)
                 _is_trending_t = bool(_cr_t.get("Is_Trending", False))
                 _is_buy_elig_t = bool(_cr_t.get("Is_Buy_Eligible", False))
                 _cdrawdown_t = float(_cr_t.get("Drawdown_252", 0.0))
                 _cvol_t = float(_cr_t.get("Volatility", 0.0))
                 _cprice_t = float(_cr_t.get("Close", 0.0))
-                # Regime badge: built from Is_Trending + Is_Buy_Eligible
+                    # Regime badge: built from Is_Trending + Is_Buy_Eligible
                 if _is_trending_t and _is_buy_elig_t:
                     _rbadge_t = '<span style="background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3);padding:2px 7px;border-radius:10px;font-size:0.67rem;font-weight:700;">✅ TRENDING · BUY-ELIGIBLE</span>'
                 elif _is_trending_t:
@@ -5512,22 +5208,21 @@ with tab_core:
                 _dd_color_t = "#ef4444" if _cdrawdown_t > 0.05 else ("#f59e0b" if _cdrawdown_t > 0.02 else "#34d399")
                 _dd_str_t = f'<span style="color:{_dd_color_t};">{_cdrawdown_t*100:.1f}%</span>'
                 _core_html_t.append(f'''<tr style="{_rstyle_t}">
-                <td style="text-align:center; font-family:monospace; color:#94a3b8;">{_crank_t}</td>
-                <td>{_disp_sym_t}</td>
-                <td style="text-align:center;">{_sbadge_t}</td>
-                <td style="text-align:right;">{_score_str_t}</td>
-                <td style="text-align:center;">{_rbadge_t}</td>
-                <td style="text-align:right;">{_dd_str_t}</td>
-                <td style="text-align:right; color:#94a3b8;">{_cvol_t:.1f}%</td>
-                <td style="text-align:right;">{_wt_str_t}</td>
-                <td style="text-align:right; font-family:monospace; color:#94a3b8;">₹{_cprice_t:,.2f}</td>
-                </tr>'''
-                )
+                    <td style="text-align:center; font-family:monospace; color:#94a3b8;">{_crank_t}</td>
+                    <td>{_disp_sym_t}</td>
+                    <td style="text-align:center;">{_sbadge_t}</td>
+                    <td style="text-align:right;">{_score_str_t}</td>
+                    <td style="text-align:center;">{_rbadge_t}</td>
+                    <td style="text-align:right;">{_dd_str_t}</td>
+                    <td style="text-align:right; color:#94a3b8;">{_cvol_t:.1f}%</td>
+                    <td style="text-align:right;">{_wt_str_t}</td>
+                    <td style="text-align:right; font-family:monospace; color:#94a3b8;">₹{_cprice_t:,.2f}</td>
+                    </tr>'''
+                    )
             _core_html_t.append("</tbody></table></div>")
             st.markdown("".join(_core_html_t), unsafe_allow_html=True)
     else:
         st.info("Core Portfolio Universe file not found for this date. Run the pipeline to generate L1_Core_Universe.csv.")
-
 # ──────────────────────────────────────────────────────────────────────────────
 # TAB 4: VAMS HOLDINGS — VOLATILITY ADJUSTED MOMENTUM
 # ──────────────────────────────────────────────────────────────────────────────
@@ -5547,22 +5242,33 @@ with tab_vams:
     """, unsafe_allow_html=True)
     
     _render_research_links(compact=True)
-
     render_unified_veto_ui("tab_vams")
-
+    st.caption("🔬 **Role:** Screening Lab — Pure Momentum (No Quality Gates) · VAM-B Rankings")
     # T4-12: Handle Empty MAAC Data Gracefully
     if df_maac.empty:
         st.warning("⚠️ **VAM universe unavailable:** Main pipeline hasn't populated MAAC for the selected date yet.")
         st.stop()
-
     # Use the entire non-CORE MAAC universe as VAM-B raw universe (no quality gates)
     _df_vams_all = df_maac.copy()
     if "Tier" in _df_vams_all.columns:
         _df_vams_all = _df_vams_all[~_df_vams_all["Tier"].astype(str).str.contains("CORE", case=False)]
     if "Symbol" in _df_vams_all.columns:
         _df_vams_all = _df_vams_all[~_df_vams_all["Symbol"].astype(str).str.match(r"^(NIFTY_|STRATEGY_|INDIA_VIX|MCX_)", case=False)]
-
-    # All stocks are eligible for VAM scoring — no quality gates
+    # ── VAM-B Quality Filter: ROE ≥ 3%, ROCE > 0, CFO/PAT > 0 ──
+    # Matches main.py VAM-B injection gate thresholds. ROE floor aligned with stock_selector.
+    # "Positives not negatives" — reject only confirmed negatives; missing data = pass
+    _vamb_n_pre = len(_df_vams_all)
+    _vamb_qc = []
+    for _idx_q, _row_q in _df_vams_all.iterrows():
+        _roe_q  = float(_row_q.get("ROE", 0) or 0)
+        _roce_q = float(_row_q.get("ROCE", _row_q.get("roce_3yr", _row_q.get("ROE", 0))) or 0)
+        _cfo_q  = float(_row_q.get("CFO_to_PAT", _row_q.get("cfo_pat_3yr", 0.5)) or 0)
+        _vamb_qc.append(_roe_q >= 3.0 and _roce_q > 0 and _cfo_q > 0)
+    _df_vams_all = _df_vams_all[pd.Series(_vamb_qc, index=_df_vams_all.index)].copy()
+    _vamb_n_post = len(_df_vams_all)
+    _vamb_filtered = _vamb_n_pre - _vamb_n_post
+    if _vamb_filtered > 0:
+        st.info(f"🟢 **VAM-B Quality Gate:** {_vamb_filtered} stock(s) removed (ROE < 3% or ROCE/CFO-PAT ≤ 0). {_vamb_n_post} remain for VAM scoring.")
     _vam_symbols_t = _df_vams_all["Symbol"].tolist() if not _df_vams_all.empty else []
     _df_vam_t = pd.DataFrame()
     if _vam_symbols_t:
@@ -5593,6 +5299,18 @@ with tab_vams:
                     _sym_s = _pm_vam_t[_sym_vt].dropna()
                     if len(_sym_s) >= 45 and _sym_s.index[-1] >= _selected_dt - pd.Timedelta(days=5):
                         _ret63 = (_sym_s.iloc[-1] / _sym_s.iloc[0]) - 1.0
+                        # ── Velocity Rejection Gate (same as stock_selector.py) ──
+                        _vel_reject = False
+                        if _ret63 > 1.50:
+                            _vel_reject = True
+                        elif len(_sym_s) >= 21:
+                            _ret21 = (_sym_s.iloc[-1] / _sym_s.iloc[-21]) - 1.0
+                            if _ret21 > 0.40 and _ret63 > 0.50:
+                                _steep = _ret21 / (_ret63 / 3.0)
+                                if _steep > 2.5:
+                                    _vel_reject = True
+                        if _vel_reject:
+                            continue
                         _vol63 = _sym_s.pct_change().std() * np.sqrt(252)
                         if _vol63 > 0:
                             _valid_vt.append(_sym_vt); _ret_list.append(_ret63); _vol_list.append(_vol63)
@@ -5612,6 +5330,49 @@ with tab_vams:
                         "VAM Score": (_z_ret_t - _z_vol_t).values
                     }).sort_values("VAM Score", ascending=False).reset_index(drop=True)
                     _df_vam_t.index = _df_vam_t.index + 1  # 1-based rank
+    # ── Extension from SMA-200 (Rubber Band) Helpers ─────────────────────
+    _cache_dir_ext = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache")
+    _sel_date_ext = pd.to_datetime(selected_date)
+
+    def _calc_extension_raw(sym):
+        """Returns (Close / SMA_200 - 1) as decimal (0.40 = 40% above SMA-200)."""
+        _cf = os.path.join(_cache_dir_ext, f"{sym}_history.csv")
+        if not os.path.exists(_cf):
+            return 0.0
+        try:
+            _d = read_data_smart(_cf)
+            _d["Date"] = pd.to_datetime(_d["Date"])
+            _d = _d.dropna(subset=["Close"]).set_index("Date")["Close"]
+            _d = _d[_d.index <= _sel_date_ext]
+            if len(_d) < 200:
+                return 0.0
+            _c = float(_d.iloc[-1])
+            _s = float(_d.rolling(200).mean().iloc[-1])
+            if pd.notna(_s) and _s > 0:
+                return (_c / _s) - 1.0
+        except Exception:
+            pass
+        return 0.0
+
+    def _extension_weight_mult(ext_dec):
+        """Returns position-sizing multiplier based on extension severity."""
+        if ext_dec > 2.0:    # >200% above SMA-200 → skip
+            return 0.0
+        elif ext_dec > 1.0:  # >100% above SMA-200 → reject (parabolic)
+            return 0.0
+        elif ext_dec > 0.40: # >40% → 50% weight
+            return 0.50
+        return 1.0           # Normal weight
+
+    def _ext_badge(ext_dec):
+        """Returns (badge_icon, badge_color) for visual display."""
+        if ext_dec > 2.0:
+            return "⛔", "#ef4444"
+        elif ext_dec > 1.0:
+            return "🔴", "#f97316"
+        elif ext_dec > 0.40:
+            return "⚠️", "#f59e0b"
+        return "✅", "#10b981"
 
     # ════════════════════════════════════════════════════════════════════════════
     # 🚀 TA 4.0 SATELLITE SELECTION — Top 20 VAM-B + Top 20 VAM-GQ (Pure Momentum)
@@ -5630,7 +5391,6 @@ with tab_vams:
     </div>
     </div>
     """, unsafe_allow_html=True)
-
     try:
         # Step 1: Get VAM-B Top 20 (already computed in tab)
         _vamb_top = []
@@ -5644,7 +5404,6 @@ with tab_vams:
                     "z_vol": float(_vr.get("Z-Volatility", 0)),
                     "vam_score": float(_vr.get("VAM Score", 0)),
                 })
-
         # Step 2: VAM-GQ Top 20 — use existing pipeline scores (already quality-gate verified)
         _vamgq_top = []
         if not df_maac.empty and "Symbol" in df_maac.columns and "Entry_Eligible" in df_maac.columns:
@@ -5660,7 +5419,6 @@ with tab_vams:
                 _df_vg_eligible = _df_vg_eligible.sort_values("Final_Composite_Score", ascending=False).head(20)
             else:
                 _df_vg_eligible = _df_vg_eligible.head(20)
-
             # Parse factor details for display
             for _, _vr in _df_vg_eligible.iterrows():
                 _sym_vg = str(_vr["Symbol"])
@@ -5681,7 +5439,6 @@ with tab_vams:
                     "fs": _fs, "mom": _mom, "sec": _sec,
                     "del": _del, "gro": _gro, "pea": _pea, "fii": _fii,
                 })
-
         # Step 3: Merge, deduplicate, re-rank by unified score
         _merged = {}
         for _s in _vamb_top:
@@ -5699,34 +5456,36 @@ with tab_vams:
                 _existing["pea"] = _s["pea"]; _existing["fii"] = _s["fii"]
             else:
                 _merged[_s["symbol"]] = _s
-
         _satellite_selection = sorted(_merged.values(), key=lambda x: x["unified_score"], reverse=True)
-
+        # ── Rubber Band (Extension) Penalty: downsize over-extended stocks ──
+        for _s in _satellite_selection:
+            _s["ext_raw"] = _calc_extension_raw(_s["symbol"])
+            _s["ext_pct"] = round(_s["ext_raw"] * 100.0, 1)  # display %
+            _s["ext_mult"] = _extension_weight_mult(_s["ext_raw"])
+            _s["unified_score"] *= _s["ext_mult"]
+        # Re-rank after extension penalty
+        _satellite_selection.sort(key=lambda x: x["unified_score"], reverse=True)
         if _satellite_selection:
             _all_scores = [s["unified_score"] for s in _satellite_selection]
             _min_s = min(_all_scores); _max_s = max(_all_scores)
             _range_s = max(_max_s - _min_s, 0.01)
             for _s in _satellite_selection:
                 _s["composite"] = max(0, min(100, (_s["unified_score"] - _min_s) / _range_s * 100))
-
         if _satellite_selection:
             _vamb_count = sum(1 for s in _satellite_selection if s["track"] == "VAM-B")
             _vamgq_count = sum(1 for s in _satellite_selection if s["track"] == "VAM-GQ")
             _total_distinct = len(_satellite_selection)
             _overlap = _vamb_count + _vamgq_count - _total_distinct
-
             _ks1, _ks2, _ks3, _ks4 = st.columns(4)
             _ks1.markdown(f'<div class="glass-card" style="text-align:center;padding:10px;"><div style="font-size:0.65rem;color:#64748b;">Total Distinct</div><div style="font-family:Outfit;font-weight:800;color:#a78bfa;font-size:1.3rem;">{_total_distinct}</div><div style="font-size:0.6rem;color:#475569;">VAM-B {_vamb_count} + VAM-GQ {_vamgq_count}</div></div>', unsafe_allow_html=True)
             _ks2.markdown(f'<div class="glass-card" style="text-align:center;padding:10px;"><div style="font-size:0.65rem;color:#64748b;">Overlap</div><div style="font-family:Outfit;font-weight:800;color:#fbbf24;font-size:1.3rem;">{_overlap}</div><div style="font-size:0.6rem;color:#475569;">In both VAM-B & VAM-GQ</div></div>', unsafe_allow_html=True)
             _top5_avg = np.mean([s["composite"] for s in _satellite_selection[:5]]) if len(_satellite_selection) >= 5 else 0
             _ks3.markdown(f'<div class="glass-card" style="text-align:center;padding:10px;"><div style="font-size:0.65rem;color:#64748b;">Top 5 Avg Score</div><div style="font-family:Outfit;font-weight:800;color:#10b981;font-size:1.3rem;">{_top5_avg:.1f}</div><div style="font-size:0.6rem;color:#475569;">Composite momentum rank</div></div>', unsafe_allow_html=True)
             _ks4.markdown(f'<div style="text-align:center;padding:10px;background:rgba(16,185,129,0.08);border-radius:10px;"><div style="font-size:0.65rem;color:#64748b;">Satellite Holdings</div><div style="font-family:Outfit;font-weight:800;color:#34d399;font-size:1.1rem;">Up to {_total_distinct}</div><div style="font-size:0.6rem;color:#475569;">Pure momentum selection</div></div>', unsafe_allow_html=True)
-
             st.markdown("<br>", unsafe_allow_html=True)
-
             _al_l = "left"
             _sat_html = ['<div class="glass-card" style="padding:0;overflow-x:auto;border-radius:12px;"><table style="width:100%;border-collapse:collapse;font-size:0.82rem;"><thead><tr style="background:rgba(15,23,42,0.6);border-bottom:1px solid rgba(255,255,255,0.08);">']
-            for _h in ["#", "Symbol", "Track", "Score", "Mom 🚀", "Sec+Thm 🔄", "Delivery 📦", "Growth 📈", "PEAD ⚡", "FII/DII 🏦", "Composite"]:
+            for _h in ["#", "Symbol", "Track", "Score", "Mom 🚀", "Sec+Thm 🔄", "Delivery 📦", "Growth 📈", "PEAD ⚡", "FII/DII 🏦", "Ext 🏏", "Composite"]:
                 _sat_html.append(f'<th style="padding:8px;text-align:{_al_l if _h in ("Symbol","Track") else "right"};color:#94a3b8;font-weight:600;font-size:0.72rem;">{_h}</th>')
             _sat_html.append("</tr></thead><tbody>")
             for _si, _s in enumerate(_satellite_selection):
@@ -5743,6 +5502,9 @@ with tab_vams:
                     _gro_v = f'<span style="color:#a855f7;">{_s["gro"]}</span>'
                     _pea_v = f'<span style="color:#34d399;">{_s["pea"]}</span>'
                     _fii_v = f'<span style="color:#ec4899;">{_s["fii"]}</span>'
+                # Extension badge
+                _ext_ico, _ext_col = _ext_badge(_s.get("ext_raw", 0.0))
+                _ext_display = f'{_ext_ico} <span style="color:{_ext_col};font-size:0.72rem;">{_s.get("ext_pct", 0.0):+.0f}%</span>'
                 _sat_html.append(f'<tr style="border-bottom:1px solid rgba(255,255,255,0.03);">'
                     f'<td style="padding:8px;text-align:center;color:#64748b;">{_si+1}</td>'
                     f'<td style="padding:8px;font-weight:700;color:#f1f5f9;">{_s["symbol"]}</td>'
@@ -5754,6 +5516,7 @@ with tab_vams:
                     f'<td style="padding:8px;text-align:right;">{_gro_v}</td>'
                     f'<td style="padding:8px;text-align:right;">{_pea_v}</td>'
                     f'<td style="padding:8px;text-align:right;">{_fii_v}</td>'
+                    f'<td style="padding:8px;text-align:right;">{_ext_display}</td>'
                     f'<td style="padding:8px;text-align:right;font-weight:700;color:{_comp_c};">{_s["composite"]:.1f}</td>'
                     f'</tr>')
             _sat_html.append("</tbody></table></div>")
@@ -5774,13 +5537,14 @@ with tab_vams:
                         "Growth": _s.get("gro", ""),
                         "PEAD": _s.get("pea", ""),
                         "FII/DII": _s.get("fii", ""),
+                        "Extension_%": _s.get("ext_pct", 0.0),
+                        "Ext_Mult": _s.get("ext_mult", 1.0),
                         "Composite": round(_s.get("composite", 0), 1),
                     })
                 _sat_csv_df = pd.DataFrame(_sat_csv_rows)
                 st.markdown("<div style='margin-bottom: 5px;'></div>", unsafe_allow_html=True)
                 download_csv_button(_sat_csv_df, f"Satellite_Ranking_{selected_date}.csv",
                                     label="📥 Download Satellite Ranking as CSV", key="sat_csv_dl")
-
             _common_symbols = set()
             for _s in _satellite_selection:
                 if _s["track"] == "VAM-B + VAM-GQ":
@@ -5793,7 +5557,6 @@ with tab_vams:
     except Exception as e:
         st.warning(f"Satellite selection engine issue: {e}")
         pass
-
     # ── VAM Rankings ─────────────────────────────────────────────────────────
     st.markdown("""
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
@@ -5813,21 +5576,17 @@ with tab_vams:
         _df_vam_disp = _df_vam_t.copy()
         if _search_vam:
             _df_vam_disp = _df_vam_disp[_df_vam_disp["Symbol"].str.contains(_search_vam)]
-
         st.markdown("<span style='color:#94a3b8;font-size:0.85rem;'>Ranked by highest relative return and lowest relative volatility (Z-Ret - Z-Vol) over the last 3 months. <br>⚠️ Scores are relative to the current qualified universe, not absolute.</span>", unsafe_allow_html=True)
         _u_ret_mean = _df_vam_t['Return (63d)'].mean()
         _u_vol_mean = _df_vam_t['Volatility (63d)'].mean()
         st.markdown(f"<span style='color:#64748b;font-size:0.8rem;'>Universe Mean Return: <b>{_u_ret_mean:.1f}%</b> | Universe Mean Volatility: <b>{_u_vol_mean:.1f}%</b> | 🏆 Top 20 in <b style='color:#fbbf24;'>gold</b></span>", unsafe_allow_html=True)
         st.markdown("<span style='color:#64748b;font-size:0.8rem;'>Score Legend: <span style='color:#10b981;font-weight:bold;'>Top 25%</span> | <span style='color:#fbbf24;font-weight:bold;'>Middle 25%</span> | <span style='color:#ef4444;font-weight:bold;'>Bottom 50%</span></span>", unsafe_allow_html=True)
-
         _p75 = _df_vam_t['VAM Score'].quantile(0.75) if not _df_vam_t.empty else 1.0
         _p50 = _df_vam_t['VAM Score'].quantile(0.50) if not _df_vam_t.empty else 0.0
-
         _vam_tbl_t = ["<div style='overflow-x:auto; margin-top:10px;'><table class='screening-table'><thead><tr>"]
         for _c_vt in ["Rank", "Symbol", "VAM Score", "Z-Return", "Z-Volatility", "Return (3M)", "Volatility (Ann)"]:
             _vam_tbl_t.append(f"<th>{_c_vt}</th>")
         _vam_tbl_t.append("</tr></thead><tbody>")
-
         for _i_vt, _row_vt in _df_vam_disp.iterrows():
             _vs_t = _row_vt['VAM Score']
             _sc_t = "#10b981" if _vs_t >= _p75 else ("#fbbf24" if _vs_t >= _p50 else "#ef4444")
@@ -5850,10 +5609,8 @@ with tab_vams:
         st.markdown("".join(_vam_tbl_t), unsafe_allow_html=True)
     else:
         st.info("Not enough valid volatility data to calculate VAM.")
-
     # ── Full Scored Universe ──────────────────────────────────────────────────
     st.markdown('<div style="border-top:1px solid rgba(255,255,255,0.05);margin:20px 0 16px;"></div>', unsafe_allow_html=True)
-
     # T4-09: Add mtime of MAAC to the header
     _maac_mtime_str = "Unknown"
     _maac_fpath = os.path.join(OUTPUT_DIR, f"L7_MAAC_Allocations.csv")
@@ -5910,6 +5667,8 @@ with tab_bt:
     output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
     
     _render_research_links(compact=True)
+    render_unified_veto_ui("tab_bt")
+    st.caption("📈 **Role:** Strategy Backtest · CAGR/Sharpe/DD · Benchmark Comparison · Leverage Simulation")
     
     nifty50_path = os.path.join(cache_dir, "NIFTY_50_history.csv")
     if not os.path.exists(nifty50_path):
@@ -5935,6 +5694,10 @@ with tab_bt:
                     
         if run_dates:
             inception_date = pd.to_datetime(run_dates[0]) - pd.Timedelta(days=1)
+            # Guard: inception must not be earlier than Nifty 50 cache start
+            _nifty_cache_min = df_nifty["Date"].min() if not df_nifty.empty else None
+            if _nifty_cache_min is not None and inception_date < _nifty_cache_min:
+                inception_date = _nifty_cache_min
         else:
             # Fallback to earliest Nifty 50 cache date
             inception_date = df_nifty["Date"].min() if not df_nifty.empty else pd.Timestamp("2026-05-27")
@@ -5955,7 +5718,7 @@ with tab_bt:
         </div>
         <div style="font-size:0.85rem;color:#94a3b8;margin-top:6px;">
             Daily cumulative returns since <b style="color:#818cf8;">{_bt_inception_label}</b> — VAM-GQ (Growth+Quality) · VAM-B (Blended Momentum) ·
-            <b style="color:#a78bfa;">Trend Alfa 4.0</b> (Core + Satellite blending) · 5 benchmark indices · Cherry-Pick quality gating
+            <b style="color:#a78bfa;">Trend Alfa 4.0</b> (Core + Satellite blending) · 5 benchmark indices · VAM-GQ quality-gated momentum
         </div>
         </div>
         """, unsafe_allow_html=True)
@@ -6007,7 +5770,6 @@ with tab_bt:
                     if not s.empty and pd.notna(s.iloc[-1]):
                         return float(s.iloc[-1])
                 return None
-
             def load_allocations(date_str):
                 for filename in ["L7_MAAC_Allocations.csv"]:
                     path = os.path.join(output_dir, date_str, filename)
@@ -6022,7 +5784,6 @@ with tab_bt:
                             df_active = df[df[col] > 0]
                             return dict(zip(df_active["Symbol"], df_active[col] / 100.0))
                 return None
-
             def load_vamb_gq_top20_allocations(date_str):
                 for filename in ["L7_MAAC_Allocations.csv"]:
                     path = os.path.join(output_dir, date_str, filename)
@@ -6031,19 +5792,18 @@ with tab_bt:
                         score_col = next((c for c in ["Factor_Score", "Final_Composite_Score", "composite_score"] if c in df.columns), None)
                         if score_col:
                             df_sorted = df.sort_values(score_col, ascending=False)
-                        else:
+                    else:
                             df_sorted = df
                         
-                        eligible_col = next((c for c in ["Entry_Eligible", "Eligible"] if c in df.columns), None)
-                        if eligible_col:
+                    eligible_col = next((c for c in ["Entry_Eligible", "Eligible"] if c in df.columns), None)
+                    if eligible_col:
                             df_sorted = df_sorted[df_sorted[eligible_col] == True]
                             
-                        top20_symbols = df_sorted.head(20)["Symbol"].tolist()
-                        if top20_symbols:
+                    top20_symbols = df_sorted.head(20)["Symbol"].tolist()
+                    if top20_symbols:
                             weight = 1.0 / len(top20_symbols)
                             return {sym: weight for sym in top20_symbols}
                 return None
-
             def load_core_allocations(date_str):
                 path = os.path.join(output_dir, date_str, "L1_Core_Allocations.csv")
                 if os.path.exists(path):
@@ -6054,7 +5814,6 @@ with tab_bt:
                         if total_wt > 0:
                             return dict(zip(df_active["Symbol"].astype(str), df_active["Core_Weight"] / total_wt))
                 return None
-
             # T5-12: Read valid symbols from run folders to avoid globbing random sectoral CSVs
             _valid_syms_set = set()
             for _d in run_dates:
@@ -6085,6 +5844,8 @@ with tab_bt:
                 if not dfs: return pd.DataFrame()
                 pm = pd.concat(dfs, axis=1).sort_index()
                 pm = pm.ffill().bfill()
+                # Sort columns for deterministic tie-breaking in VAM nlargest
+                pm = pm[sorted(pm.columns)]
                 return pm
                 
             if 'state_data' in locals() and isinstance(state_data, dict) and "holdings" in state_data:
@@ -6092,7 +5853,6 @@ with tab_bt:
                 
             _use_syms = tuple(_valid_syms_set) if len(_valid_syms_set) > 0 else None
             price_matrix = build_price_matrix(cache_dir, _use_syms)
-
             portfolio_value = 100.0
             alfa_portfolio_value = 100.0
             master_portfolio_value = 100.0
@@ -6122,7 +5882,7 @@ with tab_bt:
                 if len(_window) < 30:
                     return None
                 _scores = {}
-                for _sym in _window.columns:
+                for _sym in sorted(_window.columns):
                     _s = _window[_sym].dropna()
                     if len(_s) < 30:
                         continue
@@ -6154,7 +5914,7 @@ with tab_bt:
                 if len(_window) < 30:
                     return None
                 _scores = {}
-                for _sym in _window.columns:
+                for _sym in sorted(_window.columns):
                     if _sym in ["Date", "^NSEI", "^BSESN", "INDIA_VIX"]:
                         continue
                     _s = _window[_sym].dropna()
@@ -6280,14 +6040,14 @@ with tab_bt:
                     vol_3m = pm_slice.iloc[-63:].pct_change().std(skipna=True) * np.sqrt(252)
                     
                     # Universe consists of all valid stock symbols in price matrix
-                    universe_symbols = [col for col in price_matrix.columns if col not in ["Date", "^NSEI", "^BSESN", "INDIA_VIX"]]
+                    universe_symbols = sorted([col for col in price_matrix.columns if col not in ["Date", "^NSEI", "^BSESN", "INDIA_VIX"]])
                     
                     if universe_symbols:
                         elig_ret = ret_3m.reindex(universe_symbols).dropna()
                         elig_vol = vol_3m.reindex(universe_symbols).dropna()
                         
                         valid_syms = elig_ret.index.intersection(elig_vol.index)
-                        valid_syms = [s for s in valid_syms if elig_vol[s] > 0]
+                        valid_syms = sorted([s for s in valid_syms if elig_vol[s] > 0])
                         
                         if len(valid_syms) > 0:
                             std_ret = elig_ret[valid_syms].std()
@@ -6295,7 +6055,6 @@ with tab_bt:
                             
                             std_ret = std_ret if pd.notna(std_ret) and std_ret > 0 else 1.0
                             std_vol = std_vol if pd.notna(std_vol) and std_vol > 0 else 1.0
-
                             z_ret = (elig_ret[valid_syms] - elig_ret[valid_syms].mean()) / std_ret
                             z_vol = (elig_vol[valid_syms] - elig_vol[valid_syms].mean()) / std_vol
                             
@@ -6335,19 +6094,24 @@ with tab_bt:
                 daily_ret = max(-1.0, daily_ret - active_slippage)
                 alfa_daily_ret = max(-1.0, alfa_daily_ret - alfa_slippage)
                 
-                # Apply tax friction if positive and tax_rate_pct is set
-                if tax_rate_pct > 0.0:
-                    if daily_ret > 0:
-                        daily_ret = daily_ret * (1.0 - tax_rate_pct / 100.0)
-                    if alfa_daily_ret > 0:
-                        alfa_daily_ret = alfa_daily_ret * (1.0 - tax_rate_pct / 100.0)
+                # Tax applied at Master portfolio level only (line 6406) — not here.
+                # Individual component tax removed to prevent double-taxation.
                             
                 # ── Trend Alpha 4.0 — Optimal Dynamic Blending Engine ──
                 # Computes master_portfolio_value from core (ETFs/MFs) + satellite (VAM-GQ + VAM-B)
                 # with regime-aware, volatility-parity, drawdown-protected weighting.
                 
-                # Full universe satellite
-                _sat_return = 0.5 * daily_ret + 0.5 * (alfa_daily_ret if alfa_allocations else daily_ret)
+                # Full universe satellite with dynamic GQ/B blend
+                # Weight: trailing 20-day GQ vs B relative performance (default 50/50)
+                if i >= 20 and alfa_allocations and len(portfolio_history) >= 20:
+                    _gq_20 = sum(h["Return_%"] for h in portfolio_history[-20:])
+                    _b_20 = sum(h["Alfa_Return_%"] for h in portfolio_history[-20:])
+                    _gq_wt = 0.3 + 0.4 * (max(0, _gq_20) / max(0.01, max(0, _gq_20) + max(0, _b_20)))
+                    _b_wt = 1.0 - _gq_wt
+                else:
+                    _gq_wt = 0.5
+                    _b_wt = 0.5
+                _sat_return = _gq_wt * daily_ret + _b_wt * (alfa_daily_ret if alfa_allocations else daily_ret)
                 
                 # ── Core Return from actual core allocations (MFs, ETFs, Index funds) ──
                 _core_return = 0.0
@@ -6423,13 +6187,8 @@ with tab_bt:
                         if new_allocs is not None:
                             pending_active_allocations = new_allocs
                             _last_sim_date_g = None  # reset sim counter on real allocation
-                    elif (i % 20 == 0 and price_matrix is not None and not price_matrix.empty
-                          and not bt_mode.startswith("Live Portfolio")):
-                        # Periodically re-simulate when no pipeline data exists (every 20 trading days)
-                        _sim = _simulate_vamb_allocations(curr_date, price_matrix)
-                        if _sim is not None:
-                            pending_active_allocations = _sim
-
+                    # Hold last known pipeline allocation between run dates.
+                    # No simulation — avoids look-ahead bias from price_matrix data.
             df_port = pd.DataFrame(portfolio_history)
             
             indices = {
@@ -6549,7 +6308,6 @@ with tab_bt:
             for date in trading_dates:
                 date_str = date.strftime("%Y-%m-%d")
                 row = {"Date": date_str}
-
                 if date_str in df_port_indexed.index:
                     p_val = float(df_port_indexed.loc[date_str, "Value"])
                     a_val = float(df_port_indexed.loc[date_str, "Alfa_Value"])
@@ -6565,7 +6323,6 @@ with tab_bt:
                 row["VAM-B"] = (a_val / 100.0 - 1.0) * 100.0
                 row["Trend Alpha 4.0"] = (m_val / 100.0 - 1.0) * 100.0
                 row["Trend Alpha (Core Only - MF/ETF/IF)"] = (c_val / 100.0 - 1.0) * 100.0
-
                 for name, df in index_dfs.items():
                     base_rows = df[df["Date_Str"] == base_date_str]
                     curr_rows = df[df["Date_Str"] == date_str]
@@ -6588,9 +6345,7 @@ with tab_bt:
                             row[name] = (cc / bc - 1.0) * 100.0
                         else:
                             row[name] = 0.0
-
                 comparison.append(row)
-
             df_comp = pd.DataFrame(comparison)
             
             # ── 0. Calculate Performance Statistics ──
@@ -6603,7 +6358,6 @@ with tab_bt:
                 cum_max = np.maximum.accumulate(arr)
                 dd = (arr - cum_max) / cum_max * 100.0
                 return float(np.min(dd))
-
             stats = []
             # Deduplicate: base list + outperforming extras (skip if already in base)
             _base_cols = [
@@ -6621,18 +6375,15 @@ with tab_bt:
             cols_to_evaluate = _base_cols + _extra_cols
             # Only keep cols that actually exist in df_comp
             cols_to_evaluate = [c for c in cols_to_evaluate if c in df_comp.columns]
-
             for col in cols_to_evaluate:
                 raw = pd.to_numeric(df_comp[col], errors="coerce")
                 series_pct = raw.ffill().fillna(0.0)
                 series_lvl = series_pct.values + 100.0  # price-level series from base=100
-
                 total_ret = float(series_pct.iloc[-1]) if not series_pct.empty else 0.0
                 max_dd    = get_drawdown(series_lvl)
-
                 daily_rets = pd.Series(series_lvl).pct_change().dropna()
                 daily_rets = daily_rets.replace([np.inf, -np.inf], np.nan).dropna()
-                if len(daily_rets) > 1 and daily_rets.std() > 0:
+                if len(daily_rets) >= 5 and daily_rets.std() > 0:
                     std_dev = daily_rets.std() * np.sqrt(252) * 100.0
                     sharpe  = (daily_rets.mean() / daily_rets.std()) * np.sqrt(252)
                     # CAGR
@@ -6648,7 +6399,6 @@ with tab_bt:
                     sharpe  = 0.0
                     cagr = 0.0
                     sortino = 0.0
-
                 # Benchmark-relative metrics (vs Nifty 50)
                 beta_val = 0.0
                 alpha_val = 0.0
@@ -6676,14 +6426,12 @@ with tab_bt:
                                 alpha_val = alpha_daily * 252.0 * 100.0
                                 te = (s_ret - b_ret).std()
                                 info_ratio = ((s_ret.mean() - b_ret.mean()) / te) * np.sqrt(252) if te > 0 else 0.0
-
                 # Suppress CAGR for short backtest periods (< 63 trading days = ~3 months)
                 MIN_CAGR_TRADING_DAYS = 63
                 if n_trading_days < MIN_CAGR_TRADING_DAYS:
                     cagr_str = "—  <span style='font-size:0.65rem;color:#64748b;'>(<3mo)</span>"
                 else:
                     cagr_str = f"{cagr:.2f}%"
-
                 stats.append({
                     "Asset / Index": col,
                     "Total Return":   f"{total_ret:+.2f}%",
@@ -6738,7 +6486,6 @@ with tab_bt:
                     line=dict(color="#f59e0b", width=4.5, shape='spline', dash='dash'),
                     hovertemplate="Trend Alpha 4.0: <b>%{y:.2f}%</b><extra></extra>"
                 ))
-
             # Trend Alpha (Core Only) line
             if "Trend Alpha (Core Only - MF/ETF/IF)" in df_comp.columns:
                 fig_bt.add_trace(go.Scatter(
@@ -6747,7 +6494,6 @@ with tab_bt:
                     line=dict(color="#38bdf8", width=3, shape='spline', dash='dashdot'),
                     hovertemplate="Core Only: <b>%{y:.2f}%</b><extra></extra>"
                 ))
-
             # Plot indices with matching theme colors and shapes (Vibrant, distinct premium colors)
             fig_bt.add_trace(go.Scatter(
                 x=df_comp["Date"], y=df_comp["Nifty 50"], 
@@ -6899,7 +6645,6 @@ with tab_bt:
             # T5-07: Display missing benchmarks
             if missing_benchmarks:
                 st.warning(f"⚠️ {len(missing_benchmarks)} benchmark(s) unavailable for comparison: {', '.join(missing_benchmarks)}")
-
             # ── 3. Performance Statistics Summary Card Table ──
             st.markdown("<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
             st.subheader("📊 Performance Statistics Comparison")
@@ -6927,7 +6672,6 @@ with tab_bt:
             for s_row in stats:
                 s_name = s_row["Asset / Index"]
                 s_clean = s_name.replace(" ⭐", "")
-
                 is_vam_gq = s_clean == "VAM-GQ"
                 is_vam_b = s_clean == "VAM-B"
                 is_ta4 = s_clean == "Trend Alpha 4.0"
@@ -7023,63 +6767,19 @@ with tab_bt:
                 for col in cols_to_evaluate:
                     df_comp_formatted[col] = df_comp_formatted[col].map("{:,.2f}%".format)
                 st.dataframe(df_comp_formatted.sort_values(by="Date", ascending=False), use_container_width=True)
-
-
 st.markdown("""
 <div style="text-align: center; color: #64748b; font-size: 0.85rem; padding: 20px; border-top: 1px solid rgba(255, 255, 255, 0.05);">
     Trend Alpha 4.0 • Institutional Portfolio OS Terminal • 100% Systematic Execution
 </div>
 """, unsafe_allow_html=True)
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # TAB 7 – STOCK RS MONITOR (merged from Trend Alfa _ Hermes)
 # ═══════════════════════════════════════════════════════════════════════════════
 with tab_orch_rs_5d:
     _render_research_links(compact=True)
-    st.markdown("### ❇️/🛑 Manual Veto Add/Remove (Master Control)")
-    col_vadd1_orch, col_vadd2_orch, col_vadd3_orch, col_vrem_orch = st.columns([2, 1, 1, 1])
-    with col_vadd1_orch:
-        veto_sym_orch = st.text_input("Stock Symbol", key="veto_input_orch")
-    with col_vadd2_orch:
-        veto_alloc_orch = st.number_input("Target Alloc % (Add Only)", min_value=1.0, max_value=100.0, value=5.0, step=0.5, key="veto_alloc_orch")
-    with col_vadd3_orch:
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("Add to Portfolio", key="btn_veto_add_orch"):
-            # BUG FIX 10: Guard against empty symbol submission
-            if not veto_sym_orch.strip():
-                st.warning("⚠️ Please enter a stock symbol before adding.")
-            else:
-                register_veto_action(veto_sym_orch.strip().upper(), "VETO_ADD", veto_alloc_orch)
-    with col_vrem_orch:
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("Remove from Portfolio", key="btn_veto_rem_orch"):
-            # BUG FIX 10: Guard against empty symbol submission
-            if not veto_sym_orch.strip():
-                st.warning("⚠️ Please enter a stock symbol before removing.")
-            else:
-                register_veto_action(veto_sym_orch.strip().upper(), "VETO_REMOVE", 0.0)
-    st.markdown("---")
-
-    
-    import subprocess, os
-    
-    # Dynamically resolve Hermes location if possible
-    ORCH_SCRIPT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "Hermes", "scripts", "master_orchestrator_v3.py")
-    if not os.path.exists(ORCH_SCRIPT):
-        ORCH_SCRIPT = r"C:\Vs code Automation\Hermes\scripts\master_orchestrator_v3.py"
-        
-    REPORT_PATH = os.path.join(
-        os.path.dirname(os.path.dirname(ORCH_SCRIPT)), "logs", "master_orch_v3_latest.json"
-    )
-    
-    # ── EXTERNAL ANALYSIS LINKS ──
-    _link_c1, _link_c2, _link_c3, _link_c4 = st.columns(4)
-    with _link_c1:
-        st.link_button('🧭 Screener.in (Watchlist)', 'https://www.screener.in/watchlist/153801/', use_container_width=True, type='secondary')
-    with _link_c2:
-        st.link_button('📈 Chartink (Watchlist)', 'https://chartink.com/watchlist/1532359', use_container_width=True, type='secondary')
-    with _link_c3:
+    # ── CSV Download — top row ──
+    _dl_top_c1, _dl_top_c2, _dl_top_c3 = st.columns([1, 1, 4])
+    with _dl_top_c1:
         if 'OUTPUT_DIR' in globals() and os.path.exists(OUTPUT_DIR):
             _zip_data = create_zip_of_folder(OUTPUT_DIR)
             st.download_button(
@@ -7090,6 +6790,20 @@ with tab_orch_rs_5d:
                 use_container_width=True,
                 type="primary"
             )
+    render_unified_veto_ui("tab_orch_rs_5d")
+    st.caption("🚀 **Role:** Unified Analysis · RS Monitor · Combined VAM-GQ + VAM-B View · CSV Export")
+    
+    import subprocess
+    
+    # Dynamically resolve Hermes location if possible
+    ORCH_SCRIPT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "Hermes", "scripts", "master_orchestrator_v3.py")
+    if not os.path.exists(ORCH_SCRIPT):
+        st.warning(f"⚠️ Orchestrator script not found at: {ORCH_SCRIPT}")
+        
+    REPORT_PATH = os.path.join(
+        os.path.dirname(os.path.dirname(ORCH_SCRIPT)), "logs", "master_orch_v3_latest.json"
+    )
+    
     # Load Orchestrator Report
     report = {}
     if os.path.exists(REPORT_PATH):
@@ -7103,7 +6817,6 @@ with tab_orch_rs_5d:
     _rs_key = st.session_state.get("_rs_refresh_key", 0)
     rs_df = _h_get_rs_df(_rs_key)
     _h_portfolio = _h_get_portfolio()
-
     # Fallback: use MAAC RS data if pipeline RS unavailable
     if rs_df.empty and not df_maac.empty and "RS_vs_Nifty50" in df_maac.columns:
         _fallback_rows = []
@@ -7126,9 +6839,8 @@ with tab_orch_rs_5d:
             rs_df = pd.DataFrame(_fallback_rows)
             st.warning("📡 **Pipeline RS data unavailable** — using MAAC-cached RS as secondary fallback.")
     elif rs_df.empty:
-        st.warning("⚠️ **RS data unavailable.** The Master Analysis table requires pipeline or live price data. Run the pipeline to cache data, or check internet connectivity.")
+        st.caption("⚠️ RS data unavailable. Run pipeline or check connectivity.")
     
-    st.markdown("---")
     st.subheader("📋 Unified Master Analysis Table")
     
     # Manual refresh button to bust cache
@@ -7141,7 +6853,7 @@ with tab_orch_rs_5d:
     
     if not rs_df.empty:
         with _ref_col1:
-            st.markdown(f"*Dynamic universe: **{len(_h_portfolio)}** unique stocks ever held*")
+            st.markdown(f"*Combined universe: **{len(_h_portfolio)}** stocks (VAM-GQ top 20 + VAM-B top 20 + Core)*")
         report_stocks = {s.get("ticker", "").replace(".NS", ""): s for s in report.get("stocks", [])}
         
         # Build name map from L1_Core_Universe.csv and _mf_name_map_global so MF scheme codes render with human-readable names
@@ -7177,7 +6889,6 @@ with tab_orch_rs_5d:
                     }
             except Exception:
                 pass
-
         # Build RS ranking from MAAC universe (Nifty 500 proxy)
         _rs_rank_map = {}
         if not df_maac.empty and "RS_vs_Nifty50" in df_maac.columns and "Symbol" in df_maac.columns:
@@ -7189,7 +6900,6 @@ with tab_orch_rs_5d:
                 _rs_rank_map = dict(zip(_rs_univ["Symbol"].astype(str), _rs_univ["Rank"]))
             except:
                 pass
-
         # Build unified table data
         unified_data = []
         import math
@@ -7198,18 +6908,15 @@ with tab_orch_rs_5d:
             sym = row["Stock"]
             orch_data = report_stocks.get(sym, {})
             maac_sig = _maac_sig_map.get(sym, {})
-
             rs = row["RS"]
             price = row["Price"]
             s123 = row["Stock_123d%"]
             n123 = row["Nifty_123d%"]
-
             # Prefer MAAC sector over orch sector (MAAC is from the pipeline, more reliable)
             sector = maac_sig.get("sector") or orch_data.get("sector", "—") or "—"
             mom = orch_data.get("mom", None)
             comp = orch_data.get("composite", None)
             action = str(orch_data.get("action", "—")).upper()
-
             # BUG FIX 4 + 5: Normalise RS to 0-100 scale so it has equal weight with composite.
             # BUG FIX 5: When no orch report, sort purely by live RS descending.
             rs_safe = rs if (rs is not None and not math.isnan(rs)) else -1
@@ -7219,7 +6926,6 @@ with tab_orch_rs_5d:
                 sort_val = comp_safe * 0.6 + rs_norm * 0.4  # weighted blend (60% orch, 40% RS)
             else:
                 sort_val = rs_norm  # BUG FIX 5: pure RS sort when no report
-
             unified_data.append({
                 "sym": sym, "rs": rs, "price": price, "s123": s123, "n123": n123,
                 "sector": sector, "mom": mom, "comp": comp, "action": action,
@@ -7231,12 +6937,9 @@ with tab_orch_rs_5d:
                 "rs_line": "-" if (rs is not None and not (isinstance(rs, float) and math.isnan(rs)) and rs < 0.10) else ("0" if (rs is not None and not (isinstance(rs, float) and math.isnan(rs)) and rs < 0.20) else ("+" if (rs is not None and not (isinstance(rs, float) and math.isnan(rs))) else "—")),
                 "rs_rank": _rs_rank_map.get(sym, None),
             })
-
         unified_data.sort(key=lambda x: x["sort_val"], reverse=True)
-
         
         # S3: Search/filter bar above the table
-        st.markdown("<br>", unsafe_allow_html=True)
         _search_term = st.text_input("🔍 Master Analyzer Search (Enter exact Symbol for Tear Sheet, or Sector to filter)", placeholder="e.g. APARINDS or Technology", key="master_search", label_visibility="collapsed")
         
         if _search_term.strip():
@@ -7249,20 +6952,19 @@ with tab_orch_rs_5d:
                 with st.spinner(f"Generating Tear Sheet for {_exact_stock['sym']}..."):
                     try:
                         d_ts = yf.download(_exact_stock['sym'] + ".NS", period="1y", progress=False, auto_adjust=True)
-                        if isinstance(d_ts.columns, pd.MultiIndex): c_ts = d_ts.xs("Close", axis=1, level=0).squeeze()
-                        else: c_ts = d_ts["Close"].squeeze()
+                        if isinstance(d_ts.columns, pd.MultiIndex):
+                            c_ts = d_ts.xs("Close", axis=1, level=0).squeeze()
+                        else:
+                            c_ts = d_ts["Close"].squeeze()
                         c_ts = pd.Series(c_ts).dropna()
-                        
                         _g_c1, _g_c2, _g_c3 = st.columns(3)
-                        
                         _rs_val = _exact_stock.get("rs")
-                        _rs_val = float(_rs_val) if _rs_val is not None and not math.isnan(_rs_val) else 0.0
                         fig_g1 = go.Figure(go.Indicator(
-                            mode="gauge+number",
-                            value=_rs_val * 100,
-                            title={'text': "Relative Strength", 'font': {'size': 14, 'color': '#cbd5e1'}},
-                            number={'font': {'color': '#f1f5f9', 'size':26}},
-                            gauge={'axis': {'range': [None, 50], 'tickwidth': 1, 'tickcolor': "rgba(255,255,255,0.1)"},
+                        mode="gauge+number",
+                        value=_rs_val * 100,
+                        title={'text': "Relative Strength", 'font': {'size': 14, 'color': '#cbd5e1'}},
+                        number={'font': {'color': '#f1f5f9', 'size':26}},
+                        gauge={'axis': {'range': [None, 50], 'tickwidth': 1, 'tickcolor': "rgba(255,255,255,0.1)"},
                                    'bar': {'color': "#34d399" if _rs_val >= 0.2 else "#fbbf24" if _rs_val >= 0.1 else "#f87171"},
                                    'bgcolor': "rgba(255,255,255,0.05)",
                                    'steps': [{'range': [0, 10], 'color': "rgba(239,68,68,0.15)"},
@@ -7325,7 +7027,6 @@ with tab_orch_rs_5d:
         
         # Limit to top 50 RS stocks for focused analysis
         unified_data = unified_data[:50]
-
         # Data coverage summary
         _total_stocks = sum(1 for d in unified_data if d.get("has_rs", False))
         _total_portfolio = len(unified_data)
@@ -7358,7 +7059,6 @@ with tab_orch_rs_5d:
             align = "left" if h in ["STOCK", "SECTOR"] else "center" if h in ["#", "ORCH ACTION", "LIVE SIGNAL", "OBV", "CIO", "ALIGN"] else "right"
             html.append(f"<th style='padding:10px; text-align:{align}; color:#94a3b8; font-weight:600; white-space:nowrap;'>{h}</th>")
         html.append("</tr></thead><tbody>")
-
         
         for idx, d in enumerate(unified_data):
             # Portfolio-only holding (MF, numeric code) — no RS data available
@@ -7380,7 +7080,6 @@ with tab_orch_rs_5d:
                 html.append(f"<td style='padding:10px; text-align:center;'><span style='color:#6366f1;font-weight:600;font-size:0.78rem;'>📁 HOLDING</span></td>")
                 html.append("</tr>")
                 continue
-
             # RS Rank display (within Nifty 500 proxy universe)
             _rs_rank = d.get("rs_rank", None)
             if _rs_rank is not None:
@@ -7391,8 +7090,6 @@ with tab_orch_rs_5d:
             
             # Live Signal Formatting
             rs = d["rs"]
-
-
             if pd.isna(rs):
                 sig, rs_html = '<span style="color:#64748b;font-weight:600;">⚪ N/A</span>', "N/A"
             elif rs <= 0.10:
@@ -7411,22 +7108,17 @@ with tab_orch_rs_5d:
             else: bg, clr = "rgba(255,255,255,0.05)", "#94a3b8"
             action_badge = f'<span style="background:{bg}; color:{clr}; padding:4px 8px; border-radius:6px; font-weight:700;">{action}</span>'
             
-
-
             s123 = f"{d['s123']:.1f}%" if pd.notna(d['s123']) and d['s123'] != 0 else "—"
             prc = f"\u20b9{d['price']:,.1f}" if pd.notna(d['price']) and d['price'] != 0 else "—"
             comp_str = f"{d['comp']:.1f}" if pd.notna(d['comp']) else "—"
-
             # ADX badge
             _adx_v = d.get("adx", 0)
             _adx_bull = d.get("adx_bull", False)
             _adx_clr = "#10b981" if _adx_v > 25 and _adx_bull else ("#fbbf24" if _adx_v > 20 else "#64748b")
             _adx_str = f"<span style='color:{_adx_clr};font-weight:700;font-family:monospace;'>{_adx_v:.0f}</span>" if _adx_v else "<span style='color:#475569;'>—</span>"
-
             # OBV badge
             _obv_v = d.get("obv", False)
             _obv_str = "<span style='color:#34d399;font-weight:700;'>↑</span>" if _obv_v else "<span style='color:#f87171;'>↓</span>"
-
             # CIO verdict badge
             _cio = d.get("cio", "—")
             _cio_bg = {"BUY": "rgba(16,185,129,0.15)", "HOLD": "rgba(59,130,246,0.12)", "REDUCE": "rgba(245,158,11,0.12)", "SELL": "rgba(239,68,68,0.12)", "EXIT": "rgba(239,68,68,0.12)"}
@@ -7449,7 +7141,6 @@ with tab_orch_rs_5d:
                 _align_badge = '<span style="background:rgba(239,68,68,0.15);color:#f87171;padding:2px 8px;border-radius:6px;font-weight:700;font-size:0.72rem;">⚠️ CONFLICT</span>'
             else:
                 _align_badge = '<span style="background:rgba(245,158,11,0.12);color:#fbbf24;padding:2px 8px;border-radius:6px;font-weight:700;font-size:0.72rem;">🔶 PARTIAL</span>'
-
             html.append(f"<tr style='border-bottom:1px solid rgba(255,255,255,0.03);'>")
             html.append(f"<td style='padding:10px; text-align:center; font-weight:600; color:#64748b;'>{idx+1}</td>")
             html.append(f"<td style='padding:10px; font-weight:700; color:#f1f5f9; font-family:\"Outfit\";'>{_universe_name_map_master.get(d['sym'], d['sym'])}</td>")
@@ -7473,7 +7164,6 @@ with tab_orch_rs_5d:
             html.append(f"<td style='padding:10px; text-align:center;'>{action_badge}</td>")
             html.append(f"<td style='padding:10px; text-align:center;'>{sig}</td>")
             html.append("</tr>")
-
             
         html.append("</tbody></table></div>")
         st.markdown("".join(html), unsafe_allow_html=True)
@@ -7510,13 +7200,11 @@ with tab_orch_rs_5d:
                     "ORCH_ACTION": _action_v,
                 })
             _ma_csv_df = pd.DataFrame(_ma_csv_rows)
-            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
             download_csv_button(_ma_csv_df, f"Master_Analyzer_Table_{selected_date}.csv",
                                 label="📥 Download Table as CSV", key="ma_csv_dl")
         
         # ── Charts ──
         st.markdown("### 📈 Visual Analysis")
-
         # ─────────────────────────────────────────────────────────────────────
         # BUG FIX 9: RS Distribution — sorted by RS value, top-25 by default
         # ─────────────────────────────────────────────────────────────────────
@@ -7556,10 +7244,7 @@ with tab_orch_rs_5d:
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.info("No RS data available.")
-
-        st.markdown("---")
-
-        # ── RS Line Chart (Selectable Stocks vs Nifty 500) ──
+        
         st.markdown("#### 📈 RS Lines — Selectable Stocks vs Nifty 500")
         try:
             _n500 = yf.download("^CRSLDX", period="6mo", progress=False, auto_adjust=True)
@@ -7568,7 +7253,6 @@ with tab_orch_rs_5d:
             else:
                 _n500_close = _n500["Close"].squeeze()
             _n500_close = _n500_close.dropna().tail(123)
-
             if len(_n500_close) >= 20:
                 _rs_available = [d["sym"] for d in unified_data[:50] if d.get("has_rs", False)]
                 if _rs_available:
@@ -7630,15 +7314,12 @@ with tab_orch_rs_5d:
                                 st.plotly_chart(fig_rs, use_container_width=True, config={"displayModeBar": False})
                             else:
                                 st.info("Could not compute RS lines for selected stocks.")
-                    else:
-                        st.info("Select at least one stock to display its RS line.")
                 else:
-                    st.info("No RS data available for chart.")
+                    st.info("Select at least one stock to display its RS line.")
             else:
                 st.info("Nifty 500 data unavailable (need ≥ 20 trading days).")
         except Exception as _e_rs:
             st.warning(f"RS Line chart: {_e_rs}")
-
         # ─────────────────────────────────────────────────────────────────────
         # RS Trend Analysis — MOVED HERE (directly below RS Distribution)
         # BUG FIX 3: guard ni < 123 to prevent index wrap-around crash
@@ -7716,12 +7397,477 @@ with tab_orch_rs_5d:
                             cur = rs_series[-1]
                             if cur <= 0.10: st.error(f"🚨 RS = {cur:.4f} — EXIT SIGNAL")
                             elif cur < 0.20: st.warning(f"⚠️ RS = {cur:.4f} — WATCH")
-                            else: st.success(f"✅ RS = {cur:.4f} — HOLD")
-                        else:
-                            st.info("Not enough overlapping data between stock and Nifty to compute RS trend.")
+                        else: st.success(f"✅ RS = {cur:.4f} — HOLD")
                     except Exception as e:
                         st.error(f"Error loading RS trend: {e}")
             else:
                 st.info("Select a stock to view its RS trend chart.")
 
 
+# ──────────────────────────────────────────────────────────────────────────────
+# TAB 8: GLOBAL ASSETS & THEMATIC SCREENING
+# ──────────────────────────────────────────────────────────────────────────────
+@st.cache_data(ttl=86400)
+def _load_excel_funds_mapping():
+    import pandas as pd
+    import os
+    from mf_fetcher import resolve_mf_code
+    excel_path = os.path.join("Core allocations", "global and inetrnational funds.xlsx")
+    if not os.path.exists(excel_path):
+        return {}
+    try:
+        df = pd.read_excel(excel_path)
+        mapping = {}
+        for _, row in df.iterrows():
+            name = str(row["Name"]).strip()
+            name_upper = name.upper()
+            
+            # Manual overrides
+            if "NASDAQ 100 FOF" in name_upper or "NASDAQ 100 FUND OF FUND" in name_upper:
+                mapping["145552"] = "Motilal Oswal Nasdaq 100 FoF"
+            elif "KOTAK NASDAQ 100" in name_upper:
+                mapping["148602"] = "Kotak Nasdaq 100 FoF"
+            elif "US SPECIFIC EQUITY PASSIVE FOF" in name_upper:
+                mapping["148662"] = "Kotak US Specific Equity Passive FoF"
+            elif "TAIWAN EQUITY" in name_upper:
+                mapping["149329"] = "Nippon India Taiwan Equity Fund"
+            elif "JAPAN EQUITY" in name_upper:
+                mapping["130860"] = "Nippon India Japan Equity Fund"
+            elif "US EQUITY OPP" in name_upper:
+                mapping["134923"] = "Nippon India US Equity Opportunities Fund"
+            elif "GLOBAL X ARTIFICIAL" in name_upper or "ARTIFICIAL INTELL" in name_upper:
+                mapping["150597"] = "Mirae Asset Global X AI & Tech ETF FoF"
+            elif "GLOBAL CONSUMER TRENDS" in name_upper:
+                mapping["148614"] = "Invesco India - Invesco Global Consumer Trends FoF"
+            elif "EQQQ NASDAQ" in name_upper or "EQQQ" in name_upper:
+                mapping["149236"] = "Invesco India - Invesco EQQQ NASDAQ 100 FoF"
+            elif "US TREASURY BOND 0-1 YEAR" in name_upper:
+                mapping["151838"] = "Bandhan US Treasury Bond 0-1 Year FoF"
+            elif "US TREASURY 3-10 YEAR" in name_upper:
+                mapping["151842"] = "Aditya Birla SL US Treasury 3-10 Year FoF"
+            elif "EUROPE DYNAMIC EQUITY" in name_upper:
+                mapping["140237"] = "Edelweiss Europe Dynamic Equity Offshore Fund"
+            else:
+                code = resolve_mf_code(name)
+                if code:
+                    mapping[str(code)] = name
+        return mapping
+    except Exception:
+        return {}
+
+with tab_global:
+    st.markdown('<div style="border-top:2px solid rgba(255,255,255,0.08);margin:24px 0 16px;"></div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div style="background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(16,185,129,0.08));
+                border:1px solid rgba(99,102,241,0.2); border-radius:14px;
+                padding:14px 20px; margin-bottom:16px;">
+      <div style="font-family:'Outfit';font-size:1.0rem;font-weight:700;color:#818cf8;">
+        🌐 Global Assets & Thematic Screening Lab
+      </div>
+      <div style="font-size:0.78rem;color:#94a3b8;margin-top:3px;">
+        Multi-window momentum ranking across 11 key international themes, commodities, and digital assets.
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    _render_research_links(compact=True)
+    
+    # Predefined assets with metadata (Name, Category, Theme)
+    predefined_assets = {
+        # Global ETFs listed on NSE
+        "MON100.NS": {"Name": "Motilal Oswal Nasdaq 100 ETF", "Cat": "Intl ETF", "Theme": "Broad Market US"},
+        "MAFANG.NS": {"Name": "Mirae Asset NYSE FANG+ ETF", "Cat": "Intl ETF", "Theme": "AI & Big Tech"},
+        "HNGSNGBEES.NS": {"Name": "Nippon India ETF Hang Seng BeES", "Cat": "Intl ETF", "Theme": "China & HK"},
+        "MAHKTECH.NS": {"Name": "Mirae Asset Hang Seng TECH ETF", "Cat": "Intl ETF", "Theme": "China & HK Tech"},
+        "MASPTOP50.NS": {"Name": "Mirae Asset S&P 500 Top 50 ETF", "Cat": "Intl ETF", "Theme": "Broad Market US"},
+        # Commodities
+        "GOLDBEES.NS": {"Name": "Gold BeES", "Cat": "Commodities", "Theme": "Precious Metals"},
+        "SILVERBEES.NS": {"Name": "Silver BeES", "Cat": "Commodities", "Theme": "Precious Metals"},
+        "HG=F": {"Name": "Copper Futures", "Cat": "Commodities", "Theme": "Industrial Metals"},
+        "ALI=F": {"Name": "Aluminum Futures", "Cat": "Commodities", "Theme": "Industrial Metals"},
+        "DBB": {"Name": "Invesco DB Base Metals (Zinc/Copper/Alu)", "Cat": "Commodities", "Theme": "Industrial Metals"},
+        # Cryptocurrency
+        "BTC-USD": {"Name": "Bitcoin USD", "Cat": "Crypto", "Theme": "Cryptocurrency"},
+        # US Thematic ETFs
+        "SMH": {"Name": "VanEck Semiconductor ETF", "Cat": "US Thematic ETF", "Theme": "Semiconductors"},
+        "SOXX": {"Name": "iShares Semiconductor ETF", "Cat": "US Thematic ETF", "Theme": "Semiconductors"},
+        "AIQ": {"Name": "Global X Artificial Intelligence & Tech", "Cat": "US Thematic ETF", "Theme": "AI & Robotics"},
+        "GRID": {"Name": "First Trust Clean Edge Smart Grid", "Cat": "US Thematic ETF", "Theme": "Power & Cooling"},
+        "SRVR": {"Name": "Pacer Benchmark Data Center Real Estate", "Cat": "US Thematic ETF", "Theme": "Data Centers"},
+        "XLU": {"Name": "Utilities Select Sector SPDR", "Cat": "US Thematic ETF", "Theme": "Power & Cooling"},
+        "BOTZ": {"Name": "Global X Robotics & Artificial Intelligence", "Cat": "US Thematic ETF", "Theme": "AI & Robotics"},
+        "ROBO": {"Name": "ROBO Global Robotics & Automation", "Cat": "US Thematic ETF", "Theme": "AI & Robotics"},
+        "OZEM": {"Name": "Roundhill GLP-1 & Weight Loss ETF", "Cat": "US Thematic ETF", "Theme": "Biotech & Healthcare"},
+        "XBI": {"Name": "SPDR S&P Biotech ETF", "Cat": "US Thematic ETF", "Theme": "Biotech & Healthcare"},
+        "IBB": {"Name": "iShares Biotechnology ETF", "Cat": "US Thematic ETF", "Theme": "Biotech & Healthcare"},
+        "ARKG": {"Name": "ARK Genomic Revolution ETF", "Cat": "US Thematic ETF", "Theme": "Biotech & Healthcare"},
+        "WGMI": {"Name": "Valkyrie Bitcoin Miners ETF", "Cat": "US Thematic ETF", "Theme": "Crypto Equities"},
+        "BLOK": {"Name": "Amplify Transformational Data Sharing", "Cat": "US Thematic ETF", "Theme": "Crypto Equities"},
+        "LIT": {"Name": "Global X Lithium & Battery Tech", "Cat": "US Thematic ETF", "Theme": "Critical Materials"},
+        "REMX": {"Name": "VanEck Rare Earth/Strategic Metals", "Cat": "US Thematic ETF", "Theme": "Critical Materials"},
+        "URA": {"Name": "Global X Uranium ETF", "Cat": "US Thematic ETF", "Theme": "Nuclear & Uranium"},
+        "BUG": {"Name": "Global X Cybersecurity ETF", "Cat": "US Thematic ETF", "Theme": "Cybersecurity"},
+        "CIBR": {"Name": "First Trust Nasdaq Cybersecurity ETF", "Cat": "US Thematic ETF", "Theme": "Cybersecurity"},
+        "ITA": {"Name": "iShares US Aerospace & Defense ETF", "Cat": "US Thematic ETF", "Theme": "Defense & Aerospace"},
+        "WCLD": {"Name": "WisdomTree Cloud Computing Fund", "Cat": "US Thematic ETF", "Theme": "Enterprise SaaS"},
+    }
+    
+    with st.spinner("Synchronizing global assets and Excel funds..."):
+        # Load Excel funds
+        excel_mapping = _load_excel_funds_mapping()
+        
+        # Combine all assets
+        all_assets = {}
+        for ticker, meta in predefined_assets.items():
+            all_assets[ticker] = meta
+            
+        for code, name in excel_mapping.items():
+            if code not in all_assets:
+                all_assets[code] = {"Name": name, "Cat": "Excel Mutual Fund", "Theme": "Global Allocation"}
+                
+        # Process data
+        processed_data = []
+        from cache_manager import get_historical_data
+        
+        for ticker, meta in all_assets.items():
+            try:
+                df = get_historical_data(ticker, days=365)
+                if df is not None and not df.empty and len(df) >= 20:
+                    df = df.sort_index()
+                    close_s = df["Close"].squeeze()
+                    if isinstance(close_s, pd.DataFrame):
+                        close_s = close_s.iloc[:, 0]
+                    curr_price = float(close_s.iloc[-1])
+                    
+                    # SMAs
+                    sma_50 = float(close_s.rolling(50, min_periods=10).mean().iloc[-1])
+                    sma_200 = float(close_s.rolling(200, min_periods=30).mean().iloc[-1])
+                    
+                    # Returns helper
+                    def compute_ret(periods):
+                        if len(close_s) > periods:
+                            p_start = float(close_s.iloc[-periods - 1])
+                            return (curr_price - p_start) / p_start * 100.0
+                        return 0.0
+                        
+                    ret_15d = compute_ret(10)
+                    ret_1m = compute_ret(21)
+                    ret_2m = compute_ret(42)
+                    ret_3m = compute_ret(63)
+                    ret_6m = compute_ret(126)
+                    ret_12m = compute_ret(252)
+                    
+                    # Volatility
+                    daily_ret = close_s.pct_change().dropna()
+                    vol_12m = float(daily_ret.std() * np.sqrt(252) * 100.0) if len(daily_ret) > 30 else 0.0
+                    vol_1m = float(daily_ret.tail(21).std() * np.sqrt(252) * 100.0) if len(daily_ret) > 5 else vol_12m
+                    
+                    # Score
+                    weighted_ret = (0.20 * (ret_15d / 100.0)) + (0.30 * (ret_1m / 100.0)) + (0.25 * (ret_2m / 100.0)) + (0.15 * (ret_3m / 100.0)) + (0.10 * (ret_6m / 100.0))
+                    max_risk = max(vol_12m, vol_1m)
+                    composite_score = (weighted_ret / max(0.1, max_risk / 100.0)) * 100.0
+                    
+                    # Stage
+                    if curr_price > sma_50 and sma_50 > sma_200:
+                        stage = "Stage 2 (Advancing)"
+                        stage_color = "#10b981"
+                    elif curr_price < sma_50 and sma_50 < sma_200:
+                        stage = "Stage 4 (Declining)"
+                        stage_color = "#ef4444"
+                    elif curr_price > sma_50 and sma_50 < sma_200:
+                        stage = "Stage 1 (Basing)"
+                        stage_color = "#3b82f6"
+                    else:
+                        stage = "Stage 3 (Topping)"
+                        stage_color = "#fbbf24"
+                        
+                    processed_data.append({
+                        "Symbol": ticker,
+                        "Name": meta["Name"],
+                        "Category": meta["Cat"],
+                        "Theme": meta["Theme"],
+                        "Price": curr_price,
+                        "1M%": ret_1m,
+                        "3M%": ret_3m,
+                        "6M%": ret_6m,
+                        "12M%": ret_12m,
+                        "Volatility%": vol_12m,
+                        "Score": composite_score,
+                        "Stage": stage,
+                        "StageColor": stage_color,
+                        "df": df
+                    })
+            except Exception as e_proc:
+                pass
+                
+        # Rank by Score descending
+        processed_data = sorted(processed_data, key=lambda x: x["Score"], reverse=True)
+        for i, item in enumerate(processed_data):
+            item["Rank"] = i + 1
+            
+    if processed_data:
+        df_display_all = pd.DataFrame(processed_data)
+        
+        # ── KPI Summary Cards ──
+        kc1, kc2, kc3, kc4 = st.columns(4)
+        with kc1:
+            top_momentum = processed_data[0]
+            st.markdown(f"""
+            <div class='kpi-card-v4'>
+              <div class='kpi-title-v4'>🔥 Top Momentum Asset</div>
+              <div class='kpi-value-v4' style='color:#a78bfa;'>{top_momentum['Symbol']}</div>
+              <div class='kpi-desc-v4'>{top_momentum['Name'][:28]}<br>Score: <b>{top_momentum['Score']:.1f}</b></div>
+            </div>
+            """, unsafe_allow_html=True)
+        with kc2:
+            btc_data = next((x for x in processed_data if x["Symbol"] == "BTC-USD"), None)
+            if btc_data:
+                st.markdown(f"""
+                <div class='kpi-card-v4'>
+                  <div class='kpi-title-v4'>🪙 Digital Reserve</div>
+                  <div class='kpi-value-v4' style='color:#f59e0b;'>BTC-USD</div>
+                  <div class='kpi-desc-v4'>Price: <b>${btc_data['Price']:,.0f}</b><br>Stage: <b style='color:{btc_data['StageColor']}'>{btc_data['Stage'].split()[0]}</b></div>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown("""<div class='kpi-card-v4'><div class='kpi-title-v4'>🪙 Digital Reserve</div><div class='kpi-value-v4'>N/A</div></div>""", unsafe_allow_html=True)
+        with kc3:
+            gold_data = next((x for x in processed_data if x["Symbol"] == "GOLDBEES.NS"), None)
+            if gold_data:
+                st.markdown(f"""
+                <div class='kpi-card-v4'>
+                  <div class='kpi-title-v4'>🟡 Precious Metals</div>
+                  <div class='kpi-value-v4' style='color:#fbbf24;'>Gold BeES</div>
+                  <div class='kpi-desc-v4'>Price: <b>₹{gold_data['Price']:.2f}</b><br>1M: <b style='color:#10b981;'>+{gold_data['1M%']:.1f}%</b></div>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                 st.markdown("""<div class='kpi-card-v4'><div class='kpi-title-v4'>🟡 Precious Metals</div><div class='kpi-value-v4'>N/A</div></div>""", unsafe_allow_html=True)
+        with kc4:
+            semis = [x for x in processed_data if x["Theme"] == "Semiconductors"]
+            if semis:
+                top_semi = semis[0]
+                st.markdown(f"""
+                <div class='kpi-card-v4'>
+                  <div class='kpi-title-v4'>⚡ Top Semiconductor</div>
+                  <div class='kpi-value-v4' style='color:#3b82f6;'>{top_semi['Symbol']}</div>
+                  <div class='kpi-desc-v4'>Score: <b>{top_semi['Score']:.1f}</b><br>3M: <b style='color:#10b981;'>+{top_semi['3M%']:.1f}%</b></div>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown("""<div class='kpi-card-v4'><div class='kpi-title-v4'>⚡ Top Semiconductor</div><div class='kpi-value-v4'>N/A</div></div>""", unsafe_allow_html=True)
+                
+        # ── Filters & Category Sub-tabs ──
+        sub_tab_names = [
+            "🏆 All Ranked Assets",
+            "📊 International ETFs (NSE)",
+            "🏛️ Indian Mutual Funds (Excel)",
+            "🇺🇸 US Thematic ETFs",
+            "🔩 Commodities & Crypto"
+        ]
+        stab_all, stab_etf, stab_mf, stab_us, stab_comm = st.tabs(sub_tab_names)
+        
+        def render_thematic_table(df_subset, key_suffix):
+            search_query = st.text_input("🔍 Filter by Name/Symbol/Theme...", key=f"global_search_{key_suffix}").upper()
+            if search_query:
+                df_subset = df_subset[
+                    df_subset["Symbol"].astype(str).str.upper().str.contains(search_query) |
+                    df_subset["Name"].astype(str).str.upper().str.contains(search_query) |
+                    df_subset["Theme"].astype(str).str.upper().str.contains(search_query)
+                ]
+            
+            if df_subset.empty:
+                st.info("No matching assets found.")
+                return
+                
+            # Render custom HTML table
+            html_rows = []
+            for _, r in df_subset.iterrows():
+                stage_badge = f"<span style='background:rgba(255,255,255,0.04);color:{r['StageColor']};border:1px solid {r['StageColor']}40;border-radius:6px;padding:2px 8px;font-size:0.72rem;font-weight:700;'>{r['Stage']}</span>"
+                
+                # Format returns with plus signs and green/red colors
+                def fmt_ret(val):
+                    c = "#10b981" if val >= 0 else "#ef4444"
+                    sign = "+" if val >= 0 else ""
+                    return f"<span style='color:{c};font-weight:600;'>{sign}{val:.1f}%</span>"
+                
+                score_color = "#10b981" if r["Score"] >= 50 else ("#fbbf24" if r["Score"] >= 20 else "#ef4444")
+                score_badge = f"<span style='color:{score_color};font-weight:700;'>{r['Score']:.1f}</span>"
+                
+                html_rows.append(
+                    f"<tr>"
+                    f"<td style='text-align:center;font-weight:700;color:#94a3b8;'>{r['Rank']}</td>"
+                    f"<td style='font-weight:700;color:#e2e8f0;'>{r['Symbol']}</td>"
+                    f"<td style='color:#94a3b8;font-size:0.76rem;'>{r['Name']}</td>"
+                    f"<td style='color:#a78bfa;font-size:0.73rem;font-weight:600;'>{r['Theme']}</td>"
+                    f"<td style='text-align:center;'>{stage_badge}</td>"
+                    f"<td style='text-align:right;font-weight:700;'>{score_badge}</td>"
+                    f"<td style='text-align:right;'>{fmt_ret(r['1M%'])}</td>"
+                    f"<td style='text-align:right;'>{fmt_ret(r['3M%'])}</td>"
+                    f"<td style='text-align:right;'>{fmt_ret(r['6M%'])}</td>"
+                    f"<td style='text-align:right;'>{fmt_ret(r['12M%'])}</td>"
+                    f"<td style='text-align:right;color:#cbd5e1;'>{r['Volatility%']:.1f}%</td>"
+                    f"</tr>"
+                )
+                
+            table_html = f"""
+            <div style='overflow-x:auto;'>
+              <table class='screening-table' style='width:100%;border-collapse:collapse;'>
+                <thead>
+                  <tr style='border-bottom:1px solid rgba(255,255,255,0.08);'>
+                    <th style='text-align:center;'>Rank</th>
+                    <th>Symbol</th>
+                    <th>Asset Name</th>
+                    <th>Theme</th>
+                    <th style='text-align:center;'>Trend Stage</th>
+                    <th style='text-align:right;'>Score</th>
+                    <th style='text-align:right;'>1M%</th>
+                    <th style='text-align:right;'>3M%</th>
+                    <th style='text-align:right;'>6M%</th>
+                    <th style='text-align:right;'>12M%</th>
+                    <th style='text-align:right;'>Vol 12M</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {"".join(html_rows)}
+                </tbody>
+              </table>
+            </div>
+            """
+            st.markdown(table_html, unsafe_allow_html=True)
+            
+        with stab_all:
+            st.markdown("#### 🏆 Top Global & Thematic Assets by Momentum Score")
+            render_thematic_table(df_display_all, "all")
+            
+        with stab_etf:
+            st.markdown("#### 📊 International ETFs Listed on NSE")
+            df_sub = df_display_all[df_display_all["Category"] == "Intl ETF"]
+            render_thematic_table(df_sub, "etf")
+            
+        with stab_mf:
+            st.markdown("#### 🏛️ Indian Mutual Funds (Resolved from Excel Sheet)")
+            df_sub = df_display_all[df_display_all["Category"] == "Excel Mutual Fund"]
+            render_thematic_table(df_sub, "mf")
+            
+        with stab_us:
+            st.markdown("#### 🇺🇸 US Thematic ETFs (AI, Power Infrastructure, Biotech, Robotics, SaaS)")
+            df_sub = df_display_all[df_display_all["Category"] == "US Thematic ETF"]
+            render_thematic_table(df_sub, "us")
+            
+        with stab_comm:
+            st.markdown("#### 🔩 Global Commodities (Gold, Silver, Base Metals) & Cryptocurrency")
+            df_sub = df_display_all[df_display_all["Category"].isin(["Commodities", "Crypto"])]
+            render_thematic_table(df_sub, "comm")
+            
+        # ── Comparative Performance Chart ──
+        st.markdown('<div style="margin:24px 0 16px;"></div>', unsafe_allow_html=True)
+        st.markdown("### 📊 Relative Performance & Strength Chart")
+        
+        c_col1, c_col2 = st.columns([2, 1])
+        with c_col1:
+            chart_tickers = st.multiselect(
+                "Select assets to plot",
+                options=df_display_all["Symbol"].tolist(),
+                default=df_display_all["Symbol"].tolist()[:5],
+                key="global_chart_select"
+            )
+        with c_col2:
+            chart_mode = st.selectbox(
+                "Chart Mode",
+                [
+                    "Price Performance (Smoothed 30d SMA)",
+                    "Relative Strength vs Nifty 50 (Smoothed 30d SMA)",
+                    "Relative Strength vs S&P 500 (Smoothed 30d SMA)"
+                ],
+                index=0,
+                key="global_chart_mode"
+            )
+        
+        if chart_tickers:
+            import plotly.graph_objects as go
+            fig_perf = go.Figure()
+            
+            # Load benchmark if needed
+            bench_series = None
+            if "Nifty 50" in chart_mode:
+                bench_df = get_historical_data("^NSEI", days=365)
+                if bench_df is not None and not bench_df.empty:
+                    bench_series = bench_df["Close"].squeeze()
+            elif "S&P 500" in chart_mode:
+                bench_df = get_historical_data("^GSPC", days=365)
+                if bench_df is not None and not bench_df.empty:
+                    bench_series = bench_df["Close"].squeeze()
+            
+            if bench_series is not None and isinstance(bench_series, pd.DataFrame):
+                bench_series = bench_series.iloc[:, 0]
+                
+            asset_series = {}
+            for t in chart_tickers:
+                row_asset = next((x for x in processed_data if x["Symbol"] == t), None)
+                if row_asset and row_asset["df"] is not None and not row_asset["df"].empty:
+                    close_c = row_asset["df"]["Close"].squeeze()
+                    if isinstance(close_c, pd.DataFrame):
+                        close_c = close_c.iloc[:, 0]
+                    
+                    if bench_series is not None:
+                        # Align dates with benchmark
+                        df_align = pd.DataFrame({"Asset": close_c, "Bench": bench_series}).dropna()
+                        if not df_align.empty:
+                            rs_ratio = df_align["Asset"] / df_align["Bench"]
+                            smoothed = rs_ratio.rolling(window=30, min_periods=5).mean()
+                            asset_series[t] = smoothed
+                    else:
+                        smoothed = close_c.rolling(window=30, min_periods=5).mean()
+                        asset_series[t] = smoothed
+            
+            if asset_series:
+                df_combined = pd.DataFrame(asset_series).dropna(how="all").sort_index()
+                # Find date where >= 75% of assets are available
+                min_available = max(1, int(0.75 * len(asset_series)))
+                non_null_counts = df_combined.notnull().sum(axis=1)
+                valid_dates = df_combined.index[non_null_counts >= min_available]
+                
+                if len(valid_dates) > 0:
+                    start_date = valid_dates[0]
+                    df_combined = df_combined.loc[start_date:]
+                
+                for t in chart_tickers:
+                    if t in df_combined.columns:
+                        series = df_combined[t].dropna()
+                        if not series.empty:
+                            # Rebase to 100 on the first available aligned date
+                            rebased = (series / float(series.iloc[0])) * 100.0
+                            
+                            # Get name
+                            row_asset = next((x for x in processed_data if x["Symbol"] == t), None)
+                            asset_name = row_asset["Name"] if row_asset else t
+                            if len(asset_name) > 30:
+                                asset_name = asset_name[:27] + "..."
+                            display_label = f"{t} ({asset_name})"
+                            
+                            fig_perf.add_trace(go.Scatter(
+                                x=series.index,
+                                y=rebased,
+                                mode="lines",
+                                name=display_label,
+                                line=dict(width=2)
+                             ))
+            
+            y_title = "Rebased RS (Inception = 100)" if bench_series is not None else "Rebased Price (Inception = 100)"
+            fig_perf.update_layout(
+                height=480,
+                template="plotly_dark",
+                xaxis=dict(gridcolor="rgba(255,255,255,0.04)"),
+                yaxis=dict(title=y_title, gridcolor="rgba(255,255,255,0.04)"),
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(15,23,42,0.4)",
+                legend=dict(font=dict(color="#94a3b8", size=9), orientation="h", y=1.12, x=0),
+                margin=dict(l=20, r=20, t=10, b=20),
+                hovermode="x unified"
+            )
+            st.plotly_chart(fig_perf, use_container_width=True)
+        else:
+            st.info("Select one or more assets to plot their performance comparison.")
+    else:
+        st.info("No global asset data successfully synchronized. Verify internet connection or yfinance cache.")

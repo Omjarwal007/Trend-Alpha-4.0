@@ -37,7 +37,11 @@ CHARTINK_URLS = [
     "https://chartink.com/screener/200dma-scan-6",
     "https://chartink.com/screener/52w-h-ath",
     "https://chartink.com/screener/the-techno-funda-leader-screener",
-    "https://chartink.com/screener/trend-alfa"
+    "https://chartink.com/screener/trend-alfa",
+    "https://chartink.com/screener/deep-u-shape-recovery",
+    "https://chartink.com/screener/reversal-deep-u-sahpe-2",
+    "https://chartink.com/screener/deep-reversal-scan",
+    "https://chartink.com/screener/lang-term-u-shape-recovery",
 ]
 
 # Sector Mapping
@@ -230,7 +234,7 @@ MA_SLOW_200 = 200
 MA_WEEKLY = 30                      # Weekly trend MA (30-week MA)
 
 # ── MARKET CAP CLASSIFICATION ─────────────────────────────────────────────
-MIN_MARKET_CAP_CR = 1000            # Minimum market cap (₹ Crores) to enter pipeline
+MIN_MARKET_CAP_CR = 2500            # Minimum market cap (₹ Crores) to enter pipeline
 
 # ── 11-STEP PIPELINE CONSTANTS ────────────────────────────────────────────
 MIN_ADTV_CR = 10.0                  # 30-day Average Daily Turnover must be >= ₹10 Crores (raised from 5 per Claude review — ensures clean exit execution)

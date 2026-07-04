@@ -20,7 +20,7 @@ from notifications import send_exit_notifications
 from analytics import compute_portfolio_analytics
 from pre_trade_check import run_pre_trade_checklist
 from health_monitor import check_and_report
-from screener_fetcher import fetch_chartink_universe
+from screener_fetcher import fetch_chartink_universe, fetch_screener_fundamentals, fetch_delivery_data, fetch_market_cap
 from layer_7_maac import run_maac_allocation
 from layer_3_smart_money import run_smart_money
 
@@ -684,7 +684,7 @@ def run_pipeline_sync(date_str=None):
             except Exception as e:
                 log_warning(f"Step trace save failed for {step_name}: {e}")
         
-        # Step 1: Fetch dynamic stock universe from the 11 Chartink screeners
+        # Step 1: Fetch dynamic stock universe from the 15 Chartink screeners
         chartink_universe = fetch_chartink_universe(date_str)
         
         # Fallback to the 29 base symbols if Chartink returns empty results
@@ -773,8 +773,12 @@ def run_pipeline_sync(date_str=None):
                 selection_df = selection_df.sort_values("Opportunity_Score", ascending=False).reset_index(drop=True)
                 selection_df["Final_Rank"] = range(1, len(selection_df) + 1)
 
-                # Refresh Entry_Eligible based on new rank (top 50)
-                selection_df["Entry_Eligible"] = selection_df["Final_Rank"] <= min(TOP_N_STOCKS, 50)
+                # Refresh Entry_Eligible based on new rank AND minimum score (≥30 kills zombies)
+                MIN_ENTRY_SCORE = 30.0
+                selection_df["Entry_Eligible"] = (
+                    (selection_df["Final_Rank"] <= min(TOP_N_STOCKS, 50)) &
+                    (selection_df.get("Factor_Score", selection_df.get("Weighted_Score", 0)) >= MIN_ENTRY_SCORE)
+                )
                 # Refresh Tier labels
                 def _vam_tier_fn(r):
                     if r <= 15: return "TIER 1 — HIGH CONVICTION"
@@ -893,21 +897,172 @@ def run_pipeline_sync(date_str=None):
             _cache_dir_s = os.path.join(BASE_DIR, "cache")
             _sel_dt_s = pd.to_datetime(date_str)
 
+            # Load Nifty 50 for RS LINE gate
+            _nifty50_hist = None
+            _n50_file = os.path.join(_cache_dir_s, "NIFTY_50_history.csv")
+            if os.path.exists(_n50_file):
+                _n50_df = pd.read_csv(_n50_file, parse_dates=["Date"]).dropna(subset=["Close"]).set_index("Date")["Close"]
+                _n50_df = _n50_df[_n50_df.index <= _sel_dt_s]
+                if len(_n50_df) >= 50:
+                    _nifty50_hist = _n50_df
+
             # VAM-B: scan entire raw Chartink universe, ignore quality gates, top 20 by vol-adjusted momentum
+            # BUT apply hard safety gates: velocity (parabolic) rejection + positive fundamentals
             vam_b_scores = {}
             vam_b_close_prices = {}
+            _vam_b_rejected = 0
             raw_universe = list(chartink_universe.keys()) if 'chartink_universe' in locals() else []
             for _sym_s in raw_universe:
                 _hfile = os.path.join(_cache_dir_s, f"{_sym_s}_history.csv")
-                if os.path.exists(_hfile):
-                    _hdf = pd.read_csv(_hfile, parse_dates=["Date"]).dropna(subset=["Close"]).set_index("Date")["Close"]
-                    _hdf = _hdf[_hdf.index <= _sel_dt_s].tail(63)
-                    if len(_hdf) >= 45:
-                        _ret63 = (_hdf.iloc[-1] / _hdf.iloc[0]) - 1.0
-                        _vol63 = _hdf.pct_change().std() * np.sqrt(252)
-                        if _vol63 > 0:
-                            vam_b_scores[_sym_s] = _ret63 / _vol63
-                            vam_b_close_prices[_sym_s] = _hdf  # Store for price lookup
+                if not os.path.exists(_hfile):
+                    continue
+                _hdf = pd.read_csv(_hfile, parse_dates=["Date"]).dropna(subset=["Close"]).set_index("Date")["Close"]
+                _hdf = _hdf[_hdf.index <= _sel_dt_s].tail(63)
+                if len(_hdf) < 45:
+                    continue
+
+                # ── VELOCITY REJECTION GATE (parabolic/vertical moves) ──
+                # Same logic as stock_selector.py: reject stocks that gained >150% in 63d
+                # OR have 21d acceleration > 2.5x the 63d trend (vertical spike).
+                _ret63 = (_hdf.iloc[-1] / _hdf.iloc[0]) - 1.0
+                _close_series_full = pd.read_csv(_hfile, parse_dates=["Date"]).dropna(subset=["Close"]).set_index("Date")["Close"]
+                _close_series_full = _close_series_full[_close_series_full.index <= _sel_dt_s]
+                _velocity_reject = False
+                if len(_close_series_full) >= 63:
+                    _roc_1m = (_close_series_full.iloc[-1] / _close_series_full.iloc[-21] - 1.0) * 100.0 if len(_close_series_full) >= 21 else 0.0
+                    _roc_3m = (_close_series_full.iloc[-1] / _close_series_full.iloc[-63] - 1.0) * 100.0
+                    if _roc_3m > 150.0:
+                        _velocity_reject = True
+                    elif _roc_1m > 40.0 and _roc_3m > 50.0:
+                        _steepness = _roc_1m / (_roc_3m / 3.0)
+                        if _steepness > 2.5:
+                            _velocity_reject = True
+                if _velocity_reject:
+                    _vam_b_rejected += 1
+                    continue
+
+                # ── 10-DAY VELOCITY CAP: reject >25% surge in 10 days ──
+                if len(_close_series_full) >= 10:
+                    _roc_10d = (float(_close_series_full.iloc[-1]) / float(_close_series_full.iloc[-10]) - 1.0) * 100.0
+                    if _roc_10d > 25.0:
+                        _vam_b_rejected += 1
+                        continue
+
+                # ── EXTENSION GATE: reject >30% above 50-SMA (rubber-band limit) ──
+                if len(_close_series_full) >= 50:
+                    _sma50 = _close_series_full.rolling(50).mean().iloc[-1]
+                    _ext_50 = (float(_close_series_full.iloc[-1]) / _sma50 - 1.0) * 100.0 if _sma50 > 0 else 0.0
+                    if _ext_50 > 30.0:
+                        _vam_b_rejected += 1
+                        continue
+
+                # ── SMA ORDERING GATE: 50 > 150 > 200, 200-SMA must be rising ──
+                if len(_close_series_full) >= 200:
+                    _sma50  = _close_series_full.rolling(50).mean().iloc[-1]
+                    _sma150 = _close_series_full.rolling(150).mean().iloc[-1]
+                    _sma200 = _close_series_full.rolling(200).mean().iloc[-1]
+                    _sma200_30d_ago = _close_series_full.rolling(200).mean().iloc[-30] if len(_close_series_full) >= 230 else _sma200
+                    if _sma50 <= _sma150 or _sma150 <= _sma200 or _sma200 <= _sma200_30d_ago:
+                        _vam_b_rejected += 1
+                        continue
+
+                # ── 52-WEEK HIGH PROXIMITY: must be within 20% of 52w high ──
+                if len(_close_series_full) >= 252:
+                    _high_52w = float(_close_series_full.tail(252).max())
+                    _pct_from_high = (float(_close_series_full.iloc[-1]) / _high_52w - 1.0) * 100.0
+                    if _pct_from_high < -20.0:
+                        _vam_b_rejected += 1
+                        continue
+
+                # ── ADX CEILING: reject ADX > 45 (exhausted trends) ──
+                # Compute ADX from full history. Skip if computation fails (lenient).
+                try:
+                    _full_df = pd.read_csv(_hfile, parse_dates=["Date"]).dropna(subset=["Close","High","Low"])
+                    _full_df = _full_df[_full_df["Date"] <= _sel_dt_s].set_index("Date")
+                    if len(_full_df) >= 20:
+                        # Simple ADX approximation: use TR and DM
+                        _tr = pd.DataFrame({
+                            "hl": _full_df["High"] - _full_df["Low"],
+                            "hc": abs(_full_df["High"] - _full_df["Close"].shift(1)),
+                            "lc": abs(_full_df["Low"] - _full_df["Close"].shift(1))
+                        }).max(axis=1)
+                        _up = _full_df["High"].diff()
+                        _dn = -_full_df["Low"].diff()
+                        _pdm = _up.where((_up > 0) & (_up > _dn), 0.0)
+                        _ndm = _dn.where((_dn > 0) & (_dn > _up), 0.0)
+                        _atr14 = _tr.rolling(14).mean()
+                        _pdi14 = (_pdm.rolling(14).mean() / _atr14 * 100.0).iloc[-1]
+                        _ndi14 = (_ndm.rolling(14).mean() / _atr14 * 100.0).iloc[-1]
+                        _dx = abs(_pdi14 - _ndi14) / (_pdi14 + _ndi14) * 100.0 if (_pdi14 + _ndi14) > 0 else 0.0
+                        # Approximate ADX as smoothed DX (simplified 14-period average)
+                        if _dx > 45.0:
+                            _vam_b_rejected += 1
+                            continue
+                except Exception:
+                    pass  # Missing OHLC data → PASS (lenient)
+
+                # ── POSITIVE QUALITY + FII/DII + GROWTH + DELIVERY GATES ──
+                # Load fundamentals once, apply all hard gates.
+                # Any gate failure → reject. Missing data → PASS (lenient).
+                try:
+                    _f_data = fetch_screener_fundamentals(_sym_s) or {}
+                except Exception:
+                    _f_data = {}
+
+                # 1. Positive quality: ROE, ROCE, CFO/PAT must all be > 0
+                _roe_q = float(_f_data.get("ROE_%", 0) or 0)
+                _roce_q = float(_f_data.get("ROCE_3Yr_Avg", _f_data.get("ROE_%", 0)) or 0)
+                _cfo_q = float(_f_data.get("CFO_PAT_3Yr_Avg", 0.5) or 0)
+                if _roe_q <= 0 or _roce_q <= 0 or _cfo_q <= 0:
+                    _vam_b_rejected += 1
+                    continue
+
+                # 1a. ROE Floor: reject <3% — near-zero profitability
+                if _roe_q < 3.0:
+                    _vam_b_rejected += 1
+                    continue
+
+                # 2. Growth gate: sales AND profit growth must be ≥ 10%
+                _sales_g = float(_f_data.get("Sales_Growth_%", 15.0) or 15.0)
+                _profit_g = float(_f_data.get("Profit_Growth_%", 15.0) or 15.0)
+                if _sales_g < 10.0 or _profit_g < 10.0:
+                    _vam_b_rejected += 1
+                    continue
+
+                # 3. FII/DII gate: total holding > 1%, net change > 0 (accumulating), no heavy selling
+                _fii_total = float(_f_data.get("Total_FII_DII_Holding_%", 0) or 0)
+                _fii_change = float(_f_data.get("FII_DII_Net_Change", 0) or 0)
+                if _fii_total <= 1.0 or _fii_change < -1.0 or (_fii_change <= 0.0 and _fii_total > 0):
+                    _vam_b_rejected += 1
+                    continue
+
+                # 4. Delivery gate: SMALL_CAP ≥ 40%, others ≥ 30%
+                try:
+                    _deliv_data = fetch_delivery_data(_sym_s)
+                    _deliv_pct = _deliv_data.get("delivery_pct", 45.0) if isinstance(_deliv_data, dict) else 45.0
+                except Exception:
+                    _deliv_pct = 45.0
+                # Determine cap category from mcap
+                _mcap_cr, _cap_cat = fetch_market_cap(_sym_s)
+                _deliv_min = 40.0 if _cap_cat == "SMALL_CAP" else 30.0
+                if _deliv_pct < _deliv_min:
+                    _vam_b_rejected += 1
+                    continue
+
+                # 5. RS LINE Gate: stock must outperform Nifty by 10%+ over 50 days
+                if _nifty50_hist is not None and len(_close_series_full) >= 50:
+                    _common_idx = _close_series_full.index.intersection(_nifty50_hist.index)
+                    if len(_common_idx) >= 50:
+                        _rs_ratio = _close_series_full.loc[_common_idx] / _nifty50_hist.loc[_common_idx]
+                        _rs_line = float((_rs_ratio.iloc[-1] - _rs_ratio.iloc[-50]) / _rs_ratio.iloc[-50])
+                        if _rs_line <= 0.05:
+                            _vam_b_rejected += 1
+                            continue
+
+                _vol63 = _hdf.pct_change().std() * np.sqrt(252)
+                if _vol63 > 0:
+                    vam_b_scores[_sym_s] = _ret63 / _vol63
+                    vam_b_close_prices[_sym_s] = _hdf  # Store for price lookup
 
             if vam_b_scores:
                 _top_b = sorted(vam_b_scores.items(), key=lambda x: -x[1])[:20] # Top 20
@@ -936,7 +1091,7 @@ def run_pipeline_sync(date_str=None):
                             "Stop_Loss": _c_close * 0.90, "Volatility": 25.0, "RS_Rating": 90.0, "Score": _vscore
                         })
 
-            log_info(f"Added {len(vam_b_scores)} VAM-B scores computed; top 20 injected into master portfolio.")
+            log_info(f"VAM-B: {len(vam_b_scores)} scored, {_vam_b_rejected} rejected (velocity/quality), top 20 injected into master portfolio.")
         except Exception as _ce:
             log_warning(f"Failed to inject VAM-B Allocations into portfolio_positions: {_ce}")
 
@@ -1543,11 +1698,11 @@ def run_pipeline_sync(date_str=None):
                     "-m",
                     "streamlit",
                     "run",
-                    "dashboard.py",
                     "--server.headless",
                     "true",
                     "--server.port",
                     "8501",
+                    "dashboard.py",
                 ],
                 cwd=script_dir,
                 close_fds=True,

@@ -557,7 +557,7 @@ def run_stock_selection(pipeline_data=None, sector_ranks=None, theme_ranks=None,
         sector = get_dynamic_sector(symbol)
         theme = get_dynamic_theme(symbol)
 
-        # ── 1. Market Capitalization Filter (>= ₹1,000 Crores) ──
+        # ── 1. Market Capitalization Filter (>= ₹2,500 Crores) ──
         # Evaluated early before loading heavy history to save resources
         mcap_cr, cap_category = fetch_market_cap(symbol)
         if mcap_cr < MIN_MARKET_CAP_CR:
@@ -592,6 +592,62 @@ def run_stock_selection(pipeline_data=None, sector_ranks=None, theme_ranks=None,
         # Compute Trend & Momentum parameters for potential override
         is_exceptional_bull = False
         closes_temp = hist_df["Close"]
+
+        # ═══════════════════════════════════════════════════════════════
+        # PHASE 2: EXTENSION & EXHAUSTION GATES (always applied)
+        # These run unconditionally — individual len checks guard each gate.
+        # ═══════════════════════════════════════════════════════════════
+
+        # ── 2a. Velocity Rejection Gate (63d/21d parabolic) ──
+        if len(closes_temp) >= 63:
+            roc_1m = (closes_temp.iloc[-1] - closes_temp.iloc[-21]) / closes_temp.iloc[-21] * 100.0
+            roc_3m = (closes_temp.iloc[-1] - closes_temp.iloc[-63]) / closes_temp.iloc[-63] * 100.0
+            _velocity_rejected = False
+            if roc_3m > 150.0:
+                _velocity_rejected = True
+                _velocity_reason = f"63d return {roc_3m:.0f}% > 150% parabolic cap"
+            elif roc_1m > 40.0 and roc_3m > 50.0:
+                _steepness = roc_1m / (roc_3m / 3.0)
+                if _steepness > 2.5:
+                    _velocity_rejected = True
+                    _velocity_reason = f"21d return {roc_1m:.0f}% >> 63d return {roc_3m:.0f}% (steepness {_steepness:.1f}x)"
+            if _velocity_rejected:
+                log_warning(f"REJECTED {symbol}: {_velocity_reason}")
+                rejected_records.append(make_rejected_record(
+                    symbol, close_price, close_price * volume_raw,
+                    f"Velocity Rejection: {_velocity_reason}",
+                    sector, theme, ",".join(screeners), mcap_cr, cap_category
+                ))
+                continue
+
+        # ── 2b. 10-Day Velocity Cap (>25% in 10d = parabolic spike) ──
+        if len(closes_temp) >= 10:
+            _roc_10d = (closes_temp.iloc[-1] / closes_temp.iloc[-10] - 1.0) * 100.0
+            if _roc_10d > 25.0:
+                _v10_reason = f"10-day return {_roc_10d:.0f}% > 25% — short-term parabolic spike"
+                log_warning(f"REJECTED {symbol}: {_v10_reason}")
+                rejected_records.append(make_rejected_record(
+                    symbol, close_price, close_price * volume_raw,
+                    f"10-Day Velocity Rejection: {_v10_reason}",
+                    sector, theme, ",".join(screeners), mcap_cr, cap_category
+                ))
+                continue
+
+        # ── 2c. Extension Gate (>30% above 50-SMA = overbought) ──
+        if len(closes_temp) >= 50:
+            _sma50 = closes_temp.rolling(50).mean().iloc[-1]
+            _ext_50 = (close_price / _sma50 - 1.0) * 100.0 if _sma50 > 0 else 0.0
+            if _ext_50 > 30.0:
+                _ext_reason = f"Extension {_ext_50:.0f}% above 50-SMA > 30% — overbought, pullback imminent"
+                log_warning(f"REJECTED {symbol}: {_ext_reason}")
+                rejected_records.append(make_rejected_record(
+                    symbol, close_price, close_price * volume_raw,
+                    f"Extension Rejection: {_ext_reason}",
+                    sector, theme, ",".join(screeners), mcap_cr, cap_category
+                ))
+                continue
+
+        # ── Exceptional Bull Detection (needs 15+ days of data) ──
         if len(closes_temp) >= 15:
             temp_close = float(closes_temp.iloc[-1])
             temp_ema_150 = closes_temp.ewm(span=150, adjust=False).mean().iloc[-1]
@@ -727,7 +783,62 @@ def run_stock_selection(pipeline_data=None, sector_ranks=None, theme_ranks=None,
         cfo_pat_3yr = f_data.get("CFO_PAT_3Yr_Avg", 0.80)
         debt_to_eq = f_data.get("Debt_to_Equity", 0.0) if f_data else 0.0
 
-        # ── 7. Trend Filter (Price > 200 EMA) ──
+        # ── 7. HARD GROWTH GATE (reject zero-growth or declining companies) ──
+        # Both sales AND profit must show positive growth. Single-digit growth with
+        # high momentum is a pump, not a sustainable trend. Missing data → PASS (lenient).
+        _sales_g = f_data.get("Sales_Growth_%", 15.0) or 15.0
+        _profit_g = f_data.get("Profit_Growth_%", 15.0) or 15.0
+        if _sales_g < 10.0 or _profit_g < 10.0:
+            _grow_reason = f"Growth too weak — Sales {_sales_g:.1f}%, Profit {_profit_g:.1f}% (min 10% required)"
+            log_warning(f"REJECTED {symbol}: {_grow_reason}")
+            rejected_records.append(
+                make_rejected_record(
+                    symbol, close_price, volume,
+                    _grow_reason,
+                    sector, theme, ",".join(screeners), mcap_cr, cap_category, is_ipo=is_ipo
+                )
+            )
+            continue
+
+        # ── 7a. ROE FLOOR GATE (reject razor-thin profitability) ──
+        # ROE < 3% means the business is barely covering cost of capital.
+        # This is a HARD gate — cannot be bypassed.
+        _roe_val = f_data.get("ROE_%", 15.0) or 15.0
+        if _roe_val < 3.0:
+            _roe_reason = f"ROE {_roe_val:.1f}% < 3% — near-zero profitability, not a quality allocation"
+            log_warning(f"REJECTED {symbol}: {_roe_reason}")
+            rejected_records.append(
+                make_rejected_record(
+                    symbol, close_price, volume,
+                    _roe_reason,
+                    sector, theme, ",".join(screeners), mcap_cr, cap_category, is_ipo=is_ipo
+                )
+            )
+            continue
+
+        # ── 7b. RS LINE GATE (Relative Strength vs Nifty must be > 0.05) ──
+        # The stock must be OUTPERFORMING the benchmark by at least 5% over 50 days.
+        # RS LINE > 0.10 → green zone | > 0.05 → yellow (entry floor)
+        # RS LINE ≤ 0.05 → REJECT (flat or underperforming Nifty)
+        _rs_line_val = 0.0
+        if nifty50_hist is not None and len(closes_temp) >= 50:
+            _common_idx = closes_temp.index.intersection(nifty50_hist.index)
+            if len(_common_idx) >= 50:
+                _rs_ratio = closes_temp.loc[_common_idx] / nifty50_hist.loc[_common_idx, "Close"]
+                _rs_line_val = float((_rs_ratio.iloc[-1] - _rs_ratio.iloc[-50]) / _rs_ratio.iloc[-50])
+        if _rs_line_val <= 0.05:
+            _rs_reason = f"RS LINE {_rs_line_val:.3f} ≤ 0.05 — not outperforming Nifty (min = 0.05)"
+            log_warning(f"REJECTED {symbol}: {_rs_reason}")
+            rejected_records.append(
+                make_rejected_record(
+                    symbol, close_price, volume,
+                    _rs_reason,
+                    sector, theme, ",".join(screeners), mcap_cr, cap_category, is_ipo=is_ipo
+                )
+            )
+            continue
+
+        # ── 8. Trend Filter (Price > 200 EMA) ──
         # NOTE: Not bypassable. Trend alignment is a core requirement.
         ema_200 = hist_df["Close"].ewm(span=200, adjust=False).mean().iloc[-1]
         if close_price <= ema_200:
@@ -741,14 +852,80 @@ def run_stock_selection(pipeline_data=None, sector_ranks=None, theme_ranks=None,
             )
             continue
 
-        # ── 8. Volatility & Trend Strength Filter (ADX-14 > 20, Annualized Volatility < 60%) ──
-        # NOTE: This is the ONLY gate that exceptional_bull can bypass.
-        # All quality gates (D/E, ROCE, CFO/PAT, Trend) are hard requirements.
+        # ── 8a. SMA ORDERING GATE (trend maturity check) ──
+        # A healthy Stage 2 uptrend requires SMA(50) > SMA(150) > SMA(200).
+        # If the 50-day average is below the 150-day, the trend is deteriorating.
+        # If the 200-day SMA is declining (today < 30 days ago), the long-term
+        # slope is negative — institutional whales are not accumulating.
+        if len(hist_df) >= 200:
+            _sma50  = hist_df["Close"].rolling(50).mean().iloc[-1]
+            _sma150 = hist_df["Close"].rolling(150).mean().iloc[-1]
+            _sma200 = hist_df["Close"].rolling(200).mean().iloc[-1]
+            _sma200_30d_ago = hist_df["Close"].rolling(200).mean().iloc[-30] if len(hist_df) >= 230 else _sma200
+
+            _sma_failures = []
+            if _sma50 <= _sma150:
+                _sma_failures.append(f"50-SMA (₹{_sma50:.1f}) ≤ 150-SMA (₹{_sma150:.1f})")
+            if _sma150 <= _sma200:
+                _sma_failures.append(f"150-SMA ≤ 200-SMA (₹{_sma200:.1f})")
+            if _sma200 <= _sma200_30d_ago:
+                _sma_failures.append(f"200-SMA declining (₹{_sma200:.1f} vs ₹{_sma200_30d_ago:.1f} 30d ago)")
+
+            if _sma_failures:
+                _sma_reason = "SMA ordering broken: " + " | ".join(_sma_failures)
+                log_warning(f"REJECTED {symbol}: {_sma_reason}")
+                rejected_records.append(
+                    make_rejected_record(
+                        symbol, close_price, volume,
+                        _sma_reason,
+                        sector, theme, ",".join(screeners), mcap_cr, cap_category, is_ipo=is_ipo
+                    )
+                )
+                continue
+
+        # ── 8b. 52-WEEK HIGH PROXIMITY GATE ──
+        # Stocks >20% below their 52-week high have trapped sellers overhead.
+        # We only want stocks breaking into fresh highs, not recovering from deep drawdowns.
+        if len(hist_df) >= 252:
+            _high_52w = float(hist_df["Close"].tail(252).max())
+            _pct_from_high = (close_price / _high_52w - 1.0) * 100.0
+            if _pct_from_high < -20.0:
+                _h52_reason = f"Price {abs(_pct_from_high):.0f}% below 52w high (₹{_high_52w:.1f}) — trapped sellers overhead"
+                log_warning(f"REJECTED {symbol}: {_h52_reason}")
+                rejected_records.append(
+                    make_rejected_record(
+                        symbol, close_price, volume,
+                        _h52_reason,
+                        sector, theme, ",".join(screeners), mcap_cr, cap_category, is_ipo=is_ipo
+                    )
+                )
+                continue
+
+        # ── 9. Volatility & Trend Strength Filter (ADX-14 > 20, Annualized Volatility < 60%) ──
+        # NOTE: Only gate that exceptional_bull can bypass, and ONLY for LARGE_CAP/MEGA_CAP.
         adx_series, plus_di_series, minus_di_series = calculate_adx(hist_df, 14)
         adx_val = adx_series.iloc[-1] if not adx_series.empty else 0.0
         plus_di_val = plus_di_series.iloc[-1] if not plus_di_series.empty else 0.0
         minus_di_val = minus_di_series.iloc[-1] if not minus_di_series.empty else 0.0
         adx_bullish = adx_val > MIN_ADX_14 and plus_di_val > minus_di_val
+
+        # ── 9a. ADX CEILING GATE (reject exhausted/frenzy trends) ──
+        # ADX > 45 signals a blow-off top or climax run — the move is exhausted.
+        # An ADX of 82 (like SETL) is mathematical exhaustion, not a healthy trend.
+        # This is a HARD gate — CANNOT be bypassed by exceptional_bull.
+        # 0-20: dead | 20-25: waking | 25-45: healthy trend | 45-50: stretched | 50+: EXHAUSTED
+        MAX_ADX_ENTRY = 45.0
+        if adx_val > MAX_ADX_ENTRY:
+            _adx_ceil_reason = f"ADX {adx_val:.1f} > {MAX_ADX_ENTRY:.0f} — trend exhausted, blow-off risk"
+            log_warning(f"REJECTED {symbol}: {_adx_ceil_reason}")
+            rejected_records.append(
+                make_rejected_record(
+                    symbol, close_price, volume,
+                    _adx_ceil_reason,
+                    sector, theme, ",".join(screeners), mcap_cr, cap_category, is_ipo=is_ipo
+                )
+            )
+            continue
 
         # Annualized Volatility
         daily_returns = hist_df["Close"].pct_change()
@@ -756,45 +933,66 @@ def run_stock_selection(pipeline_data=None, sector_ranks=None, theme_ranks=None,
         ann_vol = daily_returns.tail(vol_window).std() * np.sqrt(252) * 100.0
 
         if adx_val <= MIN_ADX_14 or ann_vol >= MAX_ANNUAL_VOL_PCT:
-            if is_exceptional_bull:
-                log_success(f"BYPASS ADX/VOL FILTER for {symbol}: Exceptional trend & momentum override. ADX={adx_val:.1f}, Vol={ann_vol:.1f}%")
+            # Exceptional bull bypass: ONLY for LARGE_CAP and MEGA_CAP.
+            # Small/mid-cap momentum spikes are often operator-driven, not institutional.
+            _can_bypass = is_exceptional_bull and cap_category in ("LARGE_CAP", "MEGA_CAP")
+            if _can_bypass:
+                log_success(f"BYPASS ADX/VOL FILTER for {symbol} ({cap_category}): Exceptional trend & momentum override. ADX={adx_val:.1f}, Vol={ann_vol:.1f}%")
             else:
-                log_warning(f"REJECTED {symbol}: Volatility {ann_vol:.1f}% >= 60% or ADX {adx_val:.1f} <= 20.")
+                _adx_reason = f"ADX {adx_val:.1f} <= 20 or Vol {ann_vol:.1f}% >= 60%"
+                if is_exceptional_bull and cap_category not in ("LARGE_CAP", "MEGA_CAP"):
+                    _adx_reason += f" — exceptional_bull denied for {cap_category}"
+                log_warning(f"REJECTED {symbol}: {_adx_reason}")
                 rejected_records.append(
                     make_rejected_record(
                         symbol, close_price, volume,
-                        f"ADX {adx_val:.1f} <= 20 or Vol {ann_vol:.1f}% >= 60%",
+                        _adx_reason,
                         sector, theme, ",".join(screeners), mcap_cr, cap_category, is_ipo=is_ipo
                     )
                 )
                 continue
 
-        # ── 9. Delivery Confirmation Gate (New — aligns with F6_DELIVERY_CONFIRMATION) ──
-        # Hard minimum: delivery% must be >= 30% to pass hard gate
-        # F6 in scoring has higher bar (40%), this is just the entry floor
+        # ── 10. Delivery Confirmation Gate (Tiered by Market Cap) ──
+        # SMALL_CAP (<5000 Cr): 40% delivery minimum — low delivery = operator-driven
+        # MID_CAP+: 30% delivery minimum — larger caps have natural liquidity
+        # F6 scoring still uses higher bar (40%), this is the HARD entry floor.
         delivery_data = fetch_delivery_data(symbol)
         delivery_pct = delivery_data.get("delivery_pct", 0.0) if isinstance(delivery_data, dict) else delivery_data
-        if delivery_pct is not None and delivery_pct < 30.0:
-            log_warning(f"REJECTED {symbol}: Delivery% {delivery_pct:.1f}% < 30%.")
+        _deliv_min = 40.0 if cap_category == "SMALL_CAP" else 30.0
+        if delivery_pct is not None and delivery_pct < _deliv_min:
+            log_warning(f"REJECTED {symbol}: Delivery% {delivery_pct:.1f}% < {_deliv_min:.0f}% ({cap_category}).")
             rejected_records.append(
                 make_rejected_record(
                     symbol, close_price, volume,
-                    f"Delivery% {delivery_pct:.1f}% < 30%",
+                    f"Delivery% {delivery_pct:.1f}% < {_deliv_min:.0f}% ({cap_category})",
                     sector, theme, ",".join(screeners), mcap_cr, cap_category, is_ipo=is_ipo
                 )
             )
             continue
 
-        # ── 10. FII/DII Activity Gate ──
+        # ── 11. FII/DII Activity Gate ──
+        # HARD REQUIREMENTS (tightened Jul 3):
+        #   1. Total FII+DII holding must be > 1% — institutions must have skin in the game
+        #   2. Net change must be > 0% — institutions must be ACCUMULATING, not just not-selling
+        #   3. Net change < -1% → REJECT (heavy distribution)
+        # Missing fundamental data → PASS (lenient — don't reject on missing data)
         fii_change = f_data.get("FII_DII_Net_Change", 0.0)
         fii_total = f_data.get("Total_FII_DII_Holding_%", 0.0)
         
-        if fii_change < -1.0:
-            log_warning(f"REJECTED {symbol}: FII/DII heavily selling (Change: {fii_change:.2f}%)")
+        _fii_reject_reason = None
+        if fii_total is not None and fii_total <= 1.0 and fii_total >= 0.0:
+            _fii_reject_reason = f"FII+DII total holding {fii_total:.1f}% ≤ 1% — no institutional skin in the game"
+        elif fii_change < -1.0:
+            _fii_reject_reason = f"FII/DII heavily selling (Change: {fii_change:.2f}%)"
+        elif fii_change is not None and fii_change <= 0.0 and fii_total is not None and fii_total > 0:
+            _fii_reject_reason = f"FII/DII not accumulating (Change: {fii_change:.2f}%, Holding: {fii_total:.1f}%)"
+        
+        if _fii_reject_reason:
+            log_warning(f"REJECTED {symbol}: {_fii_reject_reason}")
             rejected_records.append(
                 make_rejected_record(
                     symbol, close_price, volume,
-                    f"FII/DII heavily selling (Change: {fii_change:.2f}%)",
+                    _fii_reject_reason,
                     sector, theme, ",".join(screeners), mcap_cr, cap_category, is_ipo=is_ipo
                 )
             )
@@ -1146,7 +1344,9 @@ def run_stock_selection(pipeline_data=None, sector_ranks=None, theme_ranks=None,
             weighted_score = row_dict.get("Weighted_Score", 0.0)
 
             # Top N stocks are Entry_Eligible; rest are watchlist only
-            eligible = rank_pos <= TOP_N_STOCKS
+            # ALSO require minimum weighted score ≥ 30 — kills zombies with Score=0/ADX=0
+            MIN_ENTRY_SCORE = 30.0
+            eligible = rank_pos <= TOP_N_STOCKS and weighted_score >= MIN_ENTRY_SCORE
 
             # Tier by rank position (not factor count)
             if rank_pos <= 15:
